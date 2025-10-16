@@ -15,7 +15,7 @@ class PengembalianController extends Controller
 	{
 		$data = [
 			'title' => "Pengembalian",
-			'pengembalian' => Pengembalian::paginate(5)
+			'pengembalian' => Pengembalian::orderBy('created_at', 'desc')->paginate(5)
 		];
 		return view('admin.pengembalian.index', $data);
 	}
@@ -38,6 +38,7 @@ class PengembalianController extends Controller
 	{
 		$search = $request->search;
 		$pengembalian = Pengembalian::where('kode_pengembalian', 'like', "%" . $search . "%")
+			->orderBy('created_at', 'desc')
 			->paginate(10)
 			->appends(['search' => $search]);
 

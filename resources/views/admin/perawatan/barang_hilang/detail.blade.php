@@ -71,7 +71,7 @@
             @else
               <i class="fa-solid fa-circle-xmark text-sm text-red-600"></i>
               <span class="leading-tight font-bold text-red-600">Status :</span>
-              <span class="text-red-600">Habis</span>
+              <span class="text-red-600">Hilang</span>
             @endif
 
           </li>

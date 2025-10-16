@@ -5,23 +5,23 @@
     <div id="controls-carousel" class="relative w-full md:w-1/2 translate-x-0 sm:translate-x-6 py-4" data-carousel="slide">
       <div class="relative overflow-hidden rounded-lg h-56 opacity-50">
         <div class="hidden duration-700 ease-in-out" data-carousel-item>
-          <img src="https://flowbite.com/docs/images/carousel/carousel-1.svg"
+          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80"
             class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
         </div>
         <div class="hidden duration-700 ease-in-out" data-carousel-item="active">
-          <img src="https://flowbite.com/docs/images/carousel/carousel-1.svg"
+          <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80"
             class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
         </div>
         <div class="hidden duration-700 ease-in-out" data-carousel-item>
-          <img src="https://flowbite.com/docs/images/carousel/carousel-1.svg"
+          <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=900&q=80"
             class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
         </div>
         <div class="hidden duration-700 ease-in-out" data-carousel-item>
-          <img src="https://flowbite.com/docs/images/carousel/carousel-1.svg"
+          <img src="https://images.unsplash.com/photo-1487014679447-9f8336841d58?auto=format&fit=crop&w=900&q=80"
             class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
         </div>
         <div class="hidden duration-700 ease-in-out" data-carousel-item>
-          <img src="https://flowbite.com/docs/images/carousel/carousel-1.svg"
+          <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=900&q=80"
             class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
         </div>
       </div>

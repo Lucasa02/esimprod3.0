@@ -13,16 +13,33 @@ class PeminjamanController extends Controller
 	/**
 	 * Display a listing of the resource.
 	 */
-	public function index()
-	{
-		$data = [
-			'title' => 'Peminjaman',
-			'peminjaman' => Peminjaman::paginate(5),
-			'catatan' => Catatan::get('id', 'isi_catatan'),
-		];
+	public function index(Request $request)
+{
+    $bulan = $request->input('bulan');
+    $tahun = $request->input('tahun');
 
-		return view('admin.peminjaman.index', $data);
-	}
+    $query = Peminjaman::orderBy('tanggal_peminjaman', 'desc');
+
+    if ($bulan && $tahun) {
+        // Filter berdasarkan bulan dan tahun
+        $query->whereMonth('tanggal_peminjaman', $bulan)
+              ->whereYear('tanggal_peminjaman', $tahun);
+    } elseif ($tahun) {
+        // Filter hanya berdasarkan tahun
+        $query->whereYear('tanggal_peminjaman', $tahun);
+    }
+
+    $data = [
+        'title' => 'Peminjaman',
+        'peminjaman' => $query->paginate(5),
+        'catatan' => Catatan::get(['id', 'isi_catatan']),
+        'bulan' => $bulan,
+        'tahun' => $tahun,
+    ];
+
+    return view('admin.peminjaman.index', $data);
+}
+
 
 	/**
 	 * Display the specified resource.
@@ -41,6 +58,7 @@ class PeminjamanController extends Controller
 	{
 		$search = $request->search;
 		$peminjaman = Peminjaman::where('kode_peminjaman', 'like', "%" . $search . "%")
+			->orderBy('tanggal_peminjaman', 'desc')
 			->paginate(10)
 			->appends(['search' => $search]);
 
@@ -66,6 +84,30 @@ class PeminjamanController extends Controller
 			'catatan' => Catatan::get()
 		])->setPaper('A4', 'landscape');
 		return $pdf->stream('Peminjaman-' . $peminjaman->kode_peminjaman . '-' . time() . '.pdf');
+	}
+
+	public function laporanBulanan(Request $request)
+	{
+		$bulan = $request->bulan;
+		$tahun = $request->tahun;
+
+		// Ambil data peminjaman sesuai bulan & tahun
+		$peminjamanBulanan = Peminjaman::whereMonth('tanggal_peminjaman', $bulan)
+			->whereYear('tanggal_peminjaman', $tahun)
+			->with('detailPeminjaman.barang', 'peruntukan')
+			->get();
+
+		// Ambil catatan (jika ada)
+		$catatan = Catatan::whereMonth('created_at', $bulan)
+			->whereYear('created_at', $tahun)
+			->get();
+
+		return view('admin.peminjaman.laporan-bulanan', [
+			'peminjamanBulanan' => $peminjamanBulanan,
+			'catatan' => $catatan,
+			'bulan' => $bulan,
+			'tahun' => $tahun,
+		]);
 	}
 
 	public function editCatatan($id)

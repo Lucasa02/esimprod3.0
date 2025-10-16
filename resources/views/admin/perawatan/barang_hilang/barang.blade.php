@@ -31,7 +31,7 @@
               @if ($b->status == 'tidak-tersedia')
                 <span
                   class="bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
-                  Habis
+                  Hilang
                 </span>
               @else
                 <span

@@ -18,10 +18,18 @@
       </a>
     @endforeach
 
+    <a href="{{ route('peminjaman.laporan.bulanan', ['bulan' => request('bulan', date('m')), 'tahun' => request('tahun', date('Y'))]) }}"
+      class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
+      Laporan Bulanan
+    </a>
   </div>
 
-  <div class="flex flex-col md:flex-row items-center lg:space-x-3 space-y-3 md:space-y-0 w-full p-3 mr-6 ml-3">
-    <form class="flex items-center w-80 justify-center" action="{{ route('peminjaman.search') }}" method="GET">
+  <!-- FORM SEARCH & FILTER SEJAJAR -->
+  <div
+    class="flex flex-col md:flex-row justify-between items-center w-full p-3 ml-3 mr-3 bg-gray-50 border rounded-lg mb-3 flex-wrap gap-3">
+
+    <!-- Form Search -->
+    <form class="flex items-center w-80" action="{{ route('peminjaman.search') }}" method="GET">
       <div class="w-full relative flex">
         <input type="text" id="search" autocomplete="off"
           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -33,8 +41,49 @@
         </svg>
       </div>
     </form>
-  </div>
 
+    <!-- Form Filter -->
+    <form action="{{ route('peminjaman.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
+      <div>
+        <label for="bulan" class="text-sm font-medium text-gray-700">Bulan</label>
+        <select name="bulan" id="bulan"
+          class="border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+          <option value="">Semua</option>
+          @foreach (range(1, 12) as $b)
+            <option value="{{ $b }}" {{ request('bulan') == $b ? 'selected' : '' }}>
+              {{ DateTime::createFromFormat('!m', $b)->format('F') }}
+            </option>
+          @endforeach
+        </select>
+      </div>
+
+      <div>
+        <label for="tahun" class="text-sm font-medium text-gray-700">Tahun</label>
+        <select name="tahun" id="tahun"
+          class="border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+          <option value="">Semua</option>
+          @foreach (range(date('Y'), date('Y') - 5) as $t)
+            <option value="{{ $t }}" {{ request('tahun') == $t ? 'selected' : '' }}>
+              {{ $t }}
+            </option>
+          @endforeach
+        </select>
+      </div>
+
+      <button type="submit"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5">
+        Filter
+      </button>
+
+      @if (request('bulan') || request('tahun'))
+        <a href="{{ route('peminjaman.index') }}"
+          class="text-white bg-gray-600 hover:bg-gray-700 rounded-lg text-sm px-4 py-2.5">
+          Reset
+        </a>
+      @endif
+    </form>
+  </div>
+  <!-- END FORM SEARCH & FILTER -->
 
   @if ($peminjaman->isEmpty())
     <x-empty-data></x-empty-data>
@@ -57,7 +106,8 @@
           </thead>
           <tbody>
             @foreach ($peminjaman as $row)
-              <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+              <tr
+                class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                 <th scope="row"
                   class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white text-center">
                   {{ $peminjaman->firstItem() + $loop->index }}
@@ -65,7 +115,6 @@
                 <td class="px-6 py-4 text-center font-medium">{{ $row->kode_peminjaman }}</td>
                 <td class="px-6 py-4 text-center font-medium">{{ $row->nomor_peminjaman }}</td>
                 <td class="px-6 py-4 text-center">{{ $row->nomor_surat }}</td>
-
                 <td class="px-6 py-4 text-center">{{ $row->peruntukan->peruntukan }}</td>
                 <td class="px-6 py-4 text-center">{{ date('d F Y', strtotime($row->tanggal_peminjaman)) }}</td>
                 <td class="px-6 py-4 text-center">
@@ -86,11 +135,10 @@
                     </span>
                   @endif
                 </td>
-                <td class="px-6 py-4 text-center"><a href="{{ route('peminjaman.print', $row->uuid) }}" target="_blank"
-                    class="text-white bg-blue-700 hover:bg-blue-500 font-medium rounded-lg text-sm px-2 py-1">Lihat
-                  </a>
+                <td class="px-6 py-4 text-center">
+                  <a href="{{ route('peminjaman.print', $row->uuid) }}" target="_blank"
+                    class="text-white bg-blue-700 hover:bg-blue-500 font-medium rounded-lg text-sm px-2 py-1">Lihat</a>
                 </td>
-
                 <td class="px-6 py-4 text-center">
                   <a href="{{ route('peminjaman.show', $row->uuid) }}"
                     class="text-white bg-yellow-300 hover:bg-yellow-500 font-medium rounded-lg text-sm px-2 py-1">Detail</a>
@@ -106,8 +154,4 @@
   <div class="p-3 ml-3">
     {{ $peminjaman->links() }}
   </div>
-
-
-
-
 @endsection

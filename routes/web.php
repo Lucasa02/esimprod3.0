@@ -135,6 +135,8 @@ Route::middleware(['auth'])->group(function () {
 				Route::get('/detail/{uuid}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 				Route::get('/result', [PeminjamanController::class, 'search'])->name('peminjaman.search');
 				Route::get('pdf/{uuid}', [PeminjamanController::class, 'print'])->name('peminjaman.print');
+				Route::get('laporan-bulanan', [PeminjamanController::class, 'laporanBulanan'])->name('peminjaman.laporan.bulanan');
+				Route::get('/peminjaman/laporan-bulanan', [PeminjamanController::class, 'laporanBulanan'])->name('peminjaman.laporan-bulanan');
 				Route::get('catatan/{id}', [PeminjamanController::class, 'editCatatan'])->name('peminjaman.catatan');
 				Route::patch('catatan/update/{id}', [PeminjamanController::class, 'updateCatatan'])->name('peminjaman.catatan.update');
 			});

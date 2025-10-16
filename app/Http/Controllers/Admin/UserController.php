@@ -31,7 +31,9 @@ class UserController extends Controller
 
 		$data = [
 			'title' => 'User',
-			'user' => $query->where('id', '!=', $currentUser->id)->paginate(10),
+			'user' => $query->where('id', '!=', $currentUser->id)
+			->orderBy('nama_lengkap', 'asc')
+			->paginate(10),
 			// 'user' => User::paginate(10)
 		];
 
@@ -85,7 +87,6 @@ class UserController extends Controller
 		$qrCode = QrCode::format('png')->size(200)->generate($kode_user);
 		$qrCodeFilename = time() . '_qr.png';
 		Storage::disk('public')->put('uploads/qr_codes_user/' . $qrCodeFilename, $qrCode);
-
 
 		$password = in_array($request->role, ['admin', 'superadmin'])
 			? Hash::make($request->password)
@@ -217,14 +218,15 @@ class UserController extends Controller
 		$jabatan = Jabatan::get(['id', 'jabatan']);
 
 		if ($role) {
-			$user = User::where('role', $role)->where('id', '!=', $currentUser->id)->paginate(5);
+			$user = User::where('role', $role)
+			->where('id', '!=', $currentUser->id)
+			->orderBy('nama_lengkap', 'asc')
+			->paginate(5);
 		} else {
-			$user = User::paginate(5);
+			$user = User::orderBy('nama_lengkap', 'asc')->paginate(5);
 		}
 
 		$user = $user->appends(['role' => $role]);
-
-
 		return view('admin.user.index', compact('user', 'title', 'role', 'jabatan'));
 	}
 
@@ -235,13 +237,15 @@ class UserController extends Controller
 		$jabatanId = $request->id;
 
 		if ($jabatanId) {
-			$user = User::where('jabatan_id', $jabatanId)->where('id', '!=', $currentUser->id)->paginate(5);
+			$user = User::where('jabatan_id', $jabatanId)
+			->where('id', '!=', $currentUser->id)
+			->orderBy('nama_lengkap', 'asc')
+			->paginate(5);
 		} else {
-			$user = User::paginate(5);
+			$user = User::orderBy('nama_lengkap', 'asc')->paginate(5);
 		}
 
 		$jabatan = Jabatan::get(['id', 'jabatan']);
-
 		$user->appends(['id' => $jabatanId]);
 
 		return view('admin.user.index', compact('title', 'user', 'jabatan'));
@@ -255,6 +259,7 @@ class UserController extends Controller
 
 		$user = User::where('nama_lengkap', 'like', '%' . $search . '%')
 			->where('id', '!=', $currentUser->id)
+			->orderBy('nama_lengkap', 'asc')
 			->paginate(5)
 			->appends(['search' => $search]);
 

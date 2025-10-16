@@ -94,7 +94,7 @@
       </td>
       <td style="width: 50%; text-align: right;">
         <img src="{{ public_path('img/assets/esimprod_logo.png') }}" alt="Esimprod" width="100" />
-        <div>Version 2.0</div>
+        <div>Version 3.0</div>
       </td>
     </tr>
   </table>
