@@ -16,7 +16,7 @@ use App\Http\Controllers\Admin\JenisBarangController;
 use App\Http\Controllers\Admin\PengembalianController;
 use App\Http\Controllers\User\PeminjamanController as PeminjamanUser;
 use App\Http\Controllers\User\PengembalianController as PengembalianUser;
-
+use App\Http\Controllers\Admin\BmnController;
 
 Route::prefix('/')->group(function () {
 	Route::get('/', [AuthController::class, 'index'])->name('login');
@@ -57,12 +57,17 @@ Route::middleware(['auth'])->group(function () {
 				Route::post('import', [BarangController::class, 'import'])->name('barang.import');
 			});
 
+	
+
 			Route::middleware('role:superadmin')->group(function () {
 				Route::get('/edit/{uuid}', [BarangController::class, 'edit'])->name('barang.edit');
 				Route::put('/update/{uuid}', [BarangController::class, 'update'])->name('barang.update');
 				Route::delete('/destroy/{uuid}', [BarangController::class, 'destroy'])->name('barang.destroy');
 			});
+
+			
 		});
+
 
 
 		Route::middleware('role:superadmin,admin')->group(function () {
@@ -157,6 +162,23 @@ Route::middleware(['auth'])->group(function () {
 				Route::put('/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
 				Route::put('/perawatan/barang-hilang/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
 			});
+
+			// ========================
+// ROUTE DATA BMN
+// ========================
+Route::prefix('admin/bmn')->middleware(['auth', 'verified.password', 'role:superadmin,admin'])->group(function () {
+    Route::get('/mcr', [BmnController::class, 'index'])->name('bmn.mcr.index')->defaults('ruangan', 'mcr');
+    Route::get('/studio', [BmnController::class, 'index'])->name('bmn.studio.index')->defaults('ruangan', 'studio');
+    Route::get('/peralatan', [BmnController::class, 'index'])->name('bmn.peralatan.index')->defaults('ruangan', 'peralatan');
+
+    Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
+    Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
+    Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
+    Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
+    Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
+	Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
+
+});
 		});
 	});
 
@@ -186,5 +208,13 @@ Route::middleware(['auth'])->group(function () {
 			Route::post('/update_desc', [PengembalianUser::class, 'desc_update'])->name('user.pengembalian.update_desc');
 			route::get('/pdf', [PengembalianUser::class, 'printReport'])->name('user.pengembalian.pdf');
 		});
+
+
+
+
+
+
+
+
 	});
 });

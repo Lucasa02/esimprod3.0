@@ -52,6 +52,57 @@
         </ul>
       </li>
 
+      {{-- Dropdown Sidebar - Data BMN --}}
+<li>
+  <button type="button"
+    class="flex items-center w-full p-2 text-white rounded-lg transition-all duration-200 dark:text-white 
+          hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700"
+    aria-controls="dropdown-bmn" data-collapse-toggle="dropdown-bmn">
+    <i class="fa-solid fa-box-archive text-lg me-2"></i>
+    <span class="flex-1 text-left rtl:text-right whitespace-nowrap font-medium">Data Inventaris</span>
+    <svg class="w-3 h-3 ms-auto transition-transform duration-300 group-hover:rotate-180" aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="m1 1 4 4 4-4" />
+    </svg>
+  </button>
+
+  <ul id="dropdown-bmn" class="hidden flex-col gap-1 py-2 ps-2 border-l border-gray-700/40 mt-1">
+
+    {{-- MCR --}}
+    <li>
+      <a href="{{ route('bmn.mcr.index') }}"
+        class="flex items-center gap-2 px-3 py-2 text-sm text-gray-200 rounded-md transition-all duration-200 
+              hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700">
+        <i class="fa-solid fa-network-wired text-xs opacity-70"></i>
+        <span>MCR</span>
+      </a>
+    </li>
+
+    {{-- Studio --}}
+    <li>
+      <a href="{{ route('bmn.studio.index') }}"
+        class="flex items-center gap-2 px-3 py-2 text-sm text-gray-200 rounded-md transition-all duration-200 
+              hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700">
+        <i class="fa-solid fa-video text-xs opacity-70"></i>
+        <span>Studio</span>
+      </a>
+    </li>
+
+    {{-- Peralatan Lain --}}
+    <li>
+      <a href="{{ route('bmn.peralatan.index') }}"
+        class="flex items-center gap-2 px-3 py-2 text-sm text-gray-200 rounded-md transition-all duration-200 
+              hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700">
+        <i class="fa-solid fa-toolbox text-xs opacity-70"></i>
+        <span>Peralatan Lain</span>
+      </a>
+    </li>
+
+  </ul>
+</li>
+
+
       <div class="flex items-center my-2">
         <small class="mx-2 text-white opacity-65">BARANG</small>
         <hr class="h-px flex-grow bg-gray-200 border-0 opacity-20">
