@@ -8,6 +8,15 @@
       Kembali
     </a>
 
+    <script>
+      function toggleFilterOptions() {
+        const tipe = document.getElementById('tipe_filter').value;
+        document.getElementById('bulanTahunFields').classList.toggle('hidden', tipe !== 'bulan');
+        document.getElementById('tanggalFields').classList.toggle('hidden', tipe !== 'tanggal');
+      }
+      document.addEventListener('DOMContentLoaded', toggleFilterOptions);
+    </script>
+
     <div class="container mx-auto py-8">
 
       {{-- HEADER --}}
@@ -18,7 +27,14 @@
             <p class="text-gray-600">
               Periode:
               <span class="font-semibold text-black">
-                {{ \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F Y') }}
+                @if (request('tipe_filter') == 'tanggal' && request('tanggal_awal') && request('tanggal_akhir'))
+                  {{ \Carbon\Carbon::parse(request('tanggal_awal'))->translatedFormat('d F Y') }} -
+                  {{ \Carbon\Carbon::parse(request('tanggal_akhir'))->translatedFormat('d F Y') }}
+                @elseif(request('tipe_filter') == 'bulan' && request('bulan') && request('tahun'))
+                  {{ \Carbon\Carbon::createFromDate(request('tahun'), request('bulan'), 1)->translatedFormat('F Y') }}
+                @else
+                  Semua Periode
+                @endif
               </span>
             </p>
           </div>
@@ -40,9 +56,16 @@
             <p class="text-gray-700 mb-2"><span class="font-bold">Tanggal Cetak:</span>
               {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
             </p>
-            
-            {{-- BUTTON PDF DILETAKKAN DI SINI --}}
-            <a href="{{ route('peminjaman.laporan-bulanan.pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}"
+
+            {{-- BUTTON PDF --}}
+            <a href="{{ route('peminjaman.laporan-bulanan.pdf', [
+                'tipe_filter' => request('tipe_filter'),
+                'bulan' => request('bulan'),
+                'tahun' => request('tahun'),
+                'tanggal_awal' => request('tanggal_awal'),
+                'tanggal_akhir' => request('tanggal_akhir'),
+                'peruntukan' => request('peruntukan')
+            ]) }}"
               class="inline-flex items-center mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg shadow">
               <i class="fa-solid fa-file-pdf mr-2"></i> Download PDF
             </a>
@@ -52,7 +75,81 @@
 
       {{-- TABEL PEMINJAMAN --}}
       <div class="bg-white shadow rounded-lg p-6 mb-6">
-        <h3 class="text-lg font-bold text-black mb-4">Daftar Peminjaman Bulanan</h3>
+
+        {{-- HEADER & FILTER DALAM SATU BARIS --}}
+        <div class="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-4">
+          <h3 class="text-lg font-bold text-black">Daftar Peminjaman</h3>
+
+          <form action="{{ route('peminjaman.laporan.bulanan') }}" method="GET"
+            class="flex flex-wrap items-end gap-2">
+
+            {{-- FILTER --}}
+            <div>
+              <label for="tipe_filter" class="text-xs font-medium text-gray-700 block">Filter</label>
+              <select name="tipe_filter" id="tipe_filter" onchange="toggleFilterOptions()"
+                class="border border-gray-300 text-gray-900 text-xs rounded-lg p-1.5">
+                <option value="">Semua</option>
+                <option value="bulan" {{ request('tipe_filter') == 'bulan' ? 'selected' : '' }}>Bulan</option>
+                <option value="tanggal" {{ request('tipe_filter') == 'tanggal' ? 'selected' : '' }}>Tanggal</option>
+              </select>
+            </div>
+
+            {{-- BULAN & TAHUN --}}
+            <div id="bulanTahunFields"
+              class="flex items-center gap-2 {{ request('tipe_filter') == 'bulan' ? '' : 'hidden' }}">
+              <select name="bulan" id="bulan" class="border border-gray-300 text-gray-900 text-xs rounded-lg p-1.5">
+                <option value="">Bulan</option>
+                @foreach (range(1, 12) as $b)
+                  <option value="{{ $b }}" {{ request('bulan') == $b ? 'selected' : '' }}>
+                    {{ DateTime::createFromFormat('!m', $b)->format('F') }}
+                  </option>
+                @endforeach
+              </select>
+              <select name="tahun" id="tahun" class="border border-gray-300 text-gray-900 text-xs rounded-lg p-1.5">
+                @foreach (range(date('Y'), date('Y') - 5) as $t)
+                  <option value="{{ $t }}" {{ request('tahun') == $t ? 'selected' : '' }}>
+                    {{ $t }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+
+            {{-- RENTANG TANGGAL --}}
+            <div id="tanggalFields"
+              class="flex items-center gap-2 {{ request('tipe_filter') == 'tanggal' ? '' : 'hidden' }}">
+              <input type="date" name="tanggal_awal" id="tanggal_awal" value="{{ request('tanggal_awal') }}"
+                class="border border-gray-300 text-gray-900 text-xs rounded-lg p-1.5">
+              <input type="date" name="tanggal_akhir" id="tanggal_akhir" value="{{ request('tanggal_akhir') }}"
+                class="border border-gray-300 text-gray-900 text-xs rounded-lg p-1.5">
+            </div>
+
+            {{-- PERUNTUKAN --}}
+            <div>
+              <label for="peruntukan" class="text-xs font-medium text-gray-700 block">Peruntukan</label>
+              <select name="peruntukan" id="peruntukan"
+                class="border border-gray-300 text-gray-900 text-xs rounded-lg p-1.5">
+                <option value="">Semua</option>
+                @foreach ($daftarPeruntukan as $p)
+                  <option value="{{ $p->id }}" {{ request('peruntukan') == $p->id ? 'selected' : '' }}>
+                    {{ $p->peruntukan }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+
+            {{-- BUTTON --}}
+            <div class="flex items-center gap-2">
+              <button type="submit"
+                class="text-white bg-blue-700 hover:bg-blue-800 rounded-lg text-xs px-3 py-2">Tampilkan</button>
+              @if (request()->anyFilled(['bulan', 'tahun', 'tanggal_awal', 'tanggal_akhir', 'peruntukan']))
+                <a href="{{ route('peminjaman.laporan.bulanan') }}"
+                  class="text-white bg-gray-600 hover:bg-gray-700 rounded-lg text-xs px-3 py-2">Reset</a>
+              @endif
+            </div>
+          </form>
+        </div>
+
+        {{-- TABEL --}}
         <div class="relative overflow-x-auto">
           <table class="w-full text-sm text-left text-gray-700">
             <thead class="text-xs text-black uppercase bg-gray-100">
@@ -68,7 +165,7 @@
             </thead>
             <tbody>
               @php $no = 1; @endphp
-              @foreach ($peminjamanBulanan as $p)
+              @forelse ($peminjamanBulanan as $p)
                 <tr class="bg-white border-b">
                   <td class="px-6 py-4 font-medium text-gray-900">{{ $no++ }}</td>
                   <td class="px-6 py-4">{{ $p->nomor_peminjaman }}</td>
@@ -78,21 +175,24 @@
                   <td class="px-6 py-4">{{ $p->detailPeminjaman->count() }}</td>
                   <td class="px-6 py-4">
                     @if ($p->status === 'Proses')
-                      <span class="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
+                      <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">
                         <i class="fa-solid fa-spinner mr-1"></i>Proses
                       </span>
                     @else
-                      <span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
+                      <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
                         <i class="fa-solid fa-circle-check mr-1"></i>Selesai
                       </span>
                     @endif
                   </td>
                 </tr>
-              @endforeach
+              @empty
+                <tr>
+                  <td colspan="7" class="text-center py-4 text-gray-500">Tidak ada data peminjaman untuk periode ini.</td>
+                </tr>
+              @endforelse
             </tbody>
           </table>
         </div>
-      </div>
       </div>
     </div>
   </div>

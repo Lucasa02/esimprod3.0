@@ -7,6 +7,8 @@ use App\Models\Peminjaman;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
+use App\Models\Peruntukan;
+use Carbon\Carbon;
 
 class PeminjamanController extends Controller
 {
@@ -87,59 +89,87 @@ class PeminjamanController extends Controller
 	}
 
 	public function laporanBulanan(Request $request)
-	{
-		$bulan = $request->bulan;
-		$tahun = $request->tahun;
+{
+    $tipe_filter = $request->tipe_filter;
+    $bulan = $request->bulan;
+    $tahun = $request->tahun;
+    $tanggal_awal = $request->tanggal_awal;
+    $tanggal_akhir = $request->tanggal_akhir;
+    $peruntukan = $request->peruntukan;
 
-		// Ambil data peminjaman sesuai bulan & tahun
-		$peminjamanBulanan = Peminjaman::whereMonth('tanggal_peminjaman', $bulan)
-			->whereYear('tanggal_peminjaman', $tahun)
-			->with('detailPeminjaman.barang', 'peruntukan')
-			->get();
+    $query = Peminjaman::with('detailPeminjaman.barang', 'peruntukan');
 
-		// Ambil catatan (jika ada)
-		$catatan = Catatan::whereMonth('created_at', $bulan)
-			->whereYear('created_at', $tahun)
-			->get();
+    if ($tipe_filter === 'bulan' && $bulan && $tahun) {
+        $query->whereMonth('tanggal_peminjaman', $bulan)
+              ->whereYear('tanggal_peminjaman', $tahun);
+    }
 
-		return view('admin.peminjaman.laporan-bulanan', [
-			'peminjamanBulanan' => $peminjamanBulanan,
-			'catatan' => $catatan,
-			'bulan' => $bulan,
-			'tahun' => $tahun,
-		]);
-	}
+    if ($tipe_filter === 'tanggal' && $tanggal_awal && $tanggal_akhir) {
+        $query->whereBetween('tanggal_peminjaman', [$tanggal_awal, $tanggal_akhir]);
+    }
 
-	public function exportLaporanBulanan(Request $request)
+    if ($peruntukan) {
+        $query->where('peruntukan_id', $peruntukan);
+    }
+
+    $peminjamanBulanan = $query->orderBy('tanggal_peminjaman', 'desc')->get();
+
+    return view('admin.peminjaman.laporan-bulanan', [
+        'peminjamanBulanan' => $peminjamanBulanan,
+        'tipe_filter' => $tipe_filter,
+        'bulan' => $bulan,
+        'tahun' => $tahun,
+        'tanggal_awal' => $tanggal_awal,
+        'tanggal_akhir' => $tanggal_akhir,
+        'peruntukan' => $peruntukan,
+        'daftarPeruntukan' => Peruntukan::all(),
+    ]);
+}
+
+public function exportLaporanBulanan(Request $request)
 {
     $bulan = $request->bulan;
     $tahun = $request->tahun;
+    $tanggal_awal = $request->tanggal_awal;
+    $tanggal_akhir = $request->tanggal_akhir;
+    $peruntukan = $request->peruntukan;
 
-    // Ambil data peminjaman sesuai bulan & tahun
-    $peminjamanBulanan = Peminjaman::whereMonth('tanggal_peminjaman', $bulan)
-        ->whereYear('tanggal_peminjaman', $tahun)
-        ->with('detailPeminjaman.barang', 'peruntukan')
-        ->get();
+    $query = Peminjaman::with('detailPeminjaman.barang.jenisBarang', 'peruntukan');
 
-    // Ambil catatan
-    $catatan = Catatan::whereMonth('created_at', $bulan)
-        ->whereYear('created_at', $tahun)
-        ->get();
+    if ($bulan && $tahun) {
+        $query->whereMonth('tanggal_peminjaman', $bulan)
+              ->whereYear('tanggal_peminjaman', $tahun);
+    }
 
-    // Nama file export
-    $periode = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F Y');
-    $fileName = 'Laporan-Peminjaman-' . str_replace(' ', '-', $periode) . '.pdf';
+    if ($tanggal_awal && $tanggal_akhir) {
+        $query->whereBetween('tanggal_peminjaman', [$tanggal_awal, $tanggal_akhir]);
+    }
 
-    // Buat PDF
+    if ($peruntukan) {
+        $query->where('peruntukan_id', $peruntukan);
+    }
+
+    $peminjamanBulanan = $query->orderBy('tanggal_peminjaman', 'desc')->get();
+
+    $periode = 'Semua Periode';
+    if ($bulan && $tahun) {
+        $periode = Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F Y');
+    } elseif ($tanggal_awal && $tanggal_akhir) {
+        $periode = 'Periode ' . Carbon::parse($tanggal_awal)->translatedFormat('d F Y') .
+                   ' - ' . Carbon::parse($tanggal_akhir)->translatedFormat('d F Y');
+    }
+
     $pdf = Pdf::loadView('admin.peminjaman.pdf-laporan-bulanan', [
         'peminjamanBulanan' => $peminjamanBulanan,
-        'catatan' => $catatan,
+        'periode' => $periode,
         'bulan' => $bulan,
         'tahun' => $tahun,
-        'periode' => $periode
-    ])->setPaper('A4', 'portrait');
+        'tanggal_awal' => $tanggal_awal,
+        'tanggal_akhir' => $tanggal_akhir,
+        'peruntukan' => $peruntukan,
+    ])->setPaper('A4', 'landscape');
 
-    return $pdf->download($fileName);
+    return $pdf->download('Laporan-Peminjaman-' . str_replace(' ', '-', $periode) . '.pdf');
 }
 
 
