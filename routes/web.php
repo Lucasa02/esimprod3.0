@@ -136,6 +136,7 @@ Route::middleware(['auth'])->group(function () {
 				Route::get('/result', [PeminjamanController::class, 'search'])->name('peminjaman.search');
 				Route::get('pdf/{uuid}', [PeminjamanController::class, 'print'])->name('peminjaman.print');
 				Route::get('laporan-bulanan', [PeminjamanController::class, 'laporanBulanan'])->name('peminjaman.laporan.bulanan');
+				Route::get('/laporan-bulanan/pdf', [PeminjamanController::class, 'exportLaporanBulanan'])->name('peminjaman.laporan-bulanan.pdf');
 				Route::get('/peminjaman/laporan-bulanan', [PeminjamanController::class, 'laporanBulanan'])->name('peminjaman.laporan-bulanan');
 				Route::get('catatan/{id}', [PeminjamanController::class, 'editCatatan'])->name('peminjaman.catatan');
 				Route::patch('catatan/update/{id}', [PeminjamanController::class, 'updateCatatan'])->name('peminjaman.catatan.update');
@@ -154,6 +155,7 @@ Route::middleware(['auth'])->group(function () {
 				Route::get('/barang-hilang/{uuid}', [PerawatanController::class, 'detailBarangHilang'])->name('perawatan.barang.hilang.detail');
 				Route::put('/reset-limit/{uuid}', [PerawatanController::class, 'resetLimit'])->name('perawatan.reset-limit');
 				Route::put('/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
+				Route::put('/perawatan/barang-hilang/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
 			});
 		});
 	});

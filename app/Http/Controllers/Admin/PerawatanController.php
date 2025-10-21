@@ -75,16 +75,27 @@ class PerawatanController extends Controller
 	}
 
 	public function ubahStatus(string $uuid)
-	{
-		$barang = Barang::where('uuid', $uuid)->first();
-		if ($barang) {
+{
+    $barang = Barang::where('uuid', $uuid)->first();
 
-			$barang->update([
-				'sisa_limit' => 0
-			]);
+    if ($barang) {
+        // Jika barang statusnya "tidak tersedia" (hilang)
+        if ($barang->status == 'tidak-tersedia') {
+            $barang->update([
+                'sisa_limit' => $barang->limit, // reset ke limit penuh
+                'status' => 'tersedia' // ubah status jadi tersedia
+            ]);
 
-			notify()->success('Status diubah menjadi Tersedia');
-			return redirect()->route('perawatan.barang.hilang.index');
-		}
-	}
+            notify()->success('Barang berhasil direset menjadi tersedia kembali');
+        } else {
+            notify()->warning('Barang ini sudah tersedia');
+        }
+
+        return redirect()->route('perawatan.barang.hilang.index');
+    } else {
+        notify()->error('Barang tidak ditemukan');
+        return redirect()->back();
+    }
+}
+
 }

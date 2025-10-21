@@ -110,6 +110,39 @@ class PeminjamanController extends Controller
 		]);
 	}
 
+	public function exportLaporanBulanan(Request $request)
+{
+    $bulan = $request->bulan;
+    $tahun = $request->tahun;
+
+    // Ambil data peminjaman sesuai bulan & tahun
+    $peminjamanBulanan = Peminjaman::whereMonth('tanggal_peminjaman', $bulan)
+        ->whereYear('tanggal_peminjaman', $tahun)
+        ->with('detailPeminjaman.barang', 'peruntukan')
+        ->get();
+
+    // Ambil catatan
+    $catatan = Catatan::whereMonth('created_at', $bulan)
+        ->whereYear('created_at', $tahun)
+        ->get();
+
+    // Nama file export
+    $periode = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F Y');
+    $fileName = 'Laporan-Peminjaman-' . str_replace(' ', '-', $periode) . '.pdf';
+
+    // Buat PDF
+    $pdf = Pdf::loadView('admin.peminjaman.pdf-laporan-bulanan', [
+        'peminjamanBulanan' => $peminjamanBulanan,
+        'catatan' => $catatan,
+        'bulan' => $bulan,
+        'tahun' => $tahun,
+        'periode' => $periode
+    ])->setPaper('A4', 'portrait');
+
+    return $pdf->download($fileName);
+}
+
+
 	public function editCatatan($id)
 	{
 		$data = [

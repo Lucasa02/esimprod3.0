@@ -28,7 +28,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           <div>
             <p class="text-gray-700 mb-2"><span class="font-bold">Dibuat oleh:</span> {{ Auth::user()->name }}</p>
             <p class="text-gray-700 mb-2"><span class="font-bold">NIP:</span> {{ Auth::user()->nip }}</p>
@@ -40,6 +40,12 @@
             <p class="text-gray-700 mb-2"><span class="font-bold">Tanggal Cetak:</span>
               {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
             </p>
+            
+            {{-- BUTTON PDF DILETAKKAN DI SINI --}}
+            <a href="{{ route('peminjaman.laporan-bulanan.pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}"
+              class="inline-flex items-center mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg shadow">
+              <i class="fa-solid fa-file-pdf mr-2"></i> Download PDF
+            </a>
           </div>
         </div>
       </div>
@@ -87,15 +93,6 @@
           </table>
         </div>
       </div>
-
-      {{-- CATATAN --}}
-      <div class="bg-white shadow rounded-lg p-6">
-        <h3 class="text-lg font-bold text-black mb-4">Catatan Bulanan</h3>
-        <div class="text-gray-700 text-sm leading-relaxed">
-          @foreach ($catatan as $c)
-            <div class="mb-3 border-b border-gray-200 pb-2">{!! $c->isi_catatan !!}</div>
-          @endforeach
-        </div>
       </div>
     </div>
   </div>
