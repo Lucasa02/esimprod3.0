@@ -1,42 +1,169 @@
 @extends('layouts.admin.main')
 
 @section('content')
-<div class="p-5">
-  <h1 class="text-xl font-semibold text-white mb-4">Tambah Barang - {{ strtoupper($ruangan) }}</h1>
+<div class="-m-1.5 overflow-x-auto ml-5 mr-3">
+  <div class="p-1.5 min-w-full inline-block align-middle">
+    <div class="border rounded-lg shadow overflow-hidden dark:border-neutral-700">
+      <div class="container mx-auto p-4">
 
-  <form action="{{ route('bmn.store', $ruangan) }}" method="POST" class="bg-gray-800 p-5 rounded-lg shadow-md">
-    @csrf
-    <div class="grid gap-4">
-      <div>
-        <label class="text-gray-200">Nama Barang</label>
-        <input type="text" name="nama_barang" class="w-full rounded p-2 bg-gray-700 text-white" required>
-      </div>
-      <div>
-        <label class="text-gray-200">Kode Barang</label>
-        <input type="text" name="kode_barang" class="w-full rounded p-2 bg-gray-700 text-white" required>
-      </div>
-      <div>
-        <label class="text-gray-200">Kategori</label>
-        <input type="text" name="kategori" class="w-full rounded p-2 bg-gray-700 text-white" required>
-      </div>
-      <div>
-        <label class="text-gray-200">Jumlah</label>
-        <input type="number" name="jumlah" class="w-full rounded p-2 bg-gray-700 text-white" min="1" required>
-      </div>
-      <div>
-        <label class="text-gray-200">Kondisi</label>
-        <select name="kondisi" class="w-full rounded p-2 bg-gray-700 text-white" required>
-          <option>Baik</option>
-          <option>Rusak Ringan</option>
-          <option>Rusak Berat</option>
-        </select>
+        <h1 class="text-xl font-semibold text-white mb-4">Tambah Barang - {{ strtoupper($ruangan) }}</h1>
+
+        <form action="{{ route('bmn.store', $ruangan) }}" method="POST" enctype="multipart/form-data">
+          @csrf
+
+          <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4">
+            {{-- Kolom kiri --}}
+            <div class="flex flex-col space-y-4">
+              {{-- Nama Barang --}}
+              <div>
+                <label class="block text-sm font-bold text-black">Nama Barang</label>
+                <input type="text" name="nama_barang" autocomplete="off"
+                  class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                  value="{{ old('nama_barang') }}" required>
+                @error('nama_barang')
+                  <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                @enderror
+              </div>
+
+              {{-- Kode Barang --}}
+              <div>
+                <label class="block text-sm font-bold text-black">Kode Barang</label>
+                <input type="text" name="kode_barang" autocomplete="off"
+                  class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                  value="{{ old('kode_barang') }}" required>
+                @error('kode_barang')
+                  <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                @enderror
+              </div>
+
+              {{-- Kategori --}}
+              <div>
+                <label class="block text-sm font-bold text-black">Kategori</label>
+                <input type="text" name="kategori" autocomplete="off"
+                  class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                  value="{{ old('kategori') }}" required>
+                @error('kategori')
+                  <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                @enderror
+              </div>
+
+              {{-- Merk (opsional) --}}
+              <div>
+                <label class="block text-sm font-bold text-black">Merk (opsional)</label>
+                <input type="text" name="merk" autocomplete="off"
+                  class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                  value="{{ old('merk') }}">
+                @error('merk')
+                  <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                @enderror
+              </div>
+
+              {{-- Nomor Seri (opsional) --}}
+              <div>
+                <label class="block text-sm font-bold text-black">Nomor Seri (opsional)</label>
+                <input type="text" name="nomor_seri" autocomplete="off"
+                  class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                  value="{{ old('nomor_seri') }}">
+                @error('nomor_seri')
+                  <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                @enderror
+              </div>
+
+              {{-- Jumlah --}}
+              <div>
+                <label class="block text-sm font-bold text-black">Jumlah</label>
+                <input type="number" name="jumlah" min="1" autocomplete="off"
+                  class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                  value="{{ old('jumlah') }}" required>
+                @error('jumlah')
+                  <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                @enderror
+              </div>
+
+              {{-- Persentase Kondisi --}}
+              <div>
+                <label class="block text-sm font-bold text-black">Persentase Kondisi (%)</label>
+                <input type="number" name="persentase_kondisi" min="0" max="100" autocomplete="off"
+                  class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                  value="{{ old('persentase_kondisi') }}" required>
+                @error('persentase_kondisi')
+                  <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                @enderror
+                <small class="text-gray-400">* Nilai ini akan otomatis menentukan kondisi barang.</small>
+              </div>
+
+              {{-- Tahun Pengadaan --}}
+              <div>
+                <label class="block text-sm font-bold text-black">Tahun Pengadaan</label>
+                <input type="number" name="tahun_pengadaan" min="1900" max="{{ date('Y') }}" autocomplete="off"
+                  class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                  value="{{ old('tahun_pengadaan') }}">
+                @error('tahun_pengadaan')
+                  <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                @enderror
+              </div>
+
+              {{-- Catatan / Keterangan --}}
+              <div>
+                <label class="block text-sm font-bold text-black">Catatan</label>
+                <textarea name="catatan"
+                  class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                  rows="3">{{ old('catatan') }}</textarea>
+                @error('catatan')
+                  <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                @enderror
+              </div>
+            </div>
+
+            {{-- Kolom kanan --}}
+            <div class="flex flex-col space-y-4">
+              {{-- Upload Foto --}}
+              <div>
+                <label class="block text-sm font-bold text-black">Upload Foto Barang</label>
+                <div class="mb-2">
+                  <img id="photoPreview"
+                    src="https://via.placeholder.com/150"
+                    alt="Photo Preview" class="w-28 h-28 object-cover rounded-lg shadow-md border border-gray-300">
+                </div>
+                <input type="file" name="foto" id="foto" accept="image/*"
+                  class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none">
+                @error('foto')
+                  <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                @enderror
+              </div>
+            </div>
+          </div>
+
+          {{-- Tombol Aksi --}}
+          <div class="mt-4 flex gap-2">
+            <a href="{{ route('bmn.index', $ruangan) }}"
+              class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+              Kembali
+            </a>
+            <button type="submit"
+              class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center">
+              Simpan Barang
+            </button>
+          </div>
+
+        </form>
       </div>
     </div>
-
-    <div class="mt-4 flex gap-2">
-      <button type="submit" class="bg-green-600 px-4 py-2 rounded-lg hover:opacity-90 text-white">Simpan</button>
-      <a href="{{ route('bmn.index', $ruangan) }}" class="bg-gray-500 px-4 py-2 rounded-lg hover:opacity-90 text-white">Kembali</a>
-    </div>
-  </form>
+  </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.getElementById('foto').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('photoPreview').src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+</script>
 @endsection

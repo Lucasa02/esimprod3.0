@@ -9,15 +9,20 @@ class BmnBarang extends Model
 {
     use HasFactory;
 
-    protected $table = 'bmn_barang';
+    protected $table = 'bmn_barangs';
 
     protected $fillable = [
         'nama_barang',
         'kode_barang',
         'kategori',
-        'ruangan',
+        'merk',              // baru, opsional
+        'nomor_seri',        // baru, opsional
         'jumlah',
+        'persentase_kondisi',
         'kondisi',
-        'keterangan'
+        'foto',
+        'ruangan',
+        'tahun_pengadaan',
+        'catatan',
     ];
 }
