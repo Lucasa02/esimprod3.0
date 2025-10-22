@@ -25,6 +25,8 @@
                   ['label'=>'Jumlah','name'=>'jumlah','type'=>'number','required'=>true,'min'=>1],
                   ['label'=>'Persentase Kondisi (%)','name'=>'persentase_kondisi','type'=>'number','required'=>true,'min'=>0,'max'=>100],
                   ['label'=>'Tahun Pengadaan','name'=>'tahun_pengadaan','type'=>'number','required'=>false,'min'=>1900,'max'=>date('Y')],
+                  ['label'=>'Asal Pengadaan','name'=>'asal_pengadaan','type'=>'text','required'=>false], // ✅ baru
+                  ['label'=>'Peruntukan','name'=>'peruntukan','type'=>'text','required'=>false],         // ✅ baru
                 ];
               @endphp
 

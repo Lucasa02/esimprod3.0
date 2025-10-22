@@ -13,8 +13,8 @@ class Studio2Controller extends Controller
     public function index()
     {
         $title = 'Daftar Peralatan Studio 2';
-        // Diperbaiki: Menggunakan kolom 'ruangan'
-        $barangs = Barang::where('ruangan', 'studio2')->get();
+        // ✅ Ganti ruangan -> studio
+        $barangs = Barang::where('studio', 'studio2')->get();
         return view('admin.studio2.index', compact('title', 'barangs'));
     }
 
@@ -51,8 +51,8 @@ class Studio2Controller extends Controller
             'sisa_limit' => 1,
             'foto' => $path,
             'status' => $validated['status'],
-            // Diperbaiki: Menggunakan kolom 'ruangan' saat membuat data baru
-            'ruangan' => 'studio2', 
+            // ✅ Ganti ruangan -> studio
+            'studio' => 'studio2', 
         ]);
 
         return redirect()->route('studio2.index')->with('success', 'Data berhasil ditambahkan!');
@@ -109,10 +109,9 @@ class Studio2Controller extends Controller
     public function print()
     {
         $title = 'Laporan Data Peralatan Studio 2';
-        // Diperbaiki: Menggunakan kolom 'ruangan'
-        $barangs = \App\Models\Barang::where('ruangan', 'studio2')->get();
+        // ✅ Ganti ruangan -> studio
+        $barangs = Barang::where('studio', 'studio2')->get();
 
         return view('admin.studio2.print', compact('title', 'barangs'));
     }
-
 }

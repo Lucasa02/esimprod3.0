@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -55,50 +56,52 @@ class BmnController extends Controller
      * Simpan barang baru ke database.
      */
     public function store(Request $request, $ruangan)
-{
-    $validated = $request->validate([
-        'nama_barang'        => 'required|string|max:255',
-        'kode_barang'        => 'required|string|max:255|unique:bmn_barangs',
-        'nomor_seri'         => 'nullable|string|max:255',
-        'merk'               => 'nullable|string|max:255',
-        'tahun_pengadaan'    => 'nullable|integer',
-        'kategori'           => 'required|string|max:255',
-        'jumlah'             => 'required|integer|min:1',
-        'persentase_kondisi' => 'required|numeric|min:0|max:100',
-        'catatan'            => 'nullable|string',
-        'foto'               => 'nullable|image|max:2048',
-    ]);
+    {
+        $validated = $request->validate([
+            'nama_barang'        => 'required|string|max:255',
+            'kode_barang'        => 'required|string|max:255|unique:bmn_barangs',
+            'nomor_seri'         => 'nullable|string|max:255',
+            'merk'               => 'nullable|string|max:255',
+            'tahun_pengadaan'    => 'nullable|integer',
+            'asal_pengadaan'     => 'nullable|string|max:255',   // ✅ tambahan validasi
+            'peruntukan'         => 'nullable|string|max:255',   // ✅ tambahan validasi
+            'kategori'           => 'required|string|max:255',
+            'jumlah'             => 'required|integer|min:1',
+            'persentase_kondisi' => 'required|numeric|min:0|max:100',
+            'catatan'            => 'nullable|string',
+            'foto'               => 'nullable|image|max:2048',
+        ]);
 
-    $validated['ruangan'] = $ruangan;
-    $validated['uuid'] = Str::uuid();
-    $validated['kondisi'] = $this->tentukanKondisi($validated['persentase_kondisi']);
+        $validated['ruangan'] = $ruangan;
+        $validated['uuid'] = Str::uuid();
+        $validated['kondisi'] = $this->tentukanKondisi($validated['persentase_kondisi']);
 
-    // Upload foto jika ada
-    if ($request->hasFile('foto')) {
-        $validated['foto'] = $request->file('foto')->store('bmn/foto', 'public');
+        // Upload foto jika ada
+        if ($request->hasFile('foto')) {
+            $validated['foto'] = $request->file('foto')->store('bmn/foto', 'public');
+        }
+
+        // === Generate QR Code otomatis ===
+        $namaFileQR = 'qr_' . $validated['kode_barang'] . '.png';
+        $pathQR = 'bmn/qrcode/' . $namaFileQR;
+
+        if (!Storage::disk('public')->exists('bmn/qrcode')) {
+            Storage::disk('public')->makeDirectory('bmn/qrcode');
+        }
+
+        QrCode::format('png')
+            ->size(300)
+            ->margin(2)
+            ->generate($validated['kode_barang'], Storage::disk('public')->path($pathQR));
+
+        $validated['qr_code'] = $pathQR;
+        // ================================
+
+        BmnBarang::create($validated);
+
+        return redirect()->route('bmn.index', $ruangan)
+                         ->with('success', 'Barang berhasil ditambahkan dengan QR Code otomatis.');
     }
-
-    // === Generate QR Code otomatis ===
-    $namaFileQR = 'qr_' . $validated['kode_barang'] . '.png';
-    $pathQR = 'bmn/qrcode/' . $namaFileQR;
-
-    if (!Storage::disk('public')->exists('bmn/qrcode')) {
-        Storage::disk('public')->makeDirectory('bmn/qrcode');
-    }
-
-    QrCode::format('png')
-        ->size(300)
-        ->margin(2)
-        ->generate($validated['kode_barang'], Storage::disk('public')->path($pathQR));
-
-    $validated['qr_code'] = $pathQR;
-    // ================================
-
-    BmnBarang::create($validated);
-
-    return redirect()->route('bmn.index', $ruangan)->with('success', 'Barang berhasil ditambahkan dengan QR Code otomatis.');
-}
-
 
     /**
      * Tampilkan detail barang.
@@ -141,6 +144,8 @@ class BmnController extends Controller
             'nomor_seri'         => 'nullable|string|max:255',
             'merk'               => 'nullable|string|max:255',
             'tahun_pengadaan'    => 'nullable|integer',
+            'asal_pengadaan'     => 'nullable|string|max:255',   // ✅ tambahan validasi
+            'peruntukan'         => 'nullable|string|max:255',   // ✅ tambahan validasi
             'kategori'           => 'required|string|max:255',
             'jumlah'             => 'required|integer|min:1',
             'persentase_kondisi' => 'required|numeric|min:0|max:100',

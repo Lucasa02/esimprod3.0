@@ -20,72 +20,90 @@
           </a>
         </li>
 
-        {{-- dropdown sidebar Data Master --}}
-        <li>
-          <button type="button"
-            class="flex items-center w-full p-2 text-white rounded-lg dark:text-white hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700"
-            aria-controls="dropdown-example" data-collapse-toggle="dropdown-example">
-            <i class="fa-solid fa-database"></i>
-            <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Data Master</span>
-            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="m1 1 4 4 4-4" />
-            </svg>
-          </button>
-          <ul id="dropdown-example" class="hidden py-2">
-            <li>
-              <a href="{{ route('barang.index') }}"
-                class="flex items-center w-full p-1 text-white transition duration-75 rounded-lg pl-9 group hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
-                Barang</a>
-            </li>
-            <li>
-              <a href="{{ route('jenis-barang.index') }}"
-                class="flex items-center w-full p-1 text-white transition duration-75 rounded-lg pl-9 group hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">Jenis
-                Barang</a>
-            </li>
-            <li>
-              <a href="{{ route('peruntukan.index') }}"
-                class="flex items-center w-full p-1 text-white transition duration-75 rounded-lg pl-9 group hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">Peruntukan</a>
-            </li>
-            <li>
-              <a href="{{ route('jabatan.index') }}"
-                class="flex items-center w-full p-1 text-white transition duration-75 rounded-lg pl-9 group hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">Jabatan</a>
-            </li>
-          </ul>
-        </li>
+       {{-- Dropdown Sidebar - Data Master --}}
+<li>
+  <button type="button"
+    class="flex items-center w-full p-2 text-white rounded-lg transition-all duration-200 dark:text-white 
+           hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700"
+    aria-controls="dropdown-master"
+    data-collapse-toggle="dropdown-master">
+    <i class="fa-solid fa-database text-lg me-2"></i>
+    <span class="flex-1 text-left rtl:text-right whitespace-nowrap font-medium">Data Master</span>
+    <svg class="w-3 h-3 ms-auto transition-transform duration-300 group-hover:rotate-180"
+      xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="m1 1 4 4 4-4" />
+    </svg>
+  </button>
 
-        {{-- Dropdown Sidebar - Data Inventaris --}}
+  {{-- Isi Dropdown Data Master --}}
+  <ul id="dropdown-master"
+    class="hidden flex-col gap-1 py-2 ps-3 border-l border-gray-700/40 mt-1">
+
+    <li>
+      <a href="{{ route('barang.index') }}"
+        class="flex items-center w-full p-1 text-white rounded-lg pl-6 group 
+               transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
+        <i class="fa-solid fa-box text-xs opacity-70 me-2"></i>
+        Barang
+      </a>
+    </li>
+
+    <li>
+      <a href="{{ route('jenis-barang.index') }}"
+        class="flex items-center w-full p-1 text-white rounded-lg pl-6 group 
+               transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
+        <i class="fa-solid fa-tags text-xs opacity-70 me-2"></i>
+        Jenis Barang
+      </a>
+    </li>
+
+    <li>
+      <a href="{{ route('peruntukan.index') }}"
+        class="flex items-center w-full p-1 text-white rounded-lg pl-6 group 
+               transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
+        <i class="fa-solid fa-map-pin text-xs opacity-70 me-2"></i>
+        Peruntukan
+      </a>
+    </li>
+
+    <li>
+      <a href="{{ route('jabatan.index') }}"
+        class="flex items-center w-full p-1 text-white rounded-lg pl-6 group 
+               transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
+        <i class="fa-solid fa-id-badge text-xs opacity-70 me-2"></i>
+        Jabatan
+      </a>
+    </li>
+  </ul>
+</li>
+
+
+              {{-- Dropdown Sidebar - Data Inventaris --}}
         <li>
           <button type="button"
             class="flex items-center w-full p-2 text-white rounded-lg transition-all duration-200 dark:text-white 
                   hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700"
-            aria-controls="dropdown-bmn" data-collapse-toggle="dropdown-bmn">
+            aria-controls="dropdown-bmn"
+            data-collapse-toggle="dropdown-bmn">
             <i class="fa-solid fa-box-archive text-lg me-2"></i>
             <span class="flex-1 text-left rtl:text-right whitespace-nowrap font-medium">Data Inventaris</span>
-            <svg class="w-3 h-3 ms-auto transition-transform duration-300 group-hover:rotate-180" aria-hidden="true"
+            <svg class="w-3 h-3 ms-auto transition-transform duration-300 group-hover:rotate-180"
               xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="m1 1 4 4 4-4" />
             </svg>
           </button>
 
+          {{-- Dropdown isi Data Inventaris --}}
+          <ul id="dropdown-bmn"
+            class="hidden flex-col gap-1 py-2 ps-3 border-l border-gray-700/40 mt-1">
 
-          <ul id="dropdown-bmn" class="hidden flex-col gap-1 py-2 ps-2 border-l border-gray-700/40 mt-1">
-            {{-- MCR --}}
-            <li>
-              <a href="#"
-
-=
-
-          <ul id="dropdown-bmn" class="hidden flex-col gap-1 py-1 ps-1 border-l border-gray-700/40 mt-1">
             {{-- MCR --}}
             <li>
               <a href="{{ route('bmn.mcr.index') }}"
-
-
-=
-                class="flex items-center w-full p-1 text-white rounded-lg pl-9 group transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
-
+                class="flex items-center w-full p-1 text-white rounded-lg pl-6 group 
+                      transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
                 <i class="fa-solid fa-network-wired text-xs opacity-70 me-2"></i>
                 MCR
               </a>
@@ -94,8 +112,10 @@
             {{-- Studio --}}
             <li>
               <button type="button"
-                class="flex items-center w-full p-1 text-white rounded-lg pl-9 group transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color"
-                aria-controls="dropdown-studio" data-collapse-toggle="dropdown-studio">
+                class="flex items-center w-full p-1 text-white rounded-lg pl-6 group 
+                      transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color"
+                aria-controls="dropdown-studio"
+                data-collapse-toggle="dropdown-studio">
                 <i class="fa-solid fa-video text-xs opacity-70 me-2"></i>
                 <span class="flex-1 text-left">Studio</span>
                 <svg class="w-3 h-3 ms-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
@@ -103,21 +123,21 @@
                     d="m1 1 4 4 4-4" />
                 </svg>
               </button>
-              <ul id="dropdown-studio" class="hidden py-1">
+
+              {{-- Dropdown isi Studio --}}
+              <ul id="dropdown-studio" class="hidden py-1 ps-2 border-l border-gray-700/40 mt-1">
                 <li>
                   <a href="{{ route('studio1.index') }}"
-                    class="flex items-center w-full p-1 text-white rounded-lg pl-12 group transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
+                    class="flex items-center w-full p-1 text-white rounded-lg pl-7 group 
+                          transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
                     <i class="fa-solid fa-film text-xs opacity-70 me-2"></i>
                     Studio 1
                   </a>
                 </li>
                 <li>
-
                   <a href="{{ route('studio2.index') }}"
-
-                  <a href="#"
-
-                    class="flex items-center w-full p-1 text-white rounded-lg pl-12 group transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
+                    class="flex items-center w-full p-1 text-white rounded-lg pl-7 group 
+                          transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
                     <i class="fa-solid fa-clapperboard text-xs opacity-70 me-2"></i>
                     Studio 2
                   </a>
@@ -128,13 +148,15 @@
             {{-- Peralatan Lain --}}
             <li>
               <a href="#"
-                class="flex items-center w-full p-1 text-white rounded-lg pl-9 group transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
+                class="flex items-center w-full p-1 text-white rounded-lg pl-6 group 
+                      transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
                 <i class="fa-solid fa-toolbox text-xs opacity-70 me-2"></i>
                 Peralatan Lain
               </a>
             </li>
           </ul>
         </li>
+
 
         <div class="flex items-center my-2">
           <small class="mx-2 text-white opacity-65">BARANG</small>
@@ -157,31 +179,44 @@
           </a>
         </li>
 
-        {{-- perawatan --}}
-        <li>
-          <button type="button"
-            class="flex items-center w-full p-2 text-white rounded-lg dark:text-white hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700"
-            aria-controls="dropdown-perawatan" data-collapse-toggle="dropdown-perawatan">
-            <i class="fa-solid fa-screwdriver-wrench"></i>
-            <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Data Perawatan</span>
-            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="m1 1 4 4 4-4" />
-            </svg>
-          </button>
-          <ul id="dropdown-perawatan" class="hidden py-2">
-            <li>
-              <a href="{{ route('perawatan.limit.habis.index') }}"
-                class="flex items-center w-full p-1 text-white transition duration-75 rounded-lg pl-9 group hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
-                Limit Habis</a>
-            </li>
-            <li>
-              <a href="{{ route('perawatan.barang.hilang.index') }}"
-                class="flex items-center w-full p-1 text-white transition duration-75 rounded-lg pl-9 group hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
-                Barang Hilang</a>
-            </li>
-          </ul>
-        </li>
+{{-- Dropdown Sidebar - Data Perawatan --}}
+<li>
+  <button type="button"
+    class="flex items-center w-full p-2 text-white rounded-lg transition-all duration-200 dark:text-white 
+           hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700"
+    aria-controls="dropdown-perawatan" data-collapse-toggle="dropdown-perawatan">
+    <i class="fa-solid fa-screwdriver-wrench text-lg me-2"></i>
+    <span class="flex-1 text-left rtl:text-right whitespace-nowrap font-medium">Data Perawatan</span>
+    <svg class="w-3 h-3 ms-auto transition-transform duration-300 group-hover:rotate-180" aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="m1 1 4 4 4-4" />
+    </svg>
+  </button>
+
+  <ul id="dropdown-perawatan" class="hidden flex-col gap-1 py-2 ps-3 border-l border-gray-700/40 mt-1">
+    {{-- Limit Habis --}}
+    <li>
+      <a href="{{ route('perawatan.limit.habis.index') }}"
+        class="flex items-center w-full text-[15px] py-2 px-3 text-white rounded-lg pl-6 group transition duration-75 
+               hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
+        <i class="fa-solid fa-hourglass-end text-sm opacity-70 me-2"></i>
+        Limit Habis
+      </a>
+    </li>
+
+    {{-- Barang Hilang --}}
+    <li>
+      <a href="{{ route('perawatan.barang.hilang.index') }}"
+        class="flex items-center w-full text-[15px] py-2 px-3 text-white rounded-lg pl-6 group transition duration-75 
+               hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
+        <i class="fa-solid fa-circle-xmark text-sm opacity-70 me-2"></i>
+        Barang Hilang
+      </a>
+    </li>
+  </ul>
+</li>
+
 
         <div class="flex items-center my-2">
           <small class="mx-2 text-white opacity-65">USER/TAMBAHAN</small>
