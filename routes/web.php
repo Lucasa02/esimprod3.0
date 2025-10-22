@@ -177,7 +177,10 @@ Route::prefix('admin/bmn')->middleware(['auth', 'verified.password', 'role:super
     Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
     Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
 	Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
-
+	Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show'); //
+	 // 🔹 Tambahkan route print di sini
+    Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
+	 Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
 });
 		});
 	});
