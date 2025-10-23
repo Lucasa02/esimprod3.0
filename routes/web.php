@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BarangController;
+use App\Http\Controllers\Admin\BmnController;
+use App\Http\Controllers\Admin\Studio1Controller;
 use App\Http\Controllers\User\OptionsController;
 use App\Http\Controllers\Admin\JabatanController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -16,7 +18,7 @@ use App\Http\Controllers\Admin\JenisBarangController;
 use App\Http\Controllers\Admin\PengembalianController;
 use App\Http\Controllers\User\PeminjamanController as PeminjamanUser;
 use App\Http\Controllers\User\PengembalianController as PengembalianUser;
-use App\Http\Controllers\Admin\BmnController;
+
 
 Route::prefix('/')->group(function () {
 	Route::get('/', [AuthController::class, 'index'])->name('login');
@@ -163,6 +165,14 @@ Route::middleware(['auth'])->group(function () {
 				Route::put('/perawatan/barang-hilang/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
 			});
 
+
+
+			// Tambahkan di dalam group middleware('role:superadmin,admin')
+Route::prefix('studio1')->group(function () {
+    Route::get('/', [Studio1Controller::class, 'index'])->name('studio1.index');
+});
+
+
 			// ========================
 // ROUTE DATA BMN
 // ========================
@@ -181,6 +191,7 @@ Route::prefix('admin/bmn')->middleware(['auth', 'verified.password', 'role:super
 	 // 🔹 Tambahkan route print di sini
     Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
 	 Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
+
 });
 		});
 	});

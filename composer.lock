@@ -4001,12 +4001,12 @@
             "type": "library",
             "extra": {
                 "laravel": {
-                    "providers": [
-                        "SimpleSoftwareIO\\QrCode\\QrCodeServiceProvider"
-                    ],
                     "aliases": {
                         "QrCode": "SimpleSoftwareIO\\QrCode\\Facades\\QrCode"
-                    }
+                    },
+                    "providers": [
+                        "SimpleSoftwareIO\\QrCode\\QrCodeServiceProvider"
+                    ]
                 }
             },
             "autoload": {
@@ -8728,12 +8728,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }
