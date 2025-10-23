@@ -69,7 +69,7 @@
           <ul id="dropdown-bmn" class="hidden flex-col gap-1 py-2 ps-2 border-l border-gray-700/40 mt-1">
             {{-- MCR --}}
             <li>
-              <a href="#"
+              <a href="{{ route('bmn.mcr.index') }}"
                 class="flex items-center w-full p-1 text-white rounded-lg pl-9 group transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
                 <i class="fa-solid fa-network-wired text-xs opacity-70 me-2"></i>
                 MCR

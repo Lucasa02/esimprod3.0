@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\JenisBarangController;
 use App\Http\Controllers\Admin\PengembalianController;
 use App\Http\Controllers\Admin\Studio1Controller;
 use App\Http\Controllers\Admin\Studio2Controller;
+use App\Http\Controllers\Admin\BmnController;
 use App\Http\Controllers\User\PeminjamanController as PeminjamanUser;
 use App\Http\Controllers\User\PengembalianController as PengembalianUser;
 
@@ -35,8 +36,8 @@ Route::prefix('/')->group(function () {
 	Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-// cek apakah semua user sudah login atau tidak
-Route::middleware(['auth'])->group(function () {
+	// cek apakah semua user sudah login atau tidak
+	Route::middleware(['auth'])->group(function () {
 
 	// pastikan admin atau superadmin sudah melakukan verifikasi dengan masukkan password
 	Route::middleware('verified.password')->group(function () {
@@ -68,8 +69,6 @@ Route::middleware(['auth'])->group(function () {
 
 			
 		});
-
-
 
 		Route::middleware('role:superadmin,admin')->group(function () {
 
@@ -164,10 +163,29 @@ Route::middleware(['auth'])->group(function () {
 				Route::put('/perawatan/barang-hilang/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
 			});
 			// Tambahkan di dalam group middleware('role:superadmin,admin')
-Route::prefix('studio1')->group(function () {
-    Route::get('/', [Studio1Controller::class, 'index'])->name('studio1.index');
-});
+			Route::prefix('studio1')->group(function () {
+				Route::get('/', [Studio1Controller::class, 'index'])->name('studio1.index');
+			}); 
 
+			// ========================
+			// ROUTE DATA BMN
+			// ========================
+			Route::prefix('admin/bmn')->middleware(['auth', 'verified.password', 'role:superadmin,admin'])->group(function () {
+				Route::get('/mcr', [BmnController::class, 'index'])->name('bmn.mcr.index')->defaults('ruangan', 'mcr');
+				Route::get('/studio', [BmnController::class, 'index'])->name('bmn.studio.index')->defaults('ruangan', 'studio');
+				Route::get('/peralatan', [BmnController::class, 'index'])->name('bmn.peralatan.index')->defaults('ruangan', 'peralatan');
+
+				Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
+				Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
+				Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
+				Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
+				Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
+				Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
+				Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show'); //
+				// 🔹 Tambahkan route print di sini
+				Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
+				Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
+			});
 		});
 	});
 
@@ -197,13 +215,5 @@ Route::prefix('studio1')->group(function () {
 			Route::post('/update_desc', [PengembalianUser::class, 'desc_update'])->name('user.pengembalian.update_desc');
 			route::get('/pdf', [PengembalianUser::class, 'printReport'])->name('user.pengembalian.pdf');
 		});
-
-
-
-
-
-
-
-
 	});
 });
