@@ -104,11 +104,11 @@
                             <div>
                                 <label class="block text-sm font-bold text-black">Upload Foto Barang</label>
                                 <div class="mb-2">
-                                    <img id="photoPreview"
+                                    <img id="photoPreview_{{ $barang->id }}"
                                         src="{{ $barang->foto ? asset('storage/' . $barang->foto) : 'https://via.placeholder.com/150' }}"
                                         alt="Photo Preview" class="w-28 h-28 object-cover rounded-lg shadow-md border border-gray-300">
                                 </div>
-                                <input type="file" name="foto" id="foto" accept="image/*"
+                                <input type="file" name="foto" id="foto_{{ $barang->id }}" accept="image/*"
                                     class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none">
                                 @error('foto')
                                     <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
@@ -138,12 +138,12 @@
 
 @section('scripts')
 <script>
-document.getElementById('foto').addEventListener('change', function(event) {
+document.getElementById('foto_{{ $barang->id }}').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            document.getElementById('photoPreview').src = e.target.result;
+            document.getElementById('photoPreview_{{ $barang->id }}').src = e.target.result;
         };
         reader.readAsDataURL(file);
     }
