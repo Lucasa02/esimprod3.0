@@ -1,7 +1,7 @@
 
+
   <aside id="logo-sidebar"
 =
-
     class="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform -translate-x-full bg-tvri_base_color sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700 shadow-xl"
     aria-label="Sidebar">
     <div class="h-full px-3 pb-4 bg-tvri_base_color dark:bg-gray-800">
@@ -74,11 +74,17 @@
             {{-- MCR --}}
             <li>
               <a href="#"
+
 =
+
           <ul id="dropdown-bmn" class="hidden flex-col gap-1 py-1 ps-1 border-l border-gray-700/40 mt-1">
             {{-- MCR --}}
             <li>
               <a href="{{ route('bmn.mcr.index') }}"
+
+
+=
+                class="flex items-center w-full p-1 text-white rounded-lg pl-9 group transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
 
                 <i class="fa-solid fa-network-wired text-xs opacity-70 me-2"></i>
                 MCR
@@ -106,7 +112,11 @@
                   </a>
                 </li>
                 <li>
+
+                  <a href="{{ route('studio2.index') }}"
+
                   <a href="#"
+
                     class="flex items-center w-full p-1 text-white rounded-lg pl-12 group transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
                     <i class="fa-solid fa-clapperboard text-xs opacity-70 me-2"></i>
                     Studio 2
@@ -209,7 +219,11 @@
       </ul>
     </div>
 
+
   </aside>
-=======
+
+  </aside>
+
+
   </aside>
 
