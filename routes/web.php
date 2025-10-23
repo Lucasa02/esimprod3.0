@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BarangController;
 use App\Http\Controllers\Admin\BmnController;
 use App\Http\Controllers\Admin\Studio1Controller;
+use App\Http\Controllers\Admin\Studio2Controller;
 use App\Http\Controllers\User\OptionsController;
 use App\Http\Controllers\Admin\JabatanController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -16,14 +17,9 @@ use App\Http\Controllers\Admin\PeminjamanController;
 use App\Http\Controllers\Admin\PeruntukanController;
 use App\Http\Controllers\Admin\JenisBarangController;
 use App\Http\Controllers\Admin\PengembalianController;
-use App\Http\Controllers\Admin\Studio1Controller;
-use App\Http\Controllers\Admin\Studio2Controller;
 use App\Http\Controllers\User\PeminjamanController as PeminjamanUser;
 use App\Http\Controllers\User\PengembalianController as PengembalianUser;
-<<<<<<< HEAD
-=======
 
->>>>>>> 151b554044077e98b8986cf2e07092cb5c971d33
 
 Route::prefix('/')->group(function () {
 	Route::get('/', [AuthController::class, 'index'])->name('login');
@@ -169,11 +165,6 @@ Route::middleware(['auth'])->group(function () {
 				Route::put('/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
 				Route::put('/perawatan/barang-hilang/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
 			});
-<<<<<<< HEAD
-			// Tambahkan di dalam group middleware('role:superadmin,admin')
-Route::prefix('studio1')->group(function () {
-    Route::get('/', [Studio1Controller::class, 'index'])->name('studio1.index');
-=======
 
 
 
@@ -182,6 +173,18 @@ Route::prefix('studio1')->group(function () {
     Route::get('/', [Studio1Controller::class, 'index'])->name('studio1.index');
 });
 
+Route::prefix('studio2')->name('studio2.')->group(function () {
+    Route::get('/', [Studio2Controller::class, 'index'])->name('index');
+    Route::get('/create', [Studio2Controller::class, 'create'])->name('create');
+    Route::post('/store', [Studio2Controller::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [Studio2Controller::class, 'edit'])->name('edit');
+    Route::put('/{id}/update', [Studio2Controller::class, 'update'])->name('update');
+    Route::delete('/{id}/delete', [Studio2Controller::class, 'destroy'])->name('destroy');
+    Route::get('/{id}/detail', [Studio2Controller::class, 'show'])->name('detail');
+
+    // 🔹 Tambahkan baris ini:
+    Route::get('/print', [Studio2Controller::class, 'print'])->name('print');
+});
 
 			// ========================
 // ROUTE DATA BMN
@@ -200,31 +203,13 @@ Route::prefix('admin/bmn')->middleware(['auth', 'verified.password', 'role:super
 	Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show'); //
 	 // 🔹 Tambahkan route print di sini
     Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
-	 Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
+	Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
 
->>>>>>> 151b554044077e98b8986cf2e07092cb5c971d33
 });
+
 
 		});
 	});
-
-Route::prefix('studio2')->name('studio2.')->group(function () {
-    Route::get('/', [Studio2Controller::class, 'index'])->name('index');
-    Route::get('/create', [Studio2Controller::class, 'create'])->name('create');
-    Route::post('/store', [Studio2Controller::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [Studio2Controller::class, 'edit'])->name('edit');
-    Route::put('/{id}/update', [Studio2Controller::class, 'update'])->name('update');
-    Route::delete('/{id}/delete', [Studio2Controller::class, 'destroy'])->name('destroy');
-    Route::get('/{id}/detail', [Studio2Controller::class, 'show'])->name('detail');
-
-    // 🔹 Tambahkan baris ini:
-    Route::get('/print', [Studio2Controller::class, 'print'])->name('print');
-});
-
-		});
-	
-
-
 
 	// User Route
 	Route::middleware(['role:user'])->group(function () {
@@ -255,4 +240,10 @@ Route::prefix('studio2')->name('studio2.')->group(function () {
 
 
 
+
+
+
+
+
 	});
+});
