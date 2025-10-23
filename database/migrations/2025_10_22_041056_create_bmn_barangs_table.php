@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('bmn_barangs', function (Blueprint $table) {
+            $table->id();
+            $table->string('uuid')->unique();                // UUID unik untuk tiap barang
+            $table->string('kode_barang')->unique();        // kode barang
+            $table->string('nama_barang');
+            $table->string('kategori');
+            $table->string('merk')->nullable();
+            $table->string('nomor_seri')->nullable();
+            $table->integer('jumlah');
+            $table->integer('persentase_kondisi')->nullable();
+            $table->string('kondisi')->nullable();
+            $table->string('foto')->nullable();
+            $table->string('ruangan');
+            $table->year('tahun_pengadaan')->nullable();
+            $table->text('catatan')->nullable();
+            $table->string('qr_code')->nullable();          // kolom untuk menyimpan path/filename QR code
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('bmn_barangs');
+    }
+};
