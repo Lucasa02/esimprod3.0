@@ -97,7 +97,7 @@
                   </a>
                 </li>
                 <li>
-                  <a href="#"
+                  <a href="{{ route('studio2.index') }}"
                     class="flex items-center w-full p-1 text-white rounded-lg pl-12 group transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
                     <i class="fa-solid fa-clapperboard text-xs opacity-70 me-2"></i>
                     Studio 2

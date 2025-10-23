@@ -171,6 +171,24 @@ Route::prefix('studio1')->group(function () {
 		});
 	});
 
+Route::prefix('studio2')->name('studio2.')->group(function () {
+    Route::get('/', [Studio2Controller::class, 'index'])->name('index');
+    Route::get('/create', [Studio2Controller::class, 'create'])->name('create');
+    Route::post('/store', [Studio2Controller::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [Studio2Controller::class, 'edit'])->name('edit');
+    Route::put('/{id}/update', [Studio2Controller::class, 'update'])->name('update');
+    Route::delete('/{id}/delete', [Studio2Controller::class, 'destroy'])->name('destroy');
+    Route::get('/{id}/detail', [Studio2Controller::class, 'show'])->name('detail');
+
+    // 🔹 Tambahkan baris ini:
+    Route::get('/print', [Studio2Controller::class, 'print'])->name('print');
+});
+
+		});
+	
+
+
+
 	// User Route
 	Route::middleware(['role:user'])->group(function () {
 
@@ -200,10 +218,4 @@ Route::prefix('studio1')->group(function () {
 
 
 
-
-
-
-
-
 	});
-});

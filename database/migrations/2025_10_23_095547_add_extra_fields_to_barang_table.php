@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('barang', function (Blueprint $table) {
+            // Kolom tambahan manual
+            $table->string('jenis_barang')->nullable()->after('nama_barang');
+            $table->integer('jumlah')->nullable()->after('jenis_barang');
+            $table->integer('kondisi')->nullable()->after('jumlah');
+            $table->year('tahun_pengadaan')->nullable()->after('kondisi');
+            $table->text('catatan')->nullable()->after('tahun_pengadaan');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('barang', function (Blueprint $table) {
+            $table->dropColumn(['jenis_barang', 'jumlah', 'kondisi', 'tahun_pengadaan', 'catatan']);
+        });
+    }
+};
