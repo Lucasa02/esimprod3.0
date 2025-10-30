@@ -213,7 +213,7 @@ Route::prefix('/')->group(function () {
 			Route::post('/store', [PengembalianUser::class, 'store'])->name('user.pengembalian.store');
 			Route::get('/report', [PengembalianUser::class, 'report'])->name('user.pengembalian.report');
 			Route::post('/update_desc', [PengembalianUser::class, 'desc_update'])->name('user.pengembalian.update_desc');
-			route::get('/pdf', [PengembalianUser::class, 'printReport'])->name('user.pengembalian.pdf');
+			Route::get('/pdf', [PengembalianUser::class, 'printReport'])->name('user.pengembalian.pdf');
 		});
 	});
 });
