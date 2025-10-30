@@ -155,6 +155,8 @@ Route::middleware(['auth'])->group(function () {
                 Route::delete('/{id}/delete', [Studio2Controller::class, 'destroy'])->name('destroy');
                 Route::get('/{id}/detail', [Studio2Controller::class, 'show'])->name('detail');
                 Route::get('/print', [Studio2Controller::class, 'print'])->name('print');
+				Route::get('/studio2/print', [Studio2Controller::class, 'print'])->name('studio2.print');
+
             });
         
         }); // End of Route::middleware('role:superadmin,admin')->group(function () 
@@ -186,21 +188,23 @@ Route::middleware(['auth'])->group(function () {
         });
         
         // BMN ROUTES (Dikelompokkan di bawah prefix 'admin/bmn')
-        Route::prefix('admin/bmn')->group(function () {
-            Route::get('/mcr', [BmnController::class, 'index'])->name('bmn.mcr.index')->defaults('ruangan', 'mcr');
-            Route::get('/studio', [BmnController::class, 'index'])->name('bmn.studio.index')->defaults('ruangan', 'studio');
-            Route::get('/peralatan', [BmnController::class, 'index'])->name('bmn.peralatan.index')->defaults('ruangan', 'peralatan');
+Route::prefix('admin/bmn')->group(function () {
+    Route::get('/mcr', [BmnController::class, 'index'])->name('bmn.mcr.index')->defaults('studio', 'mcr');
+    Route::get('/studio', [BmnController::class, 'index'])->name('bmn.studio.index')->defaults('studio', 'studio');
+    Route::get('/peralatan', [BmnController::class, 'index'])->name('bmn.peralatan.index')->defaults('studio', 'peralatan');
 
-            Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
-            Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
-            Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
-            Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
-            Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
-            Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
-            Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show');
-            Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
-            Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
-        });
+    Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
+    Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
+    Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
+    Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
+    Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
+    Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
+    Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show');
+    Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
+    Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
+	
+});
+
 
     }); // End of Route::middleware('verified.password')->group(function () 
 

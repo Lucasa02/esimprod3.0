@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -27,111 +28,110 @@ class BmnController extends Controller
     }
 
     /**
-     * Menampilkan daftar barang per ruangan.
+     * Menampilkan daftar barang per studio.
      */
-    public function index($ruangan)
+    public function index($studio)
     {
-        $data = BmnBarang::where('ruangan', $ruangan)->paginate(10);
+        $data = BmnBarang::where('studio', $studio)->paginate(10);
 
         return view('admin.bmn.index', [
-            'title'   => 'Data Barang - ' . ucfirst($ruangan),
-            'ruangan' => $ruangan,
-            'data'    => $data,
+            'title'  => 'Data Barang - ' . ucfirst($studio),
+            'studio' => $studio,
+            'data'   => $data,
         ]);
     }
 
     /**
      * Form tambah barang.
      */
-    public function create($ruangan)
+    public function create($studio)
     {
         return view('admin.bmn.create', [
-            'title'   => 'Tambah Barang - ' . ucfirst($ruangan),
-            'ruangan' => $ruangan,
+            'title'  => 'Tambah Barang - ' . ucfirst($studio),
+            'studio' => $studio,
         ]);
     }
 
     /**
      * Simpan barang baru ke database.
      */
-    public function store(Request $request, $ruangan)
-{
-    $validated = $request->validate([
-        'nama_barang'        => 'required|string|max:255',
-        'kode_barang'        => 'required|string|max:255|unique:bmn_barangs',
-        'nomor_seri'         => 'nullable|string|max:255',
-        'merk'               => 'nullable|string|max:255',
-        'tahun_pengadaan'    => 'nullable|integer',
-        'kategori'           => 'required|string|max:255',
-        'jumlah'             => 'required|integer|min:1',
-        'persentase_kondisi' => 'required|numeric|min:0|max:100',
-        'catatan'            => 'nullable|string',
-        'foto'               => 'nullable|image|max:2048',
-    ]);
+    public function store(Request $request, $studio)
+    {
+        $validated = $request->validate([
+            'nama_barang'        => 'required|string|max:255',
+            'kode_barang'        => 'required|string|max:255|unique:bmn_barangs',
+            'nomor_seri'         => 'nullable|string|max:255',
+            'merk'               => 'nullable|string|max:255',
+            'tahun_pengadaan'    => 'nullable|integer',
+            'kategori'           => 'required|string|max:255',
+            'jumlah'             => 'required|integer|min:1',
+            'persentase_kondisi' => 'required|numeric|min:0|max:100',
+            'catatan'            => 'nullable|string',
+            'foto'               => 'nullable|image|max:2048',
+        ]);
 
-    $validated['ruangan'] = $ruangan;
-    $validated['uuid'] = Str::uuid();
-    $validated['kondisi'] = $this->tentukanKondisi($validated['persentase_kondisi']);
+        $validated['studio'] = $studio;
+        $validated['uuid'] = Str::uuid();
+        $validated['kondisi'] = $this->tentukanKondisi($validated['persentase_kondisi']);
 
-    // Upload foto jika ada
-    if ($request->hasFile('foto')) {
-        $validated['foto'] = $request->file('foto')->store('bmn/foto', 'public');
+        // Upload foto jika ada
+        if ($request->hasFile('foto')) {
+            $validated['foto'] = $request->file('foto')->store('bmn/foto', 'public');
+        }
+
+        // Generate QR Code otomatis
+        $namaFileQR = 'qr_' . $validated['kode_barang'] . '.png';
+        $pathQR = 'bmn/qrcode/' . $namaFileQR;
+
+        if (!Storage::disk('public')->exists('bmn/qrcode')) {
+            Storage::disk('public')->makeDirectory('bmn/qrcode');
+        }
+
+        QrCode::format('png')
+            ->size(300)
+            ->margin(2)
+            ->generate($validated['kode_barang'], Storage::disk('public')->path($pathQR));
+
+        $validated['qr_code'] = $pathQR;
+
+        BmnBarang::create($validated);
+
+        return redirect()->route('bmn.index', $studio)
+                        ->with('success', 'Barang berhasil ditambahkan dengan QR Code otomatis.');
     }
-
-    // === Generate QR Code otomatis ===
-    $namaFileQR = 'qr_' . $validated['kode_barang'] . '.png';
-    $pathQR = 'bmn/qrcode/' . $namaFileQR;
-
-    if (!Storage::disk('public')->exists('bmn/qrcode')) {
-        Storage::disk('public')->makeDirectory('bmn/qrcode');
-    }
-
-    QrCode::format('png')
-        ->size(300)
-        ->margin(2)
-        ->generate($validated['kode_barang'], Storage::disk('public')->path($pathQR));
-
-    $validated['qr_code'] = $pathQR;
-    // ================================
-
-    BmnBarang::create($validated);
-
-    return redirect()->route('bmn.index', $ruangan)->with('success', 'Barang berhasil ditambahkan dengan QR Code otomatis.');
-}
-
 
     /**
      * Tampilkan detail barang.
      */
-    public function show($ruangan, $id)
+    public function show($studio, $id)
     {
         $barang = BmnBarang::findOrFail($id);
 
         return view('admin.bmn.show', [
-            'title'   => 'Detail Barang - ' . ucfirst($ruangan),
-            'ruangan' => $ruangan,
-            'barang'  => $barang,
+            'title'  => 'Detail Barang - ' . ucfirst($studio),
+            'studio' => $studio,
+            'barang' => $barang,
         ]);
     }
 
     /**
      * Form edit barang.
      */
-    public function edit($ruangan, $id)
+    public function edit($studio, $id)
     {
         $barang = BmnBarang::findOrFail($id);
 
         return view('admin.bmn.edit', [
-            'title'   => 'Edit Barang - ' . ucfirst($ruangan),
-            'ruangan' => $ruangan,
-            'barang'  => $barang,
+            'title'  => 'Edit Barang - ' . ucfirst($studio),
+            'studio' => $studio,
+            'barang' => $barang,
         ]);
     }
 
     /**
      * Update barang.
      */
-    public function update(Request $request, $ruangan, $id)
+    public function update(Request $request, $studio, $id)
     {
         $barang = BmnBarang::findOrFail($id);
 
@@ -149,63 +149,51 @@ class BmnController extends Controller
             'qr_code'            => 'nullable|image|max:2048',
         ]);
 
-        // Tentukan kondisi otomatis
         $validated['kondisi'] = $this->tentukanKondisi($validated['persentase_kondisi']);
 
-        // Ganti foto jika upload baru
         if ($request->hasFile('foto')) {
-            if ($barang->foto) {
-                Storage::disk('public')->delete($barang->foto);
-            }
+            if ($barang->foto) Storage::disk('public')->delete($barang->foto);
             $validated['foto'] = $request->file('foto')->store('bmn/foto', 'public');
         }
 
-        // Ganti QR Code jika upload baru
         if ($request->hasFile('qr_code')) {
-            if ($barang->qr_code) {
-                Storage::disk('public')->delete($barang->qr_code);
-            }
+            if ($barang->qr_code) Storage::disk('public')->delete($barang->qr_code);
             $validated['qr_code'] = $request->file('qr_code')->store('bmn/qrcode', 'public');
         }
 
         $barang->update($validated);
 
-        return redirect()->route('bmn.show', [$ruangan, $barang->id])
-                         ->with('success', 'Data barang berhasil diperbarui.');
+        return redirect()->route('bmn.show', [$studio, $barang->id])
+                        ->with('success', 'Data barang berhasil diperbarui.');
     }
 
     /**
      * Hapus barang.
      */
-    public function destroy($ruangan, $id)
+    public function destroy($studio, $id)
     {
         $barang = BmnBarang::findOrFail($id);
 
-        // Hapus file foto dan QR jika ada
-        if ($barang->foto) {
-            Storage::disk('public')->delete($barang->foto);
-        }
-        if ($barang->qr_code) {
-            Storage::disk('public')->delete($barang->qr_code);
-        }
+        if ($barang->foto) Storage::disk('public')->delete($barang->foto);
+        if ($barang->qr_code) Storage::disk('public')->delete($barang->qr_code);
 
         $barang->delete();
 
-        return redirect()->route('bmn.index', $ruangan)
-                         ->with('success', 'Barang berhasil dihapus.');
+        return redirect()->route('bmn.index', $studio)
+                        ->with('success', 'Barang berhasil dihapus.');
     }
 
     /**
      * Cetak / Preview Barang.
      */
-    public function print($ruangan, $id)
+    public function print($studio, $id)
     {
         $barang = BmnBarang::findOrFail($id);
 
         return view('admin.bmn.print', [
-            'title'   => 'Cetak Barang - ' . ucfirst($ruangan),
-            'ruangan' => $ruangan,
-            'barang'  => $barang,
+            'title'  => 'Cetak Barang - ' . ucfirst($studio),
+            'studio' => $studio,
+            'barang' => $barang,
         ]);
     }
 }

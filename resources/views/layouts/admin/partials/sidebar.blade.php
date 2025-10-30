@@ -1,11 +1,4 @@
-<<<<<<< HEAD
 <aside id="logo-sidebar"
-=======
-
-
-  <aside id="logo-sidebar"
-=
->>>>>>> 5b11ca64a7f2d1e4e690573ee3f3cb5617049c1e
     class="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform -translate-x-full bg-tvri_base_color sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700 shadow-xl"
     aria-label="Sidebar">
 
@@ -48,7 +41,6 @@
         </ul>
       </li>
 
-<<<<<<< HEAD
       {{-- === DATA INVENTARIS === --}}
       <li>
         <button type="button"
@@ -71,28 +63,6 @@
               MCR
             </a>
           </li>
-=======
-          <ul id="dropdown-bmn" class="hidden flex-col gap-1 py-2 ps-2 border-l border-gray-700/40 mt-1">
-            {{-- MCR --}}
-            <li>
-              <a href="#"
-
-=
-
-          <ul id="dropdown-bmn" class="hidden flex-col gap-1 py-1 ps-1 border-l border-gray-700/40 mt-1">
-            {{-- MCR --}}
-            <li>
-              <a href="{{ route('bmn.mcr.index') }}"
-
-
-=
-                class="flex items-center w-full p-1 text-white rounded-lg pl-9 group transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-tvri_base_color">
-
-                <i class="fa-solid fa-network-wired text-xs opacity-70 me-2"></i>
-                MCR
-              </a>
-            </li>
->>>>>>> 5b11ca64a7f2d1e4e690573ee3f3cb5617049c1e
 
           {{-- Studio (gabungan, tanpa dropdown) --}}
           <li>
@@ -186,48 +156,6 @@
         <form id="logoutForm" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
       </li>
 
-<<<<<<< HEAD
     </ul>
   </div>
 </aside>
-=======
-        <li>
-          <a href="{{ route('users.index') }}"
-            class="flex items-center p-2 text-white rounded-lg dark:text-white hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700 group">
-            <i class="fa-solid fa-user"></i>
-            <span class="ms-3">Data User</span>
-          </a>
-        </li>
-
-        <li>
-          <a href="{{ route('buku-panduan.index') }}"
-            class="flex items-center p-2 text-white rounded-lg dark:text-white hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700 group">
-            <i class="fa-solid fa-bookmark"></i>
-            <span class="ms-3">Buku Panduan</span>
-          </a>
-        </li>
-
-        <li>
-          <a href="#"
-            class="flex items-center p-2 text-white rounded-lg dark:text-white hover:bg-gray-100 hover:text-tvri_base_color dark:hover:bg-gray-700 group"
-            onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
-            <i class="fa-solid fa-sign-out text-red-500"></i>
-            <span class="ms-3 text-red-500">Logout</span>
-          </a>
-
-          <form id="logoutForm" action="{{ route('logout') }}" method="POST" class="hidden">
-            @csrf
-          </form>
-        </li>
-      </ul>
-    </div>
-
-
-  </aside>
-
-  </aside>
-
-
-  </aside>
-
->>>>>>> 5b11ca64a7f2d1e4e690573ee3f3cb5617049c1e
