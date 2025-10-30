@@ -1,6 +1,4 @@
-
-
-  <aside id="logo-sidebar"
+<aside id="logo-sidebar"
 =
     class="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform -translate-x-full bg-tvri_base_color sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700 shadow-xl"
     aria-label="Sidebar">
@@ -261,4 +259,3 @@
 
 
   </aside>
-

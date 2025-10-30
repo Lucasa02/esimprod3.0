@@ -1,79 +1,105 @@
-@extends('layouts.admin.main')
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Data Peralatan Studio</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    @media print {
+      body {
+        background: white;
+        margin: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 12px;
+      }
+      th, td {
+        border: 1px solid #000;
+        padding: 6px;
+      }
+      h1 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
 
-@section('content')
-<div class="p-6 bg-white rounded-lg shadow">
-  <h1 class="text-2xl font-bold mb-4 text-center">{{ $title }}</h1>
+<body class="bg-white text-gray-900 font-sans p-6">
 
-  <table class="min-w-full border border-gray-300 text-sm">
-    <thead class="bg-gray-100 text-gray-700 uppercase">
-      <tr>
-        <th class="border border-gray-300 px-3 py-2 text-left">No</th>
-        <th class="border border-gray-300 px-3 py-2 text-left">Nama Barang</th>
-        <th class="border border-gray-300 px-3 py-2 text-left">Kode Barang</th>
-        <th class="border border-gray-300 px-3 py-2 text-left">Kategori</th>
-        <th class="border border-gray-300 px-3 py-2 text-left">Merk</th>
-        <th class="border border-gray-300 px-3 py-2 text-left">Nomor Seri</th>
-        <th class="border border-gray-300 px-3 py-2 text-left">Jumlah</th>
-        <th class="border border-gray-300 px-3 py-2 text-left">Kondisi (%)</th>
-        <th class="border border-gray-300 px-3 py-2 text-left">Tahun Pengadaan</th>
-        <th class="border border-gray-300 px-3 py-2 text-left">Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      @forelse ($barangs as $index => $b)
-      <tr class="hover:bg-gray-50">
-        <td class="border border-gray-300 px-3 py-2">{{ $index + 1 }}</td>
-        <td class="border border-gray-300 px-3 py-2">{{ $b->nama_barang }}</td>
-        <td class="border border-gray-300 px-3 py-2">{{ $b->kode_barang }}</td>
-        <td class="border border-gray-300 px-3 py-2">{{ $b->jenis_barang ?? '-' }}</td>
-        <td class="border border-gray-300 px-3 py-2">{{ $b->merk ?? '-' }}</td>
-        <td class="border border-gray-300 px-3 py-2">{{ $b->nomor_seri ?? '-' }}</td>
-        <td class="border border-gray-300 px-3 py-2">{{ $b->jumlah ?? '-' }}</td>
-        <td class="border border-gray-300 px-3 py-2">{{ $b->kondisi ?? '-' }}</td>
-        <td class="border border-gray-300 px-3 py-2">{{ $b->tahun_pengadaan ?? '-' }}</td>
-        <td class="border border-gray-300 px-3 py-2">
-          @if($b->status === 'Tersedia')
-            <span class="bg-green-500 text-white px-2 py-0.5 rounded text-xs">Tersedia</span>
-          @elseif($b->status === 'Digunakan')
-            <span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs">Digunakan</span>
-          @else
-            <span class="bg-yellow-500 text-white px-2 py-0.5 rounded text-xs">Perawatan</span>
-          @endif
-        </td>
-      </tr>
-      @empty
-      <tr>
-        <td colspan="10" class="text-center py-3 text-gray-500">Tidak ada data peralatan di Studio 2</td>
-      </tr>
-      @endforelse
-    </tbody>
-  </table>
+  {{-- Header --}}
+  <div class="text-center mb-6">
+    <h1 class="text-2xl font-bold">LAPORAN DATA PERALATAN STUDIO</h1>
+    <p class="text-sm text-gray-600">Dicetak pada: {{ now()->format('d F Y') }}</p>
+  </div>
 
-  {{-- Tombol Cetak --}}
-  <div class="mt-6 text-center">
-    <button onclick="window.print()" class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800">
-      <i class="fa-solid fa-print mr-1"></i> Cetak
+  {{-- Tombol Cetak & Kembali --}}
+  <div class="flex justify-between items-center mb-4 no-print">
+    <a href="{{ route('studio2.index') }}" class="bg-gray-600 hover:bg-gray-800 text-white px-4 py-2 rounded">
+      ← Kembali
+    </a>
+    <button onclick="window.print()" class="bg-blue-700 hover:bg-blue-900 text-white px-4 py-2 rounded">
+      🖨 Cetak Halaman Ini
     </button>
   </div>
-</div>
 
-{{-- CSS khusus untuk mode cetak --}}
-<style>
-@media print {
-  button {
-    display: none;
-  }
-  body {
-    background: white !important;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  th, td {
-    border: 1px solid #000;
-    padding: 6px;
-  }
-}
-</style>
-@endsection
+  {{-- Tabel Data --}}
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-400 text-sm">
+      <thead class="bg-gray-100 text-gray-800 font-semibold">
+        <tr>
+          <th class="border border-gray-400 px-3 py-2 text-center w-8">No</th>
+          <th class="border border-gray-400 px-3 py-2">Nama Barang</th>
+          <th class="border border-gray-400 px-3 py-2">Kode Barang</th>
+          <th class="border border-gray-400 px-3 py-2">Kategori</th>
+          <th class="border border-gray-400 px-3 py-2">Merk</th>
+          <th class="border border-gray-400 px-3 py-2">Nomor Seri</th>
+          <th class="border border-gray-400 px-3 py-2 text-center">Jumlah</th>
+          <th class="border border-gray-400 px-3 py-2 text-center">Kondisi (%)</th>
+          <th class="border border-gray-400 px-3 py-2 text-center">Tahun Pengadaan</th>
+          <th class="border border-gray-400 px-3 py-2">Asal Pengadaan</th>
+          <th class="border border-gray-400 px-3 py-2 text-center">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @forelse ($barangs as $index => $barang)
+          <tr class="hover:bg-gray-50">
+            <td class="border border-gray-400 px-3 py-1 text-center">{{ $index + 1 }}</td>
+            <td class="border border-gray-400 px-3 py-1">{{ $barang->nama_barang }}</td>
+            <td class="border border-gray-400 px-3 py-1">{{ $barang->kode_barang }}</td>
+            <td class="border border-gray-400 px-3 py-1">{{ $barang->jenis_barang_id ?? '-' }}</td>
+            <td class="border border-gray-400 px-3 py-1">{{ $barang->merk ?? '-' }}</td>
+            <td class="border border-gray-400 px-3 py-1">{{ $barang->nomor_seri ?? '-' }}</td>
+            <td class="border border-gray-400 px-3 py-1 text-center">{{ $barang->jumlah ?? '-' }}</td>
+            <td class="border border-gray-400 px-3 py-1 text-center">{{ $barang->kondisi ?? '-' }}</td>
+            <td class="border border-gray-400 px-3 py-1 text-center">{{ $barang->tahun_pengadaan ?? '-' }}</td>
+            <td class="border border-gray-400 px-3 py-1">{{ $barang->asal_pengadaan ?? '-' }}</td>
+            <td class="border border-gray-400 px-3 py-1 text-center">{{ $barang->status ?? '-' }}</td>
+          </tr>
+        @empty
+          <tr>
+            <td colspan="11" class="border border-gray-400 px-3 py-2 text-center text-gray-500">
+              Tidak ada data untuk ditampilkan.
+            </td>
+          </tr>
+        @endforelse
+      </tbody>
+    </table>
+  </div>
+
+  {{-- Footer Tanda Tangan --}}
+  <div class="mt-10 text-sm">
+    <p class="text-right mb-1">Banjarmasin, {{ now()->format('d F Y') }}</p>
+    <br><br><br>
+    <p class="text-right mr-6">__________________________</p>
+    <p class="text-right mr-6 text-gray-600">Petugas Inventaris</p>
+  </div>
+
+</body>
+</html>

@@ -24,6 +24,7 @@ class Barang extends Model
     'jumlah',
     'kondisi',
     'tahun_pengadaan',
+    'asal_pengadaan',
     'catatan',
     'nomor_seri',
     'merk',
