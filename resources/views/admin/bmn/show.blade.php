@@ -1,134 +1,192 @@
 @extends('layouts.admin.main')
 
 @section('content')
-{{-- Tombol Kembali --}}
-<div class="flex p-3 ml-3 mr-3">
-  <a href="{{ route('bmn.mcr.index') }}"
-     class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none font-bold rounded-lg text-sm text-center px-5 py-2.5 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600">
-     Kembali
-  </a>
-</div>
+<div class="font-display bg-background-light dark:bg-background-dark min-h-screen">
+  <div class="flex">
+    <!-- Main Content -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8">
+      <div class="max-w-7xl mx-auto">
 
-{{-- Detail Barang --}}
-<div class="p-6 ml-6 mr-3 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-  <h2 class="mb-6 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-    {{ $barang->nama_barang }}
-  </h2>
+        <!-- Breadcrumbs -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          <a href="{{ route('bmn.index', $ruangan) }}" class="text-gray-500 dark:text-[#9dabb9] text-sm font-medium hover:text-primary dark:hover:text-white">Home</a>
+          <span class="text-gray-500 dark:text-[#9dabb9] text-sm font-medium">/</span>
+          <a href="{{ route('bmn.index', $ruangan) }}" class="text-gray-500 dark:text-[#9dabb9] text-sm font-medium hover:text-primary dark:hover:text-white">
+            {{ ucfirst($ruangan) }}
+          </a>
+          <span class="text-gray-500 dark:text-[#9dabb9] text-sm font-medium">/</span>
+          <span class="text-gray-800 dark:text-white text-sm font-medium">{{ $barang->nama_barang }}</span>
+        </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    {{-- KIRI: Detail Barang --}}
-    <div>
-      <p class="mb-3 text-gray-500 dark:text-gray-400">
-        {{ $barang->deskripsi ?? 'Tidak ada deskripsi' }}
-      </p>
+        <!-- Page Heading & Button Group -->
+        <div class="flex flex-wrap justify-between items-start gap-4 mb-8">
+          <div class="flex min-w-72 flex-col gap-3">
+            <p class="text-gray-900 dark:text-white text-3xl lg:text-4xl font-black leading-tight tracking-[-0.033em]">
+              {{ $barang->nama_barang }}
+            </p>
+            <p class="text-gray-500 dark:text-[#9dabb9] text-base font-normal">
+              Detail lengkap barang inventaris.
+            </p>
+          </div>
 
-      <ul role="list" class="space-y-2 text-gray-500 dark:text-gray-400">
-        <li class="flex items-center space-x-2"><i class="fa-solid fa-code text-sm"></i>
-          <span class="font-bold">Kode Barang:</span>
-          <span>{{ $barang->kode_barang }}</span>
-        </li>
-        <li class="flex items-center space-x-2"><i class="fa-solid fa-hashtag text-sm"></i>
-          <span class="font-bold">Nomor Seri:</span>
-          <span>{{ $barang->nomor_seri ?? '-' }}</span>
-        </li>
-        <li class="flex items-center space-x-2"><i class="fa-solid fa-copyright text-sm"></i>
-          <span class="font-bold">Merk:</span>
-          <span>{{ $barang->merk ?? '-' }}</span>
-        </li>
-        <li class="flex items-center space-x-2"><i class="fa-solid fa-location-dot text-sm"></i>
-          <span class="font-bold">Ruangan:</span>
-          <span>{{ $barang->ruangan }}</span>
-        </li>
-        <li class="flex items-center space-x-2"><i class="fa-solid fa-calendar text-sm"></i>
-          <span class="font-bold">Tahun Pengadaan:</span>
-          <span>{{ $barang->tahun_pengadaan ?? '-' }}</span>
-        </li>
-        <li class="flex items-center space-x-2"><i class="fa-solid fa-truck text-sm"></i>
-          <span class="font-bold">Asal Pengadaan:</span>
-          <span>{{ $barang->asal_pengadaan ?? '-' }}</span>
-        </li>
-        <li class="flex items-center space-x-2"><i class="fa-solid fa-briefcase text-sm"></i>
-          <span class="font-bold">Peruntukan:</span>
-          <span>{{ $barang->peruntukan ?? '-' }}</span>
-        </li>
-        <li class="flex items-center space-x-2"><i class="fa-solid fa-percent text-sm"></i>
-          <span class="font-bold">Persentase Kondisi:</span>
-          <span>{{ $barang->persentase_kondisi ?? 0 }}%</span>
-        </li>
+          <div class="flex flex-wrap gap-3">
+            <a href="{{ route('bmn.edit', [$ruangan, $barang->id]) }}"
+              class="flex min-w-[84px] items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:bg-opacity-90 transition-colors">
+              <span class="material-symbols-outlined text-base">edit</span>
+              <span>Edit Item</span>
+            </a>
 
-        {{-- Warna Kondisi --}}
-        @php
-            $warna = match($barang->kondisi) {
-                'Sangat Baik' => 'text-green-600 dark:text-green-400',
-                'Baik' => 'text-lime-600 dark:text-lime-400',
-                'Kurang Baik' => 'text-yellow-600 dark:text-yellow-400',
-                'Rusak', 'Rusak / Cacat', 'Cacat' => 'text-red-600 dark:text-red-400',
-                default => 'text-gray-600 dark:text-gray-400'
-            };
-        @endphp
+            <a href="{{ asset('storage/' . $barang->qr_code) }}" target="_blank"
+              class="flex min-w-[84px] items-center justify-center gap-2 rounded-lg h-10 px-4 bg-gray-200 dark:bg-white/10 text-gray-800 dark:text-white text-sm font-bold hover:bg-gray-300 dark:hover:bg-white/20 transition-colors">
+              <span class="material-symbols-outlined text-base">qr_code_scanner</span>
+              <span>Print QR Code</span>
+            </a>
 
-        <li class="flex items-center space-x-2">
-          <i class="fa-solid fa-circle-check {{ $warna }} text-sm"></i>
-          <span class="font-bold {{ $warna }}">Kondisi:</span>
-          <span class="{{ $warna }}">{{ $barang->kondisi ?? '-' }}</span>
-        </li>
+            <form action="{{ route('bmn.delete', [$ruangan, $barang->id]) }}" method="POST"
+              onsubmit="return confirm('Yakin ingin menghapus barang ini?')">
+              @csrf
+              @method('DELETE')
+              <button type="submit"
+                class="flex min-w-[84px] items-center justify-center gap-2 rounded-lg h-10 px-4 text-red-500 hover:bg-red-500/10 text-sm font-bold transition-colors">
+                <span class="material-symbols-outlined text-base">delete</span>
+                <span>Delete Item</span>
+              </button>
+            </form>
+          </div>
+        </div>
 
-        @if ($barang->catatan)
-          <li class="flex items-center space-x-2">
-            <i class="fa-solid fa-note-sticky text-sm"></i>
-            <span class="font-bold">Catatan:</span>
-            <span>{{ $barang->catatan }}</span>
-          </li>
-        @endif
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        <li class="flex items-center space-x-2">
-          <i class="fa-solid fa-clock text-sm"></i>
-          <span class="font-bold">Diperbarui:</span>
-          <span>{{ optional($barang->updated_at)->format('d M Y H:i') ?? '-' }}</span>
-        </li>
-      </ul>
-    </div>
+          <!-- Left Column -->
+          <div class="lg:col-span-2 space-y-8">
+            <!-- Description -->
+            <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+              <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4">Deskripsi</h3>
+              <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                {{ $barang->catatan ?? 'Tidak ada deskripsi tambahan.' }}
+              </p>
+            </div>
 
-    
-{{-- KANAN: Gambar & QR Code --}}
-<div class="flex flex-col items-center justify-center p-6">
-    {{-- Card utama untuk gambar + QR --}}
-    <div class="flex items-center justify-center p-6 space-x-8">
-        {{-- Gambar Barang --}}
-        <figure class="flex flex-col items-center justify-center">
-            @if ($barang->foto)
-                <img class="max-h-40 w-auto object-contain rounded-md"
-                    src="{{ asset('storage/' . $barang->foto) }}"
-                    alt="{{ $barang->nama_barang }}">
-            @else
-                <div class="w-64 h-64 flex items-center justify-center bg-gray-100 text-gray-500 rounded-lg border dark:bg-gray-700 dark:text-gray-400">
-                    Tidak ada foto
+            <!-- Item Details -->
+            <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+              <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-6">Detail Barang</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kondisi</p>
+                  <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-500/20 px-3 py-1 text-sm font-medium text-green-800 dark:text-green-300">
+                    {{ $barang->kondisi }}
+                  </span>
                 </div>
-            @endif
-        </figure>
-
-        {{-- QR Code --}}
-        <figure class="flex flex-col items-center justify-center">
-            @if ($barang->qr_code)
-                <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
-                    <img class="w-32 h-32 object-contain"
-                        src="{{ asset('storage/' . $barang->qr_code) }}"
-                        alt="QR Code">
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kode Barang</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->kode_barang }}</p>
                 </div>
-            @else
-                <div class="w-32 h-32 flex items-center justify-center bg-gray-100 text-gray-500 rounded-lg border dark:bg-gray-700 dark:text-gray-400">
-                    Tidak ada QR Code
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Nomor Seri</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->nomor_seri ?? '-' }}</p>
                 </div>
-            @endif
-        </figure>
-    </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Merk</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->merk ?? '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Ruangan</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ ucfirst($barang->ruangan) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Asal Pengadaan</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ ucfirst($barang->asal_pengadaan) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Tahun Pengadaan</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->tahun_pengadaan ?? '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Peruntukan</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ ucfirst($barang->peruntukan) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kategori</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->kategori }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Jumlah</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->jumlah }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-    {{-- Caption di bawah gambar --}}
-    <figcaption class="mt- text-sm text-gray-500 dark:text-gray-400 text-center">
-        {{ $barang->nama_barang }} — {{ $barang->kode_barang }}
-    </figcaption>
-</div>
+          <!-- Right Column -->
+          <div class="lg:col-span-1 space-y-8">
+              <!-- Item Image -->
+              <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-col items-center">
+                  <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4">Foto Barang</h3>
+                  <div class="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                      @if ($barang->foto)
+                          <img src="{{ asset('storage/' . $barang->foto) }}" 
+                              alt="{{ $barang->nama_barang }}" 
+                              class="object-cover w-full h-full">
+                      @else
+                          <span class="text-gray-400 text-sm">Tidak ada foto</span>
+                      @endif
+                  </div>
+              </div>
 
+              <!-- QR Code -->
+              <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-col items-center">
+                  <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4">QR Code</h3>
+                  <div class="w-full aspect-square rounded-lg bg-white flex items-center justify-center">
+                      <img src="{{ asset('storage/' . $barang->qr_code) }}" 
+                           alt="QR Code {{ $barang->kode_barang }}" 
+                           class="object-contain w-3/4 h-3/4">
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">Scan untuk lihat detail</p>
+              </div>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 </div>
 @endsection
+
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>

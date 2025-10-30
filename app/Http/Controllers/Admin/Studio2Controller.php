@@ -12,11 +12,11 @@ class Studio2Controller extends Controller
 {
     public function index()
     {
-<<<<<<< HEAD
+
         $title = 'Daftar Peralatan Studio 2';
         // ✅ Ganti ruangan -> studio
         $barangs = Barang::where('studio', 'studio2')->get();
-=======
+
         $title = 'Daftar Peralatan Studio ';
         $barangs = Barang::where('studio', 'studio2')->get();
 
@@ -25,7 +25,6 @@ class Studio2Controller extends Controller
         $barangs = Barang::where('ruangan', 'studio2')->get();
 
 
->>>>>>> 03b94e83913e22647d5c0dfe2b21c5ae2e1bfe7e
         return view('admin.studio2.index', compact('title', 'barangs'));
     }
 
@@ -65,7 +64,7 @@ class Studio2Controller extends Controller
         $path = $request->file('foto') ? $request->file('foto')->store('barang', 'public') : null;
 
         // 🔹 Simpan data ke database
-        Barang::create([
+Barang::create([
 
     'uuid' => Str::uuid(),
     'nama_barang' => $validated['nama_barang'],
@@ -95,13 +94,13 @@ class Studio2Controller extends Controller
             'sisa_limit' => 1,
             'foto' => $path,
             'status' => $validated['status'],
-<<<<<<< HEAD
+
             // ✅ Ganti ruangan -> studio
             'studio' => 'studio2', 
-=======
+
             // Diperbaiki: Menggunakan kolom '' saat membuat data baru
             'ruangan' => 'studio2', 
->>>>>>> 03b94e83913e22647d5c0dfe2b21c5ae2e1bfe7e
+
         ]);
 
 
@@ -161,16 +160,11 @@ class Studio2Controller extends Controller
     }
 
     public function print()
-<<<<<<< HEAD
-    {
-        $title = 'Laporan Data Peralatan Studio 2';
-        // ✅ Ganti ruangan -> studio
-        $barangs = Barang::where('studio', 'studio2')->get();
 
-        return view('admin.studio2.print', compact('title', 'barangs'));
-    }
-=======
-{
+    {
+        
+
+
     $title = 'Laporan Data Peralatan Studio 2';
 
     // Gunakan kolom '' jika memang kolom 'studio' sudah tidak ada
@@ -181,5 +175,6 @@ class Studio2Controller extends Controller
 
 
 
->>>>>>> 03b94e83913e22647d5c0dfe2b21c5ae2e1bfe7e
+
 }
+
