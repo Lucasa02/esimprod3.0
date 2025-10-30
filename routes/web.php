@@ -21,229 +21,217 @@ use App\Http\Controllers\User\PeminjamanController as PeminjamanUser;
 use App\Http\Controllers\User\PengembalianController as PengembalianUser;
 
 
+// =======================================================================
+// 1. AUTHENTICATION ROUTES
+// =======================================================================
 Route::prefix('/')->group(function () {
-	Route::get('/', [AuthController::class, 'index'])->name('login');
-	Route::post('/login', [AuthController::class, 'loginProcess'])->name('login.process');
-
-	Route::middleware(['auth', 'role:superadmin,admin'])->group(function () {
-		Route::get('/password', [AuthController::class, 'password'])->name('password');
-		Route::post('/password', [AuthController::class, 'passwordValidation'])->name('password.validation');
-		Route::get('/password', [AuthController::class, 'password'])->name('password');
-		Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.request');
-		Route::post('/forgot-password', [AuthController::class, 'forgotPasswordProcess'])->name('password.email');
-		Route::get('/reset-password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
-		Route::post('/reset-password', [AuthController::class, 'resetPasswordProcess'])->name('password.update');
-	});
-	Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/', [AuthController::class, 'index'])->name('login');
+    Route::post('/login', [AuthController::class, 'loginProcess'])->name('login.process');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
+    // Auth routes that require superadmin/admin role for password management
+    Route::middleware(['auth', 'role:superadmin,admin'])->group(function () {
+        // Password and Forgot Password
+        Route::get('/password', [AuthController::class, 'password'])->name('password');
+        Route::post('/password', [AuthController::class, 'passwordValidation'])->name('password.validation');
+        Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.request');
+        Route::post('/forgot-password', [AuthController::class, 'forgotPasswordProcess'])->name('password.email');
+        Route::get('/reset-password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
+        Route::post('/reset-password', [AuthController::class, 'resetPasswordProcess'])->name('password.update');
+    });
 });
 
-// cek apakah semua user sudah login atau tidak
+// =======================================================================
+// 2. AUTHENTICATED ROUTES (ADMIN/SUPERADMIN & USER)
+// =======================================================================
 Route::middleware(['auth'])->group(function () {
 
-	// pastikan admin atau superadmin sudah melakukan verifikasi dengan masukkan password
-	Route::middleware('verified.password')->group(function () {
+    // --- ADMIN / SUPERADMIN ROUTES (Requires verified.password) ---
+    Route::middleware('verified.password')->group(function () {
 
-		Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index')->middleware('role:superadmin,admin');
-		// Route::get('/dashboard_settings', [DashboardController::class, 'settings'])->name('dashboard.settings')->middleware('role:superadmin,admin');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index')->middleware('role:superadmin,admin');
 
-		Route::prefix('barang')->group(function () {
-			Route::middleware(['role:superadmin,admin'])->group(function () {
-				Route::get('/', [BarangController::class, 'index'])->name('barang.index');
-				Route::get('/tambah', [BarangController::class, 'create'])->name('barang.create');
-				Route::post('/store', [BarangController::class, 'store'])->name('barang.store');
-				Route::get('/detail/{uuid}', [BarangController::class, 'show'])->name('barang.show');
-				Route::get('/print-barang', [BarangController::class, 'printBarang'])->name('barang.print-barang');
-				Route::get('/print-qrcode', [BarangController::class, 'printQrCode'])->name('barang.print-qrcode');
-				Route::get('/result', [BarangController::class, 'search'])->name('barang.search');
-				Route::get('jenis-barang/{jenisBarang:uuid}', [BarangController::class, 'jenisBarang'])->name('barang.jenis-barang');
-				Route::get('/export', [BarangController::class, 'export'])->name('barang.export');
-				Route::post('import', [BarangController::class, 'import'])->name('barang.import');
-			});
+        // Grouped Admin/Superadmin Routes
+        Route::middleware('role:superadmin,admin')->group(function () {
 
-	
+            // BARANG MANAGEMENT
+            Route::prefix('barang')->group(function () {
+                // Shared Admin/Superadmin access
+                Route::get('/', [BarangController::class, 'index'])->name('barang.index');
+                Route::get('/tambah', [BarangController::class, 'create'])->name('barang.create');
+                Route::post('/store', [BarangController::class, 'store'])->name('barang.store');
+                Route::get('/detail/{uuid}', [BarangController::class, 'show'])->name('barang.show');
+                Route::get('/print-barang', [BarangController::class, 'printBarang'])->name('barang.print-barang');
+                Route::get('/print-qrcode', [BarangController::class, 'printQrCode'])->name('barang.print-qrcode');
+                Route::get('/result', [BarangController::class, 'search'])->name('barang.search');
+                Route::get('jenis-barang/{jenisBarang:uuid}', [BarangController::class, 'jenisBarang'])->name('barang.jenis-barang');
+                Route::get('/export', [BarangController::class, 'export'])->name('barang.export');
+                Route::post('import', [BarangController::class, 'import'])->name('barang.import');
+            });
+            
+            // Barang Management (Superadmin Only - CRUD)
+            Route::prefix('barang')->middleware('role:superadmin')->group(function () {
+                Route::get('/edit/{uuid}', [BarangController::class, 'edit'])->name('barang.edit');
+                Route::put('/update/{uuid}', [BarangController::class, 'update'])->name('barang.update');
+                Route::delete('/destroy/{uuid}', [BarangController::class, 'destroy'])->name('barang.destroy');
+            });
 
-			Route::middleware('role:superadmin')->group(function () {
-				Route::get('/edit/{uuid}', [BarangController::class, 'edit'])->name('barang.edit');
-				Route::put('/update/{uuid}', [BarangController::class, 'update'])->name('barang.update');
-				Route::delete('/destroy/{uuid}', [BarangController::class, 'destroy'])->name('barang.destroy');
-			});
+            // MASTER DATA
+            Route::prefix('buku-panduan')->group(function () {
+                Route::get('/', [GuideBookController::class, 'index'])->name('buku-panduan.index');
+                Route::post('store', [GuideBookController::class, 'store'])->name('buku-panduan.store');
+                Route::patch('used/{uuid}', [GuideBookController::class, 'used'])->name('buku-panduan.used');
+                Route::patch('unused/{uuid}', [GuideBookController::class, 'unused'])->name('buku-panduan.unused');
+                Route::get('download', [GuideBookController::class, 'download'])->name('buku-panduan.download');
+            });
 
-			
-		});
+            Route::prefix('jenis-barang')->group(function () {
+                Route::get('/', [JenisBarangController::class, 'index'])->name('jenis-barang.index');
+                Route::post('/store', [JenisBarangController::class, 'store'])->name('jenis-barang.store');
+                Route::get('/edit/{uuid}', [JenisBarangController::class, 'edit'])->name('jenis-barang.edit');
+                Route::put('/update/{uuid}', [JenisBarangController::class, 'update'])->name('jenis-barang.update');
+                Route::delete('/destroy/{uuid}', [JenisBarangController::class, 'destroy'])->name('jenis-barang.destroy');
+                Route::get('/result', [JenisBarangController::class, 'search'])->name('jenis-barang.search');
+            });
 
+            Route::prefix('peruntukan')->group(function () {
+                Route::get('/', [PeruntukanController::class, 'index'])->name('peruntukan.index');
+                Route::post('/store', [PeruntukanController::class, 'store'])->name('peruntukan.store');
+                Route::get('/edit/{uuid}', [PeruntukanController::class, 'edit'])->name('peruntukan.edit');
+                Route::put('/update/{uuid}', [PeruntukanController::class, 'update'])->name('peruntukan.update');
+                Route::delete('/destroy/{uuid}', [PeruntukanController::class, 'destroy'])->name('peruntukan.destroy');
+                Route::get('/result', [PeruntukanController::class, 'search'])->name('peruntukan.search');
+            });
 
+            Route::prefix('jabatan')->group(function () {
+                Route::get('/', [JabatanController::class, 'index'])->name('jabatan.index');
+                Route::post('/store', [JabatanController::class, 'store'])->name('jabatan.store');
+                Route::get('/edit/{uuid}', [JabatanController::class, 'edit'])->name('jabatan.edit');
+                Route::put('/update/{uuid}', [JabatanController::class, 'update'])->name('jabatan.update');
+                Route::delete('/destroy/{uuid}', [JabatanController::class, 'destroy'])->name('jabatan.destroy');
+                Route::get('/result', [JabatanController::class, 'search'])->name('jabatan.search');
+            });
 
-		Route::middleware('role:superadmin,admin')->group(function () {
+            // TRANSAKSI
+            Route::prefix('peminjaman')->group(function () {
+                Route::get('/', [PeminjamanController::class, 'index'])->name('peminjaman.index');
+                Route::get('/detail/{uuid}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
+                Route::get('/result', [PeminjamanController::class, 'search'])->name('peminjaman.search');
+                Route::get('pdf/{uuid}', [PeminjamanController::class, 'print'])->name('peminjaman.print');
+                Route::get('laporan-bulanan', [PeminjamanController::class, 'laporanBulanan'])->name('peminjaman.laporan.bulanan');
+                Route::get('/laporan-bulanan/pdf', [PeminjamanController::class, 'exportLaporanBulanan'])->name('peminjaman.laporan-bulanan.pdf');
+                Route::get('/peminjaman/laporan-bulanan', [PeminjamanController::class, 'laporanBulanan'])->name('peminjaman.laporan-bulanan');
+                Route::get('catatan/{id}', [PeminjamanController::class, 'editCatatan'])->name('peminjaman.catatan');
+                Route::patch('catatan/update/{id}', [PeminjamanController::class, 'updateCatatan'])->name('peminjaman.catatan.update');
+            });
 
-			Route::prefix('buku-panduan')->group(function () {
-				Route::get('/', [GuideBookController::class, 'index'])->name('buku-panduan.index');
-				Route::post('store', [GuideBookController::class, 'store'])->name('buku-panduan.store');
-				Route::patch('used/{uuid}', [GuideBookController::class, 'used'])->name('buku-panduan.used');
-				Route::patch('unused/{uuid}', [GuideBookController::class, 'unused'])->name('buku-panduan.unused');
-				Route::get('download', [GuideBookController::class, 'download'])->name('buku-panduan.download');
-			});
+            Route::prefix('pengembalian')->group(function () {
+                Route::get('/', [PengembalianController::class, 'index'])->name('pengembalian.index');
+                Route::get('/detail/{uuid}', [PengembalianController::class, 'show'])->name('pengembalian.show');
+                Route::get('/result', [PengembalianController::class, 'search'])->name('pengembalian.search');
+            });
 
-			Route::prefix('jenis-barang')->group(function () {
-				Route::get('/', [JenisBarangController::class, 'index'])->name('jenis-barang.index');
-				Route::post('/store', [JenisBarangController::class, 'store'])->name('jenis-barang.store');
-				Route::get('/edit/{uuid}', [JenisBarangController::class, 'edit'])->name('jenis-barang.edit');
-				Route::put('/update/{uuid}', [JenisBarangController::class, 'update'])->name('jenis-barang.update');
-				Route::delete('/destroy/{uuid}', [JenisBarangController::class, 'destroy'])->name('jenis-barang.destroy');
-				Route::get('/result', [JenisBarangController::class, 'search'])->name('jenis-barang.search');
-			});
+            // PERAWATAN
+            Route::prefix('perawatan')->group(function () {
+                Route::get('/limit-habis', [PerawatanController::class, 'limitHabis'])->name('perawatan.limit.habis.index');
+                Route::get('/barang-limit-habis/{uuid}', [PerawatanController::class, 'detailBarangHabis'])->name('perawatan.limit.habis.detail');
+                Route::get('/barang-hilang', [PerawatanController::class, 'barangHilang'])->name('perawatan.barang.hilang.index');
+                Route::get('/barang-hilang/{uuid}', [PerawatanController::class, 'detailBarangHilang'])->name('perawatan.barang.hilang.detail');
+                Route::put('/reset-limit/{uuid}', [PerawatanController::class, 'resetLimit'])->name('perawatan.reset-limit');
+                Route::put('/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
+                Route::put('/perawatan/barang-hilang/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
+            });
 
-			Route::prefix('peruntukan')->group(function () {
-				Route::get('/', [PeruntukanController::class, 'index'])->name('peruntukan.index');
-				Route::post('/store', [PeruntukanController::class, 'store'])->name('peruntukan.store');
-				Route::get('/edit/{uuid}', [PeruntukanController::class, 'edit'])->name('peruntukan.edit');
-				Route::put('/update/{uuid}', [PeruntukanController::class, 'update'])->name('peruntukan.update');
-				Route::delete('/destroy/{uuid}', [PeruntukanController::class, 'destroy'])->name('peruntukan.destroy');
-				Route::get('/result', [PeruntukanController::class, 'search'])->name('peruntukan.search');
-			});
+            // STUDIO
+            Route::prefix('studio1')->group(function () {
+                Route::get('/', [Studio1Controller::class, 'index'])->name('studio1.index');
+            });
+            Route::prefix('studio2')->name('studio2.')->group(function () {
+                Route::get('/', [Studio2Controller::class, 'index'])->name('index');
+                Route::get('/create', [Studio2Controller::class, 'create'])->name('create');
+                Route::post('/store', [Studio2Controller::class, 'store'])->name('store');
+                Route::get('/{id}/edit', [Studio2Controller::class, 'edit'])->name('edit');
+                Route::put('/{id}/update', [Studio2Controller::class, 'update'])->name('update');
+                Route::delete('/{id}/delete', [Studio2Controller::class, 'destroy'])->name('destroy');
+                Route::get('/{id}/detail', [Studio2Controller::class, 'show'])->name('detail');
+                Route::get('/print', [Studio2Controller::class, 'print'])->name('print');
+            });
+        
+        }); // End of Route::middleware('role:superadmin,admin')->group(function () 
+        
+        // PROFIL (Accessible by all verified users)
+        Route::prefix('profil')->group(function () {
+            Route::get('/', [ProfileController::class, 'index'])->name('profil.index');
+            Route::patch('/ubah-profil', [ProfileController::class, 'updateProfil'])->name('profil.update-profil');
+            Route::patch('/ubah-password', [ProfileController::class, 'updatePassword'])->name('profil.update-password');
+        });
 
-			Route::prefix('jabatan')->group(function () {
-				Route::get('/', [JabatanController::class, 'index'])->name('jabatan.index');
-				Route::post('/store', [JabatanController::class, 'store'])->name('jabatan.store');
-				Route::get('/edit/{uuid}', [JabatanController::class, 'edit'])->name('jabatan.edit');
-				Route::put('/update/{uuid}', [JabatanController::class, 'update'])->name('jabatan.update');
-				Route::delete('/destroy/{uuid}', [JabatanController::class, 'destroy'])->name('jabatan.destroy');
-				Route::get('/result', [JabatanController::class, 'search'])->name('jabatan.search');
-			});
-		});
+        // USERS MANAGEMENT
+        Route::prefix('users')->middleware('role:superadmin,admin')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->name('users.index');
+            Route::get('/tambah', [UserController::class, 'create'])->name('users.create');
+            Route::post('/store', [UserController::class, 'store'])->name('users.store');
+            Route::get('/detail/{uuid}', [UserController::class, 'show'])->name('users.show');
+            Route::get('/roles', [UserController::class, 'filterByRole'])->name('users.role');
+            Route::get('/jabatan', [UserController::class, 'filterByJabatan'])->name('users.jabatan');
+            Route::get('/result', [UserController::class, 'search'])->name('users.search');
+            Route::get('/id-card/{uuid}', [UserController::class, 'printIDCard'])->name('users.id.card');
+            Route::get('/log/{uuid}', [UserController::class, 'log'])->name('users.log');
+        });
+        // Users Management (Superadmin Only - CRUD)
+        Route::prefix('users')->middleware('role:superadmin')->group(function () {
+            Route::get('/edit/{uuid}', [UserController::class, 'edit'])->name('users.edit');
+            Route::put('/update/{uuid}', [UserController::class, 'update'])->name('users.update');
+            Route::delete('/destroy/{uuid}', [UserController::class, 'destroy'])->name('users.destroy');
+        });
+        
+        // BMN ROUTES (Dikelompokkan di bawah prefix 'admin/bmn')
+        Route::prefix('admin/bmn')->group(function () {
+            Route::get('/mcr', [BmnController::class, 'index'])->name('bmn.mcr.index')->defaults('ruangan', 'mcr');
+            Route::get('/studio', [BmnController::class, 'index'])->name('bmn.studio.index')->defaults('ruangan', 'studio');
+            Route::get('/peralatan', [BmnController::class, 'index'])->name('bmn.peralatan.index')->defaults('ruangan', 'peralatan');
 
-		Route::prefix('profil')->group(function () {
-			Route::get('/', [ProfileController::class, 'index'])->name('profil.index');
-			Route::patch('/ubah-profil', [ProfileController::class, 'updateProfil'])->name('profil.update-profil');
-			Route::patch('/ubah-password', [ProfileController::class, 'updatePassword'])->name('profil.update-password');
-		});
+            Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
+            Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
+            Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
+            Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
+            Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
+            Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
+            Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show');
+            Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
+            Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
+        });
 
-		Route::prefix('users')->group(function () {
-			Route::middleware('role:superadmin,admin')->group(function () {
-				Route::get('/', [UserController::class, 'index'])->name('users.index');
-				Route::get('/tambah', [UserController::class, 'create'])->name('users.create');
-				Route::post('/store', [UserController::class, 'store'])->name('users.store');
-				Route::get('/detail/{uuid}', [UserController::class, 'show'])->name('users.show');
-				Route::get('/roles', [UserController::class, 'filterByRole'])->name('users.role');
-				Route::get('/jabatan', [UserController::class, 'filterByJabatan'])->name('users.jabatan');
-				Route::get('/result', [UserController::class, 'search'])->name('users.search');
-				Route::get('/id-card/{uuid}', [UserController::class, 'printIDCard'])->name('users.id.card');
-				Route::get('/log/{uuid}', [UserController::class, 'log'])->name('users.log');
-			});
+    }); // End of Route::middleware('verified.password')->group(function () 
 
-			Route::middleware('role:superadmin')->group(function () {
-				Route::get('/edit/{uuid}', [UserController::class, 'edit'])->name('users.edit');
-				Route::put('/update/{uuid}', [UserController::class, 'update'])->name('users.update');
-				Route::delete('/destroy/{uuid}', [UserController::class, 'destroy'])->name('users.destroy');
-			});
-		});
+    // --- USER ROUTES (Requires role:user) ---
+    Route::middleware(['role:user'])->group(function () {
 
-		Route::middleware('role:superadmin,admin')->group(function () {
-			Route::prefix('peminjaman')->group(function () {
-				Route::get('/', [PeminjamanController::class, 'index'])->name('peminjaman.index');
-				Route::get('/detail/{uuid}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
-				Route::get('/result', [PeminjamanController::class, 'search'])->name('peminjaman.search');
-				Route::get('pdf/{uuid}', [PeminjamanController::class, 'print'])->name('peminjaman.print');
-				Route::get('laporan-bulanan', [PeminjamanController::class, 'laporanBulanan'])->name('peminjaman.laporan.bulanan');
-				Route::get('/laporan-bulanan/pdf', [PeminjamanController::class, 'exportLaporanBulanan'])->name('peminjaman.laporan-bulanan.pdf');
-				Route::get('/peminjaman/laporan-bulanan', [PeminjamanController::class, 'laporanBulanan'])->name('peminjaman.laporan-bulanan');
-				Route::get('catatan/{id}', [PeminjamanController::class, 'editCatatan'])->name('peminjaman.catatan');
-				Route::patch('catatan/update/{id}', [PeminjamanController::class, 'updateCatatan'])->name('peminjaman.catatan.update');
-			});
+        Route::get('user/options', [OptionsController::class, 'index'])->name('user.option');
+        
+        // User Profil
+        Route::get('user/profil', [OptionsController::class, 'profil'])->name('user.profil');
+        Route::patch('user/profil/update', [OptionsController::class, 'updateProfil'])->name('user.profil.update');
 
-			Route::prefix('pengembalian')->group(function () {
-				Route::get('/', [PengembalianController::class, 'index'])->name('pengembalian.index');
-				Route::get('/detail/{uuid}', [PengembalianController::class, 'show'])->name('pengembalian.show');
-				Route::get('/result', [PengembalianController::class, 'search'])->name('pengembalian.search');
-			});
+        // Peminjaman (User View)
+        Route::prefix('user/peminjaman')->group(function () {
+            Route::get('/', [PeminjamanUser::class, 'index'])->name('user.peminjaman.index');
+            Route::post('/scan', [PeminjamanUser::class, 'scan'])->name('user.peminjaman.scan');
+            Route::delete('/remove/{uuid}', [PeminjamanUser::class, 'removeItem'])->name('user.peminjaman.remove');
+            Route::post('/store', [PeminjamanUser::class, 'store'])->name('user.peminjaman.store');
+            Route::get('/report', [PeminjamanUser::class, 'report'])->name('user.peminjaman.report');
+            Route::get('/pdf', [PeminjamanUser::class, 'printReport'])->name('user.peminjaman.pdf');
+        });
 
-			Route::prefix('perawatan')->group(function () {
-				Route::get('/limit-habis', [PerawatanController::class, 'limitHabis'])->name('perawatan.limit.habis.index');
-				Route::get('/barang-limit-habis/{uuid}', [PerawatanController::class, 'detailBarangHabis'])->name('perawatan.limit.habis.detail');
-				Route::get('/barang-hilang', [PerawatanController::class, 'barangHilang'])->name('perawatan.barang.hilang.index');
-				Route::get('/barang-hilang/{uuid}', [PerawatanController::class, 'detailBarangHilang'])->name('perawatan.barang.hilang.detail');
-				Route::put('/reset-limit/{uuid}', [PerawatanController::class, 'resetLimit'])->name('perawatan.reset-limit');
-				Route::put('/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
-				Route::put('/perawatan/barang-hilang/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
-			});
-
-
-
-			// Tambahkan di dalam group middleware('role:superadmin,admin')
-Route::prefix('studio1')->group(function () {
-    Route::get('/', [Studio1Controller::class, 'index'])->name('studio1.index');
-});
-
-Route::prefix('studio2')->name('studio2.')->group(function () {
-    Route::get('/', [Studio2Controller::class, 'index'])->name('index');
-    Route::get('/create', [Studio2Controller::class, 'create'])->name('create');
-    Route::post('/store', [Studio2Controller::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [Studio2Controller::class, 'edit'])->name('edit');
-    Route::put('/{id}/update', [Studio2Controller::class, 'update'])->name('update');
-    Route::delete('/{id}/delete', [Studio2Controller::class, 'destroy'])->name('destroy');
-    Route::get('/{id}/detail', [Studio2Controller::class, 'show'])->name('detail');
-
-    // 🔹 Tambahkan baris ini:
-    Route::get('/print', [Studio2Controller::class, 'print'])->name('print');
-});
-
-			// ========================
-// ROUTE DATA BMN
-// ========================
-Route::prefix('admin/bmn')->middleware(['auth', 'verified.password', 'role:superadmin,admin'])->group(function () {
-    Route::get('/mcr', [BmnController::class, 'index'])->name('bmn.mcr.index')->defaults('ruangan', 'mcr');
-    Route::get('/studio', [BmnController::class, 'index'])->name('bmn.studio.index')->defaults('ruangan', 'studio');
-    Route::get('/peralatan', [BmnController::class, 'index'])->name('bmn.peralatan.index')->defaults('ruangan', 'peralatan');
-
-    Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
-    Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
-    Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
-    Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
-    Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
-	Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
-	Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show'); //
-	 // 🔹 Tambahkan route print di sini
-    Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
-	Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
-
-});
-
-
-		});
-	});
-
-	// User Route
-	Route::middleware(['role:user'])->group(function () {
-
-		Route::get('user/options', [OptionsController::class, 'index'])->name('user.option');
-
-		Route::get('user/profil', [OptionsController::class, 'profil'])->name('user.profil');
-		Route::patch('user/profil/update', [OptionsController::class, 'updateProfil'])->name('user.profil.update');
-
-		Route::prefix('user/peminjaman')->middleware(['auth', 'role:user'])->group(function () {
-			Route::get('/', [PeminjamanUser::class, 'index'])->name('user.peminjaman.index');
-			Route::post('/scan', [PeminjamanUser::class, 'scan'])->name('user.peminjaman.scan');
-			Route::delete('/remove/{uuid}', [PeminjamanUser::class, 'removeItem'])->name('user.peminjaman.remove');
-			Route::post('/store', [PeminjamanUser::class, 'store'])->name('user.peminjaman.store');
-			Route::get('/report', [PeminjamanUser::class, 'report'])->name('user.peminjaman.report');
-			Route::get('/pdf', [PeminjamanUser::class, 'printReport'])->name('user.peminjaman.pdf');
-		});
-
-		Route::prefix('user/pengembalian')->group(function () {
-			Route::get('/', [PengembalianUser::class, 'index'])->name('user.pengembalian.index');
-			Route::post('/check', [PengembalianUser::class, 'checkPeminjaman'])->name('user.pengembalian.check');
-			Route::post('/validation', [PengembalianUser::class, 'validateItem'])->name('user.pengembalian.validation');
-			Route::post('/store', [PengembalianUser::class, 'store'])->name('user.pengembalian.store');
-			Route::get('/report', [PengembalianUser::class, 'report'])->name('user.pengembalian.report');
-			Route::post('/update_desc', [PengembalianUser::class, 'desc_update'])->name('user.pengembalian.update_desc');
-			route::get('/pdf', [PengembalianUser::class, 'printReport'])->name('user.pengembalian.pdf');
-		});
-
-
-
-
-
-
-
-
-	});
+        // Pengembalian (User View)
+        Route::prefix('user/pengembalian')->group(function () {
+            Route::get('/', [PengembalianUser::class, 'index'])->name('user.pengembalian.index');
+            Route::post('/check', [PengembalianUser::class, 'checkPeminjaman'])->name('user.pengembalian.check');
+            Route::post('/validation', [PengembalianUser::class, 'validateItem'])->name('user.pengembalian.validation');
+            Route::post('/store', [PengembalianUser::class, 'store'])->name('user.pengembalian.store');
+            Route::get('/report', [PengembalianUser::class, 'report'])->name('user.pengembalian.report');
+            Route::post('/update_desc', [PengembalianUser::class, 'desc_update'])->name('user.pengembalian.update_desc');
+            Route::get('/pdf', [PengembalianUser::class, 'printReport'])->name('user.pengembalian.pdf');
+        });
+    });
 });

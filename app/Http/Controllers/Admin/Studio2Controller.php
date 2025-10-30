@@ -12,8 +12,14 @@ class Studio2Controller extends Controller
 {
     public function index()
     {
+<<<<<<< HEAD
         $title = 'Daftar Peralatan Studio ';
         $barangs = Barang::where('studio', 'studio2')->get();
+=======
+        $title = 'Daftar Peralatan Studio 2';
+        // Diperbaiki: Menggunakan kolom 'ruangan'
+        $barangs = Barang::where('ruangan', 'studio2')->get();
+>>>>>>> 5b11ca64a7f2d1e4e690573ee3f3cb5617049c1e
         return view('admin.studio2.index', compact('title', 'barangs'));
     }
 
@@ -54,6 +60,7 @@ class Studio2Controller extends Controller
 
         // 🔹 Simpan data ke database
         Barang::create([
+<<<<<<< HEAD
     'uuid' => Str::uuid(),
     'nama_barang' => $validated['nama_barang'],
     'kode_barang' => $kode_barang,
@@ -71,6 +78,20 @@ class Studio2Controller extends Controller
     'sisa_limit' => 1,
     'qr_code' => 'QR-' . $kode_barang,
 ]);
+=======
+            'uuid' => Str::uuid(),
+            'nama_barang' => $validated['nama_barang'],
+            'kode_barang' => $validated['kode_barang'],
+            'merk' => $validated['merk'] ?? null,
+            'nomor_seri' => $validated['nomor_seri'] ?? null,
+            'limit' => 1,
+            'sisa_limit' => 1,
+            'foto' => $path,
+            'status' => $validated['status'],
+            // Diperbaiki: Menggunakan kolom 'ruangan' saat membuat data baru
+            'ruangan' => 'studio2', 
+        ]);
+>>>>>>> 5b11ca64a7f2d1e4e690573ee3f3cb5617049c1e
 
         return redirect()->route('studio2.index')->with('success', 'Data berhasil ditambahkan!');
     }
@@ -130,7 +151,16 @@ class Studio2Controller extends Controller
     public function print()
     {
         $title = 'Laporan Data Peralatan Studio 2';
+<<<<<<< HEAD
         $barangs = Barang::where('studio', 'studio2')->get();
         return view('admin.studio2.print', compact('title', 'barangs'));
     }
+=======
+        // Diperbaiki: Menggunakan kolom 'ruangan'
+        $barangs = \App\Models\Barang::where('ruangan', 'studio2')->get();
+
+        return view('admin.studio2.print', compact('title', 'barangs'));
+    }
+
+>>>>>>> 5b11ca64a7f2d1e4e690573ee3f3cb5617049c1e
 }
