@@ -35,6 +35,30 @@
                                 @enderror
                             </div>
 
+                            {{-- ✅ Nomor Seri --}}
+                            <div>
+                                <label class="block text-sm font-bold text-black">Nomor Seri</label>
+                                <input type="text" name="nomor_seri" autocomplete="off"
+                                    class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    placeholder="Masukkan nomor seri barang"
+                                    value="{{ old('nomor_seri', $barang->nomor_seri) }}">
+                                @error('nomor_seri')
+                                    <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            {{-- ✅ Merk --}}
+                            <div>
+                                <label class="block text-sm font-bold text-black">Merk</label>
+                                <input type="text" name="merk" autocomplete="off"
+                                    class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    placeholder="Masukkan merk barang"
+                                    value="{{ old('merk', $barang->merk) }}">
+                                @error('merk')
+                                    <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                                @enderror
+                            </div>
+
                             {{-- Kategori --}}
                             <div>
                                 <label class="block text-sm font-bold text-black">Kategori</label>
@@ -68,7 +92,7 @@
                                 @enderror
                             </div>
 
-                            {{-- ✅ Asal Pengadaan --}}
+                            {{-- Asal Pengadaan --}}
                             <div>
                                 <label class="block text-sm font-bold text-black">Asal Pengadaan</label>
                                 <input type="text" name="asal_pengadaan" autocomplete="off"
@@ -80,7 +104,7 @@
                                 @enderror
                             </div>
 
-                            {{-- ✅ Peruntukan --}}
+                            {{-- Peruntukan --}}
                             <div>
                                 <label class="block text-sm font-bold text-black">Peruntukan</label>
                                 <input type="text" name="peruntukan" autocomplete="off"
@@ -102,6 +126,15 @@
                                     <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
                                 @enderror
                             </div>
+
+                            {{-- Posisi Barang (hanya tampilan, tidak bisa diubah) --}}
+                            <div>
+                                <label class="block text-sm font-bold text-black">Posisi Barang</label>
+                                <textarea readonly rows="2"
+                                    class="border border-gray-300 text-gray-700 text-sm rounded-lg block w-full p-2.5 bg-gray-100 cursor-not-allowed"
+                                    placeholder="Belum ada posisi barang">{{ $barang->posisi ?? 'Belum ada catatan posisi' }}</textarea>
+                            </div>
+
 
                             {{-- Kondisi Otomatis --}}
                             <div>

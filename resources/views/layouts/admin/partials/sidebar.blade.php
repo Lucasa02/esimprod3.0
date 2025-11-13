@@ -34,10 +34,34 @@
         </button>
 
         <ul id="dropdown-example" class="hidden py-2">
-          <li><a href="{{ route('barang.index') }}" class="block p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">Barang</a></li>
-          <li><a href="{{ route('jenis-barang.index') }}" class="block p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">Jenis Barang</a></li>
-          <li><a href="{{ route('peruntukan.index') }}" class="block p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">Peruntukan</a></li>
-          <li><a href="{{ route('jabatan.index') }}" class="block p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">Jabatan</a></li>
+          <li>
+            <a href="{{ route('barang.index') }}"
+              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              <i class="fa-solid fa-box text-xs opacity-70 me-2"></i>
+              Barang
+            </a>
+          </li>
+          <li>
+            <a href="{{ route('jenis-barang.index') }}"
+              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              <i class="fa-solid fa-tags text-xs opacity-70 me-2"></i>
+              Jenis Barang
+            </a>
+          </li>
+          <li>
+            <a href="{{ route('peruntukan.index') }}"
+              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              <i class="fa-solid fa-location-dot text-xs opacity-70 me-2"></i>
+              Peruntukan
+            </a>
+          </li>
+          <li>
+            <a href="{{ route('jabatan.index') }}"
+              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              <i class="fa-solid fa-user-tie text-xs opacity-70 me-2"></i>
+              Jabatan
+            </a>
+          </li>
         </ul>
       </li>
 
@@ -64,7 +88,7 @@
             </a>
           </li>
 
-          {{-- Studio (gabungan, tanpa dropdown) --}}
+          {{-- Studio --}}
           <li>
             <a href="{{ route('studio2.index') }}"
               class="flex items-center w-full p-1 pl-9 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
@@ -73,12 +97,12 @@
             </a>
           </li>
 
-          {{-- Peralatan Lain --}}
+          {{-- Perawatan MCR --}}
           <li>
             <a href="#"
               class="flex items-center w-full p-1 pl-9 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
               <i class="fa-solid fa-toolbox text-xs opacity-70 me-2"></i>
-              Peralatan Lain
+              Perawatan
             </a>
           </li>
         </ul>
@@ -118,10 +142,29 @@
               d="m1 1 4 4 4-4" />
           </svg>
         </button>
+
         <ul id="dropdown-perawatan" class="hidden py-2">
-          <li><a href="{{ route('perawatan.limit.habis.index') }}" class="block p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">Limit Habis</a></li>
-          <li><a href="{{ route('perawatan.barang.hilang.index') }}" class="block p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">Barang Hilang</a></li>
-          <li><a href="{{ route('perawatan.barang.rusak.index') }}" class="block p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">Barang Rusak</a></li>
+          <li>
+            <a href="{{ route('perawatan.limit.habis.index') }}"
+              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              <i class="fa-solid fa-battery-empty text-xs opacity-70 me-2"></i>
+              Limit Habis
+            </a>
+          </li>
+          <li>
+            <a href="{{ route('perawatan.barang.hilang.index') }}"
+              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              <i class="fa-solid fa-circle-xmark text-xs opacity-70 me-2"></i>
+              Barang Hilang
+            </a>
+          </li>
+          <li>
+            <a href="{{ route('perawatan.barang.rusak.index') }}"
+              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              <i class="fa-solid fa-screwdriver text-xs opacity-70 me-2"></i>
+              Barang Rusak
+            </a>
+          </li>
         </ul>
       </li>
 

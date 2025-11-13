@@ -18,15 +18,15 @@
               @php
                 $fields = [
                   ['label'=>'Nama Barang','name'=>'nama_barang','type'=>'text','required'=>true],
-                  ['label'=>'Kode Barang','name'=>'kode_barang','type'=>'text','required'=>true],
+                  ['label'=>'Kode Barang (kosongkan jika ingin otomatis)','name'=>'kode_barang','type'=>'text','required'=>false],
                   ['label'=>'Kategori','name'=>'kategori','type'=>'text','required'=>true],
                   ['label'=>'Merk (opsional)','name'=>'merk','type'=>'text','required'=>false],
                   ['label'=>'Nomor Seri (opsional)','name'=>'nomor_seri','type'=>'text','required'=>false],
                   ['label'=>'Jumlah','name'=>'jumlah','type'=>'number','required'=>true,'min'=>1],
                   ['label'=>'Persentase Kondisi (%)','name'=>'persentase_kondisi','type'=>'number','required'=>true,'min'=>0,'max'=>100],
                   ['label'=>'Tahun Pengadaan','name'=>'tahun_pengadaan','type'=>'number','required'=>false,'min'=>1900,'max'=>date('Y')],
-                  ['label'=>'Asal Pengadaan','name'=>'asal_pengadaan','type'=>'text','required'=>false], // ✅ baru
-                  ['label'=>'Peruntukan','name'=>'peruntukan','type'=>'text','required'=>false],         // ✅ baru
+                  ['label'=>'Asal Pengadaan','name'=>'asal_pengadaan','type'=>'text','required'=>false],
+                  ['label'=>'Peruntukan','name'=>'peruntukan','type'=>'text','required'=>false],
                 ];
               @endphp
 
@@ -36,15 +36,33 @@
                   <input type="{{ $f['type'] }}" name="{{ $f['name'] }}" autocomplete="off"
                     class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                     value="{{ old($f['name']) }}"
-                    @if($f['required']) required @endif
+                    @if($f['required'] && $f['name'] !== 'kode_barang') required @endif
                     @if(isset($f['min'])) min="{{ $f['min'] }}" @endif
                     @if(isset($f['max'])) max="{{ $f['max'] }}" @endif
                   >
+                  {{-- Pesan error --}}
                   @error($f['name'])
                     <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
                   @enderror
+
+                  {{-- Tambahkan keterangan khusus untuk kode barang --}}
+                  @if($f['name'] === 'kode_barang')
+                    <small class="text-gray-600 italic text-xs">Jika dikosongkan, sistem akan membuat kode barang otomatis.</small>
+                  @endif
                 </div>
               @endforeach
+
+              {{-- ✅ Posisi Barang (ubah ke catatan deskripsi) --}}
+              <div>
+                <label class="block text-sm font-bold text-black">Posisi Barang / Catatan Lokasi</label>
+                <textarea name="posisi" rows="3"
+                  placeholder="Contoh: Disimpan di Rak Besi bagian kanan, lemari bawah, atau meja operator."
+                  class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">{{ old('posisi') }}</textarea>
+                @error('posisi')
+                  <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                @enderror
+                <small class="text-gray-600 italic text-xs">Tuliskan deskripsi posisi barang secara bebas.</small>
+              </div>
 
               {{-- Catatan --}}
               <div>

@@ -1,171 +1,189 @@
+
+
+   
+     
+
 @extends('layouts.admin.main')
 
 @section('content')
-  {{-- Tambahkan Tailwind & Bootstrap --}}
-  @push('styles')
-    {{-- Tailwind CSS --}}
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,container-queries"></script>
+<div class="font-display bg-background-light dark:bg-background-dark min-h-screen">
+  <div class="flex">
+    <!-- Main Content -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8">
+      <div class="max-w-7xl mx-auto">
 
-    {{-- Bootstrap 5 --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-      body {
-        font-family: 'Manrope', sans-serif;
-      }
-
-      /* Efek premium gradient */
-      .gradient-bg {
-        background: linear-gradient(135deg, #f0f4ff, #e8ecff);
-      }
-
-      /* Efek glassmorphism */
-      .glass {
-        background: rgba(255, 255, 255, 0.75);
-        backdrop-filter: blur(14px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-
-      .dark .glass {
-        background: rgba(31, 41, 55, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      /* Hover soft scale */
-      .hover-soft:hover {
-        transform: scale(1.02);
-        transition: all 0.3s ease-in-out;
-      }
-
-      /* Shadow lembut */
-      .soft-shadow {
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      }
-    </style>
-  @endpush
-
-  <div class="flex p-3 ml-3 mr-3">
-    <a href="{{ route('barang.index') }}"
-      class="group relative inline-flex items-center gap-2 text-gray-800 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg px-5 py-2.5 font-semibold overflow-hidden hover:text-white hover:bg-gradient-to-r from-gray-800 to-gray-900 transition-all duration-300">
-      <span class="absolute inset-0 bg-gradient-to-r from-gray-800 to-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-      <i class="fa-solid fa-arrow-left relative z-10"></i>
-      <span class="relative z-10">Kembali</span>
-    </a>
-  </div>
-
-  {{-- Kontainer utama --}}
-  <div
-    class="p-6 ml-6 mr-3 mt-2 rounded-3xl border border-gray-200 dark:border-gray-700 soft-shadow glass transition-all duration-300">
-
-    {{-- Tabs --}}
-    <ul
-      class="flex flex-wrap text-sm font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 justify-center"
-      id="defaultTab" data-tabs-toggle="#defaultTabContent" role="tablist">
-
-      @php
-        $tabs = [
-            ['id' => 'detail', 'label' => 'Detail'],
-            ['id' => 'gambar', 'label' => 'Gambar'],
-            ['id' => 'qrcode', 'label' => 'QR-Code'],
-        ];
-      @endphp
-
-      @foreach ($tabs as $i => $tab)
-        <li class="me-2 mb-2">
-          <button id="{{ $tab['id'] }}-tab" data-tabs-target="#{{ $tab['id'] }}" type="button" role="tab"
-            aria-controls="{{ $tab['id'] }}" aria-selected="{{ $i == 0 ? 'true' : 'false' }}"
-            class="relative inline-block px-6 py-3 rounded-lg transition-all duration-300 hover:text-gray-900 dark:hover:text-white focus:outline-none 
-              {{ $i == 0 ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-gray-700 shadow-md' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
-            {{ $tab['label'] }}
-          </button>
-        </li>
-      @endforeach
-    </ul>
-
-    {{-- Konten --}}
-    <div id="defaultTabContent" class="mt-5">
-      {{-- Detail --}}
-      <div class="hidden space-y-4 md:space-y-6 p-4 md:p-8" id="detail" role="tabpanel" aria-labelledby="detail-tab">
-        <div class="text-center mb-5">
-          <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-2">
-            {{ $barang->nama_barang }}
-          </h2>
-          <p class="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">{{ $barang->deskripsi }}</p>
+        <!-- Breadcrumbs -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          <a href="#" class="text-gray-500 dark:text-[#9dabb9] text-sm font-medium hover:text-primary dark:hover:text-white">Home</a>
+          <span class="text-gray-500 dark:text-[#9dabb9] text-sm font-medium">/</span>
+          <a href="#" class="text-gray-500 dark:text-[#9dabb9] text-sm font-medium hover:text-primary dark:hover:text-white">
+            
+          </a>
+          <span class="text-gray-500 dark:text-[#9dabb9] text-sm font-medium">/</span>
+          <span class="text-gray-800 dark:text-white text-sm font-medium">{{ $barang->nama_barang }}</span>
         </div>
 
-        <div class="row gy-3">
-          {{-- Setiap item detail --}}
-          @php
-            $details = [
-                ['icon' => 'fa-brands fa-codepen text-blue-500', 'label' => 'Kode Barang', 'value' => $barang->kode_barang],
-                ['icon' => 'fa-solid fa-6 text-purple-500', 'label' => 'Nomor Seri', 'value' => $barang->nomor_seri],
-                ['icon' => 'fa-solid fa-copyright text-yellow-500', 'label' => 'Merk', 'value' => $barang->merk],
-                ['icon' => 'fa-solid fa-arrows-up-to-line text-indigo-500', 'label' => 'Limit', 'value' => $barang->limit],
-                ['icon' => 'fa-solid fa-truck-ramp-box text-pink-500', 'label' => 'Sisa Limit', 'value' => $barang->sisa_limit],
-                ['icon' => 'fa-solid fa-layer-group text-emerald-500', 'label' => 'Jenis Barang', 'value' => $barang->jenisBarang->jenis_barang],
-            ];
-          @endphp
+        <!-- Page Heading & Button Group -->
+        <div class="flex flex-wrap justify-between items-start gap-4 mb-8">
+          <div class="flex min-w-72 flex-col gap-3">
+            <p class="text-gray-900 dark:text-white text-3xl lg:text-4xl font-black leading-tight tracking-[-0.033em]">
+              {{ $barang->nama_barang }}
+            </p>
+            <p class="text-gray-500 dark:text-[#9dabb9] text-base font-normal">
+              Detail lengkap barang.
+            </p>
+          </div>
 
-          @foreach ($details as $detail)
-            <div class="col-12 col-md-6">
-              <div class="flex items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover-soft transition-all">
-                <i class="{{ $detail['icon'] }} w-6"></i>
-                <span class="ml-3 font-semibold text-gray-800 dark:text-gray-100">{{ $detail['label'] }}:</span>
-                <span class="ml-auto text-gray-600 dark:text-gray-300">{{ $detail['value'] }}</span>
+          <div class="flex flex-wrap gap-3">
+            <a href="#"
+              class="flex min-w-[84px] items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:bg-opacity-90 transition-colors">
+              <span class="material-symbols-outlined text-base">edit</span>
+              <span>Edit Item</span>
+            </a>
+
+            <a href="{{ asset('storage/' . $barang->qr_code) }}" target="_blank"
+              class="flex min-w-[84px] items-center justify-center gap-2 rounded-lg h-10 px-4 bg-gray-200 dark:bg-white/10 text-gray-800 dark:text-white text-sm font-bold hover:bg-gray-300 dark:hover:bg-white/20 transition-colors">
+              <span class="material-symbols-outlined text-base">qr_code_scanner</span>
+              <span>Print QR Code</span>
+            </a>
+
+            <form action="#" method="POST"
+              onsubmit="return confirm('Yakin ingin menghapus barang ini?')">
+              @csrf
+              @method('DELETE')
+              <button type="submit"
+                class="flex min-w-[84px] items-center justify-center gap-2 rounded-lg h-10 px-4 text-red-500 hover:bg-red-500/10 text-sm font-bold transition-colors">
+                <span class="material-symbols-outlined text-base">delete</span>
+                <span>Delete Item</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          <!-- Left Column -->
+          <div class="lg:col-span-2 space-y-8">
+            <!-- Description -->
+            <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+              <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4">Deskripsi</h3>
+              <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                {{ $barang->deskripsi }}
+              </p>
+            </div>
+
+            <!-- Item Details -->
+            <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+              <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-6">Detail Barang</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kondisi</p>
+                  <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-500/20 px-3 py-1 text-sm font-medium text-green-800 dark:text-green-300">
+                    
+                  </span>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kode Barang</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->kode_barang }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Nomor Seri</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->nomor_seri ?? '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Merk</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->merk }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Limit</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->limit }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Sisa Limit</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->sisa_limit }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Jenis Barang</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->jenisBarang->jenis_barang }}</p>
+                </div>
+                 <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->status }}</p>
+                </div>
               </div>
             </div>
-          @endforeach
+          </div>
 
-          {{-- Status --}}
-          <div class="col-12">
-            <div
-              class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover-soft transition-all">
-              @if ($barang->status == 'tersedia')
-                <div class="flex items-center gap-3 text-green-600 font-semibold">
-                  <i class="fa-solid fa-circle-check"></i>
-                  <span>Status: Tersedia</span>
-                </div>
-              @else
-                <div class="flex items-center gap-3 text-red-600 font-semibold">
-                  <i class="fa-solid fa-circle-xmark"></i>
-                  <span>Status: Tidak Tersedia</span>
-                </div>
-              @endif
-            </div>
+          <!-- Right Column -->
+          <div class="lg:col-span-1 space-y-8">
+              <!-- Item Image -->
+              <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-col items-center">
+                  <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4">Foto Barang</h3>
+                  <div class="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                      @if ($barang->foto)
+                          <img src="{{ asset('storage/uploads/foto_barang/' . $barang->foto) }}" 
+                              alt="{{ $barang->nama_barang }}" 
+                              class="object-cover w-full h-full">
+                      @else
+                          <span class="text-gray-400 text-sm">Tidak ada foto</span>
+                      @endif
+                  </div>
+              </div>
+
+              <!-- QR Code -->
+              <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-col items-center">
+                  <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4">QR Code</h3>
+                  <div class="w-full aspect-square rounded-lg bg-white flex items-center justify-center">
+                      <img src="{{ asset('storage/uploads/qr_codes_barang/' . $barang->qr_code) }}" 
+                        alt="QR Code {{ $barang->kode_barang }}" 
+                        class="object-contain w-3/4 h-3/4">
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">Scan untuk lihat detail</p>
+              </div>
           </div>
         </div>
       </div>
-
-      {{-- Gambar --}}
-      <div class="hidden p-4 md:p-8 text-center" id="gambar" role="tabpanel" aria-labelledby="gambar-tab">
-        <figure
-          class="max-w-md mx-auto rounded-2xl overflow-hidden soft-shadow hover-soft bg-gray-100 dark:bg-gray-700/40 transition-transform duration-300">
-          <img class="h-auto w-full object-cover"
-            src="{{ asset('storage/uploads/foto_barang/' . $barang->foto) }}" alt="{{ $barang->nama_barang }}">
-          <figcaption
-            class="py-3 text-sm text-gray-600 dark:text-gray-300 bg-white/70 dark:bg-gray-800/50 font-medium">
-            {{ $barang->nama_barang }}
-          </figcaption>
-        </figure>
-      </div>
-
-      {{-- QR Code --}}
-      <div class="hidden p-4 md:p-8 text-center" id="qrcode" role="tabpanel" aria-labelledby="qrcode-tab">
-        <figure
-          class="max-w-xs mx-auto rounded-2xl overflow-hidden soft-shadow hover-soft bg-gray-100 dark:bg-gray-700/40 transition-transform duration-300">
-          <img class="h-auto w-full object-contain p-4"
-            src="{{ asset('storage/uploads/qr_codes_barang/' . $barang->qr_code) }}" alt="{{ $barang->kode_barang }}">
-          <figcaption
-            class="py-3 text-sm text-gray-600 dark:text-gray-300 bg-white/70 dark:bg-gray-800/50 font-medium">
-            {{ $barang->kode_barang }}
-          </figcaption>
-        </figure>
-      </div>
-    </div>
+    </main>
   </div>
-
-  {{-- Bootstrap JS --}}
-  @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  @endpush
+</div>
 @endsection
+
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>

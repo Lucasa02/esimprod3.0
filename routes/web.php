@@ -226,17 +226,21 @@ Route::prefix('/')->group(function () {
 				Route::get('/studio', [BmnController::class, 'index'])->name('bmn.studio.index')->defaults('ruangan', 'studio');
 				Route::get('/peralatan', [BmnController::class, 'index'])->name('bmn.peralatan.index')->defaults('ruangan', 'peralatan');
 
-				Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
-				Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
-				Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
-				Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
-				Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
-				Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
-				Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show'); //
-				// 🔹 Tambahkan route print di sini
-				Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
-				Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
-			});
+    Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
+    Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
+    Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
+    Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
+    Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
+	Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
+	Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show'); //
+	 // 🔹 Tambahkan route print di sini
+    Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
+	Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
+Route::get('/admin/bmn/{ruangan}/print-filter', [BmnController::class, 'printFiltered'])->name('bmn.printFiltered');
+Route::get('/admin/bmn/{ruangan}/print-filtered', [BmnController::class, 'printFiltered'])->name('bmn.printFiltered');
+Route::get('/admin/bmn/{ruangan}/filter-print', [BmnController::class, 'showFilterForm'])
+    ->name('bmn.filterPrint');
+});
 		});
 	});
 
