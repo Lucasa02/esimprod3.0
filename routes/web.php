@@ -271,7 +271,10 @@ Route::prefix('admin/bmn')->middleware(['auth', 'verified.password', 'role:super
 	 // 🔹 Tambahkan route print di sini
     Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
 	Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
-
+Route::get('/admin/bmn/{ruangan}/print-filter', [BmnController::class, 'printFiltered'])->name('bmn.printFiltered');
+Route::get('/admin/bmn/{ruangan}/print-filtered', [BmnController::class, 'printFiltered'])->name('bmn.printFiltered');
+Route::get('/admin/bmn/{ruangan}/filter-print', [BmnController::class, 'showFilterForm'])
+    ->name('bmn.filterPrint');
 });
 		});
 	});

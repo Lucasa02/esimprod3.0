@@ -114,6 +114,10 @@
                   <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Jumlah</p>
                   <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->jumlah }}</p>
                 </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Posisi</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->posisi }}</p>
+                </div>
               </div>
             </div>
           </div>

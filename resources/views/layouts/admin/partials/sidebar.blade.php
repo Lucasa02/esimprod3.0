@@ -73,12 +73,12 @@
             </a>
           </li>
 
-          {{-- Peralatan Lain --}}
+          {{-- Perawatan mcr --}}
           <li>
             <a href="#"
               class="flex items-center w-full p-1 pl-9 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
               <i class="fa-solid fa-toolbox text-xs opacity-70 me-2"></i>
-              Peralatan Lain
+              Perawatan
             </a>
           </li>
         </ul>

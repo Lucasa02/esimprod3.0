@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('kondisi')->nullable();
             $table->string('foto')->nullable();
             $table->string('ruangan');
+            $table->string('posisi')->nullable(); // ✅ Tambahan posisi rak/meja
             $table->year('tahun_pengadaan')->nullable();
             $table->string('asal_pengadaan')->nullable();    // ✅ Tambahan: Asal pengadaan
             $table->string('peruntukan')->nullable();        // ✅ Tambahan: Peruntukan barang

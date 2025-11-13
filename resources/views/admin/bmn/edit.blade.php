@@ -127,6 +127,15 @@
                                 @enderror
                             </div>
 
+                            {{-- Posisi Barang (hanya tampilan, tidak bisa diubah) --}}
+                            <div>
+                                <label class="block text-sm font-bold text-black">Posisi Barang</label>
+                                <textarea readonly rows="2"
+                                    class="border border-gray-300 text-gray-700 text-sm rounded-lg block w-full p-2.5 bg-gray-100 cursor-not-allowed"
+                                    placeholder="Belum ada posisi barang">{{ $barang->posisi ?? 'Belum ada catatan posisi' }}</textarea>
+                            </div>
+
+
                             {{-- Kondisi Otomatis --}}
                             <div>
                                 <label class="block text-sm font-bold text-black">Kondisi (otomatis dihitung)</label>

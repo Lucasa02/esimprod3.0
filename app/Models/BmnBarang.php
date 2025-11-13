@@ -28,6 +28,7 @@ class BmnBarang extends Model
         'tahun_pengadaan',
         'asal_pengadaan',  
         'peruntukan',
+        'posisi',
         'catatan',
     ];
 
