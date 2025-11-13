@@ -35,23 +35,25 @@
       <thead>
           <tr>
               <th>No</th>
-              <th>Nama Barang</th>
               <th>Kode Barang</th>
+              <th>Nama Barang</th>
               <th>Kategori</th>
               <th>Merk</th>
               <th>Kondisi</th>
               <th>Persentase</th>
-              <th>Tahun</th>
-              <th>Asal</th>
+              <th>Tahun Perolehan</th>
+              <th>Asal Pengadaan</th>
               <th>Posisi</th>
+              <th>ruangan</th>
+              <th>Keterangan</th>
           </tr>
       </thead>
       <tbody>
           @forelse ($data as $i => $item)
               <tr>
                   <td>{{ $i + 1 }}</td>
-                  <td>{{ $item->nama_barang }}</td>
                   <td>{{ $item->kode_barang }}</td>
+                  <td>{{ $item->nama_barang }}</td>
                   <td>{{ $item->kategori }}</td>
                   <td>{{ $item->merk }}</td>
                   <td>{{ $item->kondisi }}</td>
@@ -59,6 +61,8 @@
                   <td>{{ $item->tahun_pengadaan }}</td>
                   <td>{{ $item->asal_pengadaan }}</td>
                   <td>{{ $item->posisi }}</td>
+                  <td>{{ $item->ruangan }}</td>
+                  <td>{{ $item->catatan }}</td>
               </tr>
           @empty
               <tr>

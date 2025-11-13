@@ -44,41 +44,51 @@
     <thead>
       <tr>
         <th>No</th>
-        <th>Foto</th>
+        <th>Kode Barang</th>
         <th>Nama Barang</th>
-        <th>Kode</th>
+        <th>Jumlah barang</th>
         <th>Kategori</th>
-        <th>Tahun</th>
-        <th>Jumlah</th>
+        <th>Merk</th>
+        <th>Tahun Perolehan</th>
+        <th>Asal Pengadaan</th>
+        <th>posisi barang</th>
         <th>Kondisi (%)</th>
         <th>Status</th>
+        <th>Keterangan</th>
+        <th>Foto</th>
       </tr>
     </thead>
     <tbody>
       @forelse ($data as $b)
         <tr>
           <td>{{ $loop->iteration }}</td>
+          
+          <td>{{ $b->kode_barang }}</td>
+          <td>{{ $b->nama_barang }}</td>
+          <td>{{ $b->jumlah ?? '-' }}</td>
+          <td>{{ $b->kategori ?? '-' }}</td>
+          <td>{{ $b->merk ?? '-' }}</td>
+          <td>{{ $b->tahun_pengadaan ?? '-' }}</td>
+          <td>{{ $b->asal_pengadaan ?? '-' }}</td>
+          <td>{{ $b->posisi ?? '-' }}</td>
+          <td>{{ $b->persentase_kondisi ? $b->persentase_kondisi . '%' : '-' }}</td>
+          
+          <td>
+            @switch($b->kondisi)
+              @case('Sangat Baik') <span>{{ $b->kondisi }}</span> @break
+              @case('Baik') <span>{{ $b->kondisi }}</span> @break
+              @case('Kurang Baik') <span>{{ $b->kondisi }}</span> @break
+              @case('Rusak / Cacat') <span>{{ $b->kondisi }}</span> @break
+              @default <span>-</span>
+            @endswitch
+          </td>
+          <td>{{ $b->catatan ?? '-' }}</td>
           <td class="foto">
             @if($b->foto && file_exists(public_path('storage/' . $b->foto)))
               <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('storage/' . $b->foto))) }}">
             @else
               -
             @endif
-          </td>
-          <td>{{ $b->nama_barang }}</td>
-          <td>{{ $b->kode_barang }}</td>
-          <td>{{ $b->kategori ?? '-' }}</td>
-          <td>{{ $b->tahun_pengadaan ?? '-' }}</td>
-          <td>{{ $b->jumlah ?? '-' }}</td>
-          <td>{{ $b->persentase_kondisi ? $b->persentase_kondisi . '%' : '-' }}</td>
-          <td>
-            @switch($b->kondisi)
-              @case('Sangat Baik') <span style="color:#16a34a;font-weight:bold">{{ $b->kondisi }}</span> @break
-              @case('Baik') <span style="color:#22c55e">{{ $b->kondisi }}</span> @break
-              @case('Kurang Baik') <span style="color:#eab308">{{ $b->kondisi }}</span> @break
-              @case('Rusak / Cacat') <span style="color:#dc2626;font-weight:bold">{{ $b->kondisi }}</span> @break
-              @default <span>-</span>
-            @endswitch
           </td>
         </tr>
       @empty
