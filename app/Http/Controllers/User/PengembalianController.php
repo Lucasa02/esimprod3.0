@@ -100,82 +100,131 @@ class PengembalianController extends Controller
 		}
 	}
 
-	public function store(Request $request)
-	{
-		try {
-			$request->validate([
-				'*.item_uuid' => 'required|string',
-				'*.item_code' => 'required|string',
-				'*.condition' => 'required|',
-				'*.isChecked' => 'required|boolean',
-			]);
+    public function store(Request $request)
+    {
+        // Gunakan transaksi database untuk memastikan konsistensi data
+        DB::beginTransaction();
 
-			// Proses data yang sudah valid
-			$valData = $request->all();
-			$dataPeminjaman = session('dataPeminjaman');
+        try {
+            $request->validate([
+                '*.item_uuid' => 'required|string',
+                '*.item_code' => 'required|string',
+                '*.condition' => 'required|string|in:hilang,rusak,baik', // Memastikan kondisi valid
+                '*.isChecked' => 'required|boolean',
+            ]);
 
-			// Simpan data Pengembalian
-			$pengembalian = Pengembalian::create([
-				'uuid' => Str::uuid(),
-				'kode_pengembalian' => 'PG-' . time(),
-				'kode_peminjaman' => session()->get('kodePeminjaman'),
-				'tanggal_kembali' => now(),
-				'status' => 'Tidak Lengkap',
-				'peminjam' => Auth::user()->nama_lengkap ?? null,
-			]);
+            // Proses data yang sudah valid
+            $valData = $request->all();
+            $dataPeminjaman = session('dataPeminjaman');
+            $kodePeminjaman = session()->get('kodePeminjaman');
 
+            // 1. Simpan data Pengembalian (status awal 'Tidak Lengkap')
+            $pengembalian = Pengembalian::create([
+                'uuid' => Str::uuid(),
+                'kode_pengembalian' => 'PG-' . time(),
+                'kode_peminjaman' => $kodePeminjaman,
+                'tanggal_kembali' => now(),
+                'status' => 'Tidak Lengkap',
+                'peminjam' => Auth::user()->nama_lengkap ?? null,
+            ]);
 
-			$allChecked = true;
+            $allChecked = true;
+            $barangDikembalikan = 0;
+            $totalBarang = count($valData);
 
-			$peminjaman = Peminjaman::where('kode_peminjaman', $pengembalian->kode_peminjaman)->first();
-			$peminjaman->status = 'Selesai';
-			$peminjaman->save();
+            // 2. Simpan data DetailPengembalian dan perbarui status Barang
+            foreach ($valData as $item) {
+                // Tentukan status untuk DetailPengembalian
+                $statusDetail = $item['isChecked'] ? $item['condition'] : 'hilang';
+                $deskripsiDetail = $item['isChecked'] ? 'Barang Telah Dikembalikan' : 'Barang Dinyatakan Hilang';
 
-			// Simpan data DetailPengembalian
-			foreach ($valData as $item) {
-				$status = $item['isChecked'] ? $item['condition'] : 'hilang';
-				$deskripsi = $item['isChecked'] ? 'Barang Telah Dikembalikan' : null;
+                // Tentukan status untuk tabel Barang
+                $statusBarang = '';
+                if ($item['isChecked']) {
+                    $barangDikembalikan++;
+                    if ($item['condition'] === 'rusak') {
+                        // Barang dikembalikan dalam kondisi rusak
+                        $statusBarang = 'rusak';
+                    } elseif ($item['condition'] === 'baik') {
+                        // Barang dikembalikan dalam kondisi baik (siap tersedia)
+                        // Logika limit habis akan menangani ketersediaan/reset
+                        $statusBarang = 'tersedia';
+                    }
+                } else {
+                    // Barang tidak dicentang (dianggap hilang)
+                    $statusBarang = 'tidak-tersedia';
+                    $allChecked = false; // Jika ada yang tidak dicentang, pengembalian tidak 'Lengkap'
+                }
 
-				DetailPengembalian::create([
-					'uuid' => Str::uuid(),
-					'kode_pengembalian' => $pengembalian->kode_pengembalian,
-					'kode_barang' => $item['item_code'],
-					'status' => $status,
-					'deskripsi' => $deskripsi,
-				]);
+                // Simpan DetailPengembalian
+                DetailPengembalian::create([
+                    'uuid' => Str::uuid(),
+                    'kode_pengembalian' => $pengembalian->kode_pengembalian,
+                    'kode_barang' => $item['item_code'],
+                    'status' => $statusDetail,
+                    'deskripsi' => $deskripsiDetail,
+                ]);
 
-				if (!$item['isChecked']) {
-					$allChecked = false;
-					DB::table('barang')
-						->where('kode_barang', $item['item_code'])
-						->update(['status' => 'tidak-tersedia']);
-				}
-			}
+                // Update status dan sisa_limit di tabel Barang
+                $barang = Barang::where('kode_barang', $item['item_code'])->first();
+                if ($barang) {
+                    $updateData = ['status' => $statusBarang];
 
-			if ($allChecked) {
-				$pengembalian->status = 'Lengkap';
-			}
+                    // Kurangi sisa limit jika barang tidak hilang
+                    if ($statusDetail !== 'hilang') {
+                         // Hanya kurangi jika sisa_limit > 0
+                        if ($barang->sisa_limit > 0) {
+                            $updateData['sisa_limit'] = $barang->sisa_limit - 1;
+                        }
 
-			$pengembalian->save();
+                        // Jika limit habis DAN status bukan 'rusak', set status ke 'tidak-tersedia' (untuk Limit Habis)
+                        if ($updateData['sisa_limit'] === 0 && $statusBarang !== 'rusak') {
+                            $updateData['status'] = 'tidak-tersedia';
+                        }
+                    }
 
-			$peminjaman = Peminjaman::where('kode_peminjaman', $pengembalian->kode_peminjaman)->first();
-			$peminjaman->status = 'Selesai';
-			$peminjaman->save();
+                    // Khusus untuk barang rusak, sisa_limit jadi 0 (agar masuk ke perawatan/barang-rusak)
+                    if ($statusBarang === 'rusak') {
+                         $updateData['sisa_limit'] = 0;
+                    }
+                    
+                    $barang->update($updateData);
+                }
+            }
+            
+            // 3. Update status Pengembalian
+            if ($barangDikembalikan === $totalBarang) {
+                $pengembalian->status = 'Lengkap';
+            } else {
+                $pengembalian->status = 'Tidak Lengkap';
+            }
+            $pengembalian->save();
+            
+            // 4. Update status Peminjaman menjadi 'Selesai'
+            $peminjaman = Peminjaman::where('kode_peminjaman', $kodePeminjaman)->first();
+            if ($peminjaman) {
+                 $peminjaman->status = 'Selesai';
+                 $peminjaman->save();
+            }
 
-			session()->put('kodePengembalian', $pengembalian->kode_pengembalian);
-			return response()->json([
-				'status' => 'success',
-				'message' => 'Data pengembalian berhasil disimpan',
-			], 200);
-		} catch (Exception $e) {
-			Log::error($e);
-			return response()->json([
-				'status' => 'error',
-				'message' => 'Terjadi kesalahan saat menyimpan data pengembalian',
-				'error' => $e->getMessage()
-			], 500);
-		}
-	}
+            session()->put('kodePengembalian', $pengembalian->kode_pengembalian);
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data pengembalian berhasil disimpan',
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error($e);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat menyimpan data pengembalian',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
 	public function validateItem(Request $request)
 	{

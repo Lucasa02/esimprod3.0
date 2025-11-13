@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Facades\Image;
 
 class BarangController extends Controller
 {
@@ -75,11 +76,20 @@ class BarangController extends Controller
 			$file = $request->file('foto');
 			$filename = time() . '.' . $file->getClientOriginalExtension();
 
-			// kompress foto 
+			// 🧠 Baca file dan ubah ke ukuran seragam 500x500 (dengan rasio tetap + bingkai putih)
 			$manager = new ImageManager(new Driver());
-			$image = $manager->read($file)->encodeByExtension(extension: $file->getClientOriginalExtension(), quality: 10);
+			$image = $manager->read($file);
 
-			Storage::disk('public')->put('uploads/foto_barang/' . $filename, $image);
+			// Resize tanpa merusak rasio, lalu pasang di canvas 500x500 dengan background putih
+			$image->scaleDown(500, 500);
+			$canvas = $manager->create(500, 500)->fill('#ffffff');
+			$canvas->place($image, 'center');
+
+			// Kompres gambar ke kualitas 80 (cukup tinggi tapi hemat ukuran)
+			$encoded = $canvas->encodeByExtension($file->getClientOriginalExtension(), quality: 80);
+
+			// Simpan ke storage
+			Storage::disk('public')->put('uploads/foto_barang/' . $filename, $encoded);
 			$data['foto'] = $filename;
 		} else {
 			$data['foto'] = 'default.jpg';
@@ -157,19 +167,26 @@ class BarangController extends Controller
 		$barang = Barang::where('uuid', $uuid)->firstOrFail();
 		$filename = $barang->foto;
 		if ($request->hasFile('foto')) {
-			if ($barang->foto && $barang->foto !== 'default.jpg') {
-				Storage::disk('public')->delete('uploads/foto_barang/' . $barang->foto);
-			}
-
 			$file = $request->file('foto');
 			$filename = time() . '.' . $file->getClientOriginalExtension();
 
-			// kompress foto 
+			// 🧠 Baca file dan ubah ke ukuran seragam 500x500 (dengan rasio tetap + bingkai putih)
 			$manager = new ImageManager(new Driver());
-			$image = $manager->read($file)->encodeByExtension(extension: $file->getClientOriginalExtension(), quality: 10);
+			$image = $manager->read($file);
 
-			Storage::disk('public')->put('uploads/foto_barang/' . $filename, $image);
+			// Resize tanpa merusak rasio, lalu pasang di canvas 500x500 dengan background putih
+			$image->scaleDown(500, 500);
+			$canvas = $manager->create(500, 500)->fill('#ffffff');
+			$canvas->place($image, 'center');
+
+			// Kompres gambar ke kualitas 80 (cukup tinggi tapi hemat ukuran)
+			$encoded = $canvas->encodeByExtension($file->getClientOriginalExtension(), quality: 80);
+
+			// Simpan ke storage
+			Storage::disk('public')->put('uploads/foto_barang/' . $filename, $encoded);
 			$data['foto'] = $filename;
+		} else {
+			$data['foto'] = 'default.jpg';
 		}
 
 		Barang::where('uuid', $uuid)->firstOrFail()->update([
@@ -258,22 +275,58 @@ class BarangController extends Controller
 	}
 
 	public function search(Request $request)
-	{
-		$search = $request->search;
+{
+    $search = $request->input('search');
+    $filter = $request->input('filter', 'nama_barang'); // default: nama_barang
 
-		$barang = Barang::where('nama_barang', 'like', '%' . $search . '%')
-			->orWhereHas('jenisBarang', function ($q) use ($search) {
-				$q->where('jenis_barang', 'like', '%' . $search . '%');
-			})->paginate(10)
-			->appends(['search' => $search]);
+    $barang = Barang::query();
 
-		$data = [
-			'title' => 'Barang',
-			'barang' => $barang,
-		];
+    // 🔍 Filter berdasarkan opsi yang dipilih
+    switch ($filter) {
+        case 'nama_barang':
+            $barang->where('nama_barang', 'like', '%' . $search . '%');
+            break;
 
-		return view('admin.barang.index', $data);
-	}
+        case 'jenis_barang':
+            $barang->whereHas('jenisBarang', function ($q) use ($search) {
+                $q->where('jenis_barang', 'like', '%' . $search . '%');
+            });
+            break;
+
+        case 'status':
+		if (strtolower($search) == 'habis') {
+			// tampilkan barang yang sisa_limit = 0
+			$barang->where('sisa_limit', 0);
+		} elseif (strtolower($search) == 'tersedia') {
+			// tampilkan barang yang sisa_limit > 0
+			$barang->where('sisa_limit', '>', 0);
+		} else {
+			// fallback: cari di kolom status biasa
+			$barang->where('status', 'like', '%' . $search . '%');
+		}
+		break;
+
+        case 'nomor_seri':
+            $barang->where('nomor_seri', 'like', '%' . $search . '%');
+            break;
+
+        case 'kode_barang':
+            $barang->where('kode_barang', 'like', '%' . $search . '%');
+            break;
+    }
+
+    $barang = $barang->paginate(10)->appends([
+        'search' => $search,
+        'filter' => $filter,
+    ]);
+
+    $data = [
+        'title' => 'Barang',
+        'barang' => $barang,
+    ];
+
+    return view('admin.barang.index', $data);
+}
 
 	public function jenisBarang(JenisBarang $jenisBarang)
 	{

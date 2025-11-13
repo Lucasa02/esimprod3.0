@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('bmn_barangs', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();                // UUID unik untuk tiap barang
-            $table->string('kode_barang')->unique();        // kode barang
+            $table->string('kode_barang')->unique();        // Kode barang
             $table->string('nama_barang');
             $table->string('kategori');
             $table->string('merk')->nullable();
@@ -22,8 +22,10 @@ return new class extends Migration
             $table->string('foto')->nullable();
             $table->string('ruangan');
             $table->year('tahun_pengadaan')->nullable();
+            $table->string('asal_pengadaan')->nullable();    // ✅ Tambahan: Asal pengadaan
+            $table->string('peruntukan')->nullable();        // ✅ Tambahan: Peruntukan barang
             $table->text('catatan')->nullable();
-            $table->string('qr_code')->nullable();          // kolom untuk menyimpan path/filename QR code
+            $table->string('qr_code')->nullable();           // Kolom untuk menyimpan path/filename QR code
             $table->timestamps();
         });
     }

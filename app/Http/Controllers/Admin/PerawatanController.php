@@ -74,6 +74,48 @@ class PerawatanController extends Controller
 		return view('admin.perawatan.barang_hilang.detail', $data);
 	}
 
+	public function barangRusak()
+	{
+		$data = [
+			'title' => 'Barang Rusak',
+			'barang' => Barang::where('status', 'tidak-tersedia')
+				->whereHas('detail_pengembalian', function ($query) {
+					$query->where('status', 'rusak');
+				})
+				->paginate(10),
+		];
+
+		return view('admin.perawatan.barang_rusak.barang', $data);
+	}
+
+	public function detailBarangRusak(string $uuid)
+	{
+		$data = [
+			'title' => 'Detail Barang',
+			'barang' => Barang::where('uuid', $uuid)->first(),
+		];
+
+		return view('admin.perawatan.barang_rusak.detail', $data);
+	}
+
+	public function perbaikiBarangRusak(string $uuid)
+{
+    $barang = Barang::where('uuid', $uuid)->first();
+
+    if ($barang && $barang->status == 'rusak') {
+        $barang->update([
+            'status' => 'tersedia',
+            'sisa_limit' => $barang->limit,
+        ]);
+
+        notify()->success('Barang rusak berhasil diperbaiki dan tersedia kembali');
+    } else {
+        notify()->warning('Barang tidak ditemukan atau bukan dalam kondisi rusak');
+    }
+
+    return redirect()->route('perawatan.barang.rusak.index');
+}
+
 	public function ubahStatus(string $uuid)
 {
     $barang = Barang::where('uuid', $uuid)->first();

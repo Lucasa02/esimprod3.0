@@ -40,9 +40,9 @@
                       d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
                   </svg>
                 </div>
-                <input id="tanggal-penggunaan" type="date" readonly disabled
-                  class="w-full pl-10 p-2 text-sm border-gray-300  rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Tanggal peminjaman" />
+                <input id="tanggal-penggunaan" name="start" type="date"
+                  class="w-full pl-10 p-2 text-sm border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="Tanggal peminjaman" onclick="this.showPicker();" />
               </div>
               <small class="mx-4 text-gray-500">Sampai</small>
               <div class="relative">
@@ -149,6 +149,21 @@
       class="text-white bg-blue-900 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
       Simpan
     </button>
+  </div>
+
+    <style>
+    #loadingScreen {
+      backdrop-filter: blur(4px);
+      transition: opacity 0.3s ease-in-out;
+    }
+  </style>
+
+  {{-- Loading Screen --}}
+  <div id="loadingScreen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="text-center">
+      <div class="w-16 h-16 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin mx-auto"></div>
+      <p class="text-white mt-4 text-sm font-medium">Menyimpan data peminjaman...</p>
+    </div>
   </div>
 
   <script>
@@ -320,12 +335,16 @@
           tanggalPengembalian: document.getElementById('tanggal-kembali').value,
           peruntukanId: document.getElementById('peruntukan').value
         };
-        console.log(inputs);
-        // Validate inputs
+
+        // Validasi input
         if (Object.values(inputs).some(value => !value)) {
-          Utils.showToast('toast-danger-2', 'Please fill all required fields');
+          Utils.showToast('toast-danger-2', 'Mohon lengkapi semua data.');
           return;
         }
+
+        // 🔥 Tampilkan loading screen
+        const loadingScreen = document.getElementById('loadingScreen');
+        loadingScreen.classList.remove('hidden');
 
         try {
           const response = await fetch(CONFIG.API_ENDPOINTS.STORE_LOAN, {
@@ -344,15 +363,23 @@
           });
 
           const result = await response.json();
+
+          // 🔥 Sembunyikan loading screen setelah respons diterima
+          loadingScreen.classList.add('hidden');
+
           if (result.success) {
             this.showSuccessModal();
           } else {
             Utils.showToast('toast-danger-2', result.message);
           }
+
         } catch (error) {
           console.error('Error:', error);
+          loadingScreen.classList.add('hidden');
+          Utils.showToast('toast-danger-2', 'Terjadi kesalahan saat menyimpan data.');
         }
       },
+
       showSuccessModal() {
         const successModal = document.getElementById('successModal');
         successModal.classList.remove('hidden');
@@ -362,16 +389,18 @@
           window.location.href = '/user/peminjaman/report';
         });
       },
+
       initDateInputs() {
         const today = Utils.formatDate(new Date());
         const tanggalPinjam = document.getElementById('tanggal-penggunaan');
         const tanggalKembali = document.getElementById('tanggal-kembali');
 
-        tanggalPinjam.min = today;
-        tanggalPinjam.value = today;
-        tanggalKembali.min = today;
+        if (!tanggalPinjam.value) {
+          tanggalPinjam.min = today;
+          tanggalPinjam.value = today;
+        }
+        tanggalKembali.min = tanggalPinjam.value;
 
-        // Add event listener for date change
         tanggalPinjam.addEventListener('change', function() {
           tanggalKembali.min = this.value;
         });

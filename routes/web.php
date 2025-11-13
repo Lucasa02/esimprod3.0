@@ -14,7 +14,6 @@ use App\Http\Controllers\Admin\PeminjamanController;
 use App\Http\Controllers\Admin\PeruntukanController;
 use App\Http\Controllers\Admin\JenisBarangController;
 use App\Http\Controllers\Admin\PengembalianController;
-use App\Http\Controllers\Admin\Studio1Controller;
 use App\Http\Controllers\Admin\Studio2Controller;
 use App\Http\Controllers\Admin\BmnController;
 use App\Http\Controllers\User\PeminjamanController as PeminjamanUser;
@@ -59,15 +58,11 @@ Route::prefix('/')->group(function () {
 				Route::post('import', [BarangController::class, 'import'])->name('barang.import');
 			});
 
-	
-
 			Route::middleware('role:superadmin')->group(function () {
 				Route::get('/edit/{uuid}', [BarangController::class, 'edit'])->name('barang.edit');
 				Route::put('/update/{uuid}', [BarangController::class, 'update'])->name('barang.update');
 				Route::delete('/destroy/{uuid}', [BarangController::class, 'destroy'])->name('barang.destroy');
 			});
-
-			
 		});
 
 		Route::middleware('role:superadmin,admin')->group(function () {
@@ -112,6 +107,65 @@ Route::prefix('/')->group(function () {
 			Route::get('/', [ProfileController::class, 'index'])->name('profil.index');
 			Route::patch('/ubah-profil', [ProfileController::class, 'updateProfil'])->name('profil.update-profil');
 			Route::patch('/ubah-password', [ProfileController::class, 'updatePassword'])->name('profil.update-password');
+		});
+
+            Route::prefix('studio2')->name('studio2.')->group(function () {
+                Route::get('/', [Studio2Controller::class, 'index'])->name('index');
+                Route::get('/create', [Studio2Controller::class, 'create'])->name('create');
+                Route::post('/store', [Studio2Controller::class, 'store'])->name('store');
+                Route::get('/{id}/edit', [Studio2Controller::class, 'edit'])->name('edit');
+                Route::put('/{id}/update', [Studio2Controller::class, 'update'])->name('update');
+                Route::delete('/{id}/delete', [Studio2Controller::class, 'destroy'])->name('destroy');
+                Route::get('/{id}/detail', [Studio2Controller::class, 'show'])->name('detail');
+                Route::get('/print', [Studio2Controller::class, 'print'])->name('print');
+				Route::get('/studio2/print', [Studio2Controller::class, 'print'])->name('studio2.print');
+
+            });
+        
+        }); // End of Route::middleware('role:superadmin,admin')->group(function () 
+        
+        // PROFIL (Accessible by all verified users)
+        Route::prefix('profil')->group(function () {
+            Route::get('/', [ProfileController::class, 'index'])->name('profil.index');
+            Route::patch('/ubah-profil', [ProfileController::class, 'updateProfil'])->name('profil.update-profil');
+            Route::patch('/ubah-password', [ProfileController::class, 'updatePassword'])->name('profil.update-password');
+        });
+
+        // USERS MANAGEMENT
+        Route::prefix('users')->middleware('role:superadmin,admin')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->name('users.index');
+            Route::get('/tambah', [UserController::class, 'create'])->name('users.create');
+            Route::post('/store', [UserController::class, 'store'])->name('users.store');
+            Route::get('/detail/{uuid}', [UserController::class, 'show'])->name('users.show');
+            Route::get('/roles', [UserController::class, 'filterByRole'])->name('users.role');
+            Route::get('/jabatan', [UserController::class, 'filterByJabatan'])->name('users.jabatan');
+            Route::get('/result', [UserController::class, 'search'])->name('users.search');
+            Route::get('/id-card/{uuid}', [UserController::class, 'printIDCard'])->name('users.id.card');
+            Route::get('/log/{uuid}', [UserController::class, 'log'])->name('users.log');
+        });
+        // Users Management (Superadmin Only - CRUD)
+        Route::prefix('users')->middleware('role:superadmin')->group(function () {
+            Route::get('/edit/{uuid}', [UserController::class, 'edit'])->name('users.edit');
+            Route::put('/update/{uuid}', [UserController::class, 'update'])->name('users.update');
+            Route::delete('/destroy/{uuid}', [UserController::class, 'destroy'])->name('users.destroy');
+        });
+        
+        // BMN ROUTES (Dikelompokkan di bawah prefix 'admin/bmn')
+		Route::prefix('admin/bmn')->group(function () {
+			Route::get('/mcr', [BmnController::class, 'index'])->name('bmn.mcr.index')->defaults('studio', 'mcr');
+			Route::get('/studio', [BmnController::class, 'index'])->name('bmn.studio.index')->defaults('studio', 'studio');
+			Route::get('/peralatan', [BmnController::class, 'index'])->name('bmn.peralatan.index')->defaults('studio', 'peralatan');
+
+			Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
+			Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
+			Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
+			Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
+			Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
+			Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
+			Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show');
+			Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
+			Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
+			
 		});
 
 		Route::prefix('users')->group(function () {
@@ -159,12 +213,9 @@ Route::prefix('/')->group(function () {
 				Route::get('/barang-hilang', [PerawatanController::class, 'barangHilang'])->name('perawatan.barang.hilang.index');
 				Route::get('/barang-hilang/{uuid}', [PerawatanController::class, 'detailBarangHilang'])->name('perawatan.barang.hilang.detail');
 				Route::put('/reset-limit/{uuid}', [PerawatanController::class, 'resetLimit'])->name('perawatan.reset-limit');
-				Route::put('/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
+				Route::get('/barang-rusak', [PerawatanController::class, 'barangRusak'])->name('perawatan.barang.rusak.index');
+				Route::put('/perawatan/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
 				Route::put('/perawatan/barang-hilang/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
-			});
-			// Tambahkan di dalam group middleware('role:superadmin,admin')
-			Route::prefix('studio1')->group(function () {
-				Route::get('/', [Studio1Controller::class, 'index'])->name('studio1.index');
 			}); 
 
 			// ========================
@@ -216,4 +267,3 @@ Route::prefix('/')->group(function () {
 			Route::get('/pdf', [PengembalianUser::class, 'printReport'])->name('user.pengembalian.pdf');
 		});
 	});
-});

@@ -68,6 +68,30 @@
                                 @enderror
                             </div>
 
+                            {{-- ✅ Asal Pengadaan --}}
+                            <div>
+                                <label class="block text-sm font-bold text-black">Asal Pengadaan</label>
+                                <input type="text" name="asal_pengadaan" autocomplete="off"
+                                    class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    placeholder="Contoh: APBN, Hibah, Pembelian Internal"
+                                    value="{{ old('asal_pengadaan', $barang->asal_pengadaan) }}">
+                                @error('asal_pengadaan')
+                                    <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            {{-- ✅ Peruntukan --}}
+                            <div>
+                                <label class="block text-sm font-bold text-black">Peruntukan</label>
+                                <input type="text" name="peruntukan" autocomplete="off"
+                                    class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    placeholder="Contoh: Operasional Studio, Administrasi, MCR"
+                                    value="{{ old('peruntukan', $barang->peruntukan) }}">
+                                @error('peruntukan')
+                                    <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
+                                @enderror
+                            </div>
+
                             {{-- Persentase Kondisi --}}
                             <div>
                                 <label class="block text-sm font-bold text-black">Persentase Kondisi (%)</label>

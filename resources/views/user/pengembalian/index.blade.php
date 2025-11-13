@@ -109,11 +109,12 @@
               <td class="px-6 py-4">
                 <div class="max-w-sm mx-auto">
                   <select id="item-conditions"
-                    class="bg-gray-50 border border-gray-400 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-auto p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option selected value="baik">Baik</option>
-                    <option value="rusak">Rusak</option>
-                    <option value="cacat">Cacat</option>
-                  </select>
+                  class="item-condition bg-gray-50 border border-gray-400 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-auto p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  disabled>
+                  <option selected value="hilang">Hilang</option>
+                  <option value="rusak">Rusak</option>
+                  <option value="baik">Baik</option>
+                </select>
                 </div>
               </td>
               <td>
@@ -217,17 +218,29 @@
           }
         },
         highlightValidatedItem(itemCode) {
-          const checkboxes = document.querySelectorAll('[data-code]');
+  const checkboxes = document.querySelectorAll('[data-code]');
 
-          checkboxes.forEach((checkbox) => {
-            if (checkbox.getAttribute('data-code') === itemCode) {
-              checkbox.checked = true;
-              const row = checkbox.closest('tr');
+  checkboxes.forEach((checkbox) => {
+    if (checkbox.getAttribute('data-code') === itemCode) {
+      checkbox.checked = true;
+      const row = checkbox.closest('tr');
 
-              if (row) {
-                row.classList.add('bg-green-50');
-                this.flashRowAnimation(row);
-              }
+      if (row) {
+        row.classList.add('bg-green-50');
+        this.flashRowAnimation(row);
+
+        // Aktifkan dropdown kondisi
+        const conditionSelect = row.querySelector('.item-condition');
+        if (conditionSelect) {
+          conditionSelect.disabled = false;
+
+          // Hapus semua opsi lama
+            conditionSelect.innerHTML = `
+              <option value="baik">Baik</option>
+              <option value="rusak">Rusak</option>
+            `;
+          }
+        }
 
               checkbox.disabled = true;
             }

@@ -96,6 +96,7 @@ class PeminjamanController extends Controller
     $tanggal_awal = $request->tanggal_awal;
     $tanggal_akhir = $request->tanggal_akhir;
     $peruntukan = $request->peruntukan;
+    $urutan = $request->urutan ?? 'desc'; // default: terbaru (Z–A)
 
     $query = Peminjaman::with('detailPeminjaman.barang', 'peruntukan');
 
@@ -112,7 +113,7 @@ class PeminjamanController extends Controller
         $query->where('peruntukan_id', $peruntukan);
     }
 
-    $peminjamanBulanan = $query->orderBy('tanggal_peminjaman', 'desc')->get();
+    $peminjamanBulanan = $query->orderBy('tanggal_peminjaman', $urutan)->get();
 
     return view('admin.peminjaman.laporan-bulanan', [
         'peminjamanBulanan' => $peminjamanBulanan,
@@ -123,25 +124,28 @@ class PeminjamanController extends Controller
         'tanggal_akhir' => $tanggal_akhir,
         'peruntukan' => $peruntukan,
         'daftarPeruntukan' => Peruntukan::all(),
+        'urutan' => $urutan,
     ]);
 }
 
 public function exportLaporanBulanan(Request $request)
 {
+    $tipe_filter = $request->tipe_filter;
     $bulan = $request->bulan;
     $tahun = $request->tahun;
     $tanggal_awal = $request->tanggal_awal;
     $tanggal_akhir = $request->tanggal_akhir;
     $peruntukan = $request->peruntukan;
+    $urutan = $request->urutan ?? 'desc';
 
     $query = Peminjaman::with('detailPeminjaman.barang.jenisBarang', 'peruntukan');
 
-    if ($bulan && $tahun) {
+    if ($tipe_filter === 'bulan' && $bulan && $tahun) {
         $query->whereMonth('tanggal_peminjaman', $bulan)
               ->whereYear('tanggal_peminjaman', $tahun);
     }
 
-    if ($tanggal_awal && $tanggal_akhir) {
+    if ($tipe_filter === 'tanggal' && $tanggal_awal && $tanggal_akhir) {
         $query->whereBetween('tanggal_peminjaman', [$tanggal_awal, $tanggal_akhir]);
     }
 
@@ -149,14 +153,14 @@ public function exportLaporanBulanan(Request $request)
         $query->where('peruntukan_id', $peruntukan);
     }
 
-    $peminjamanBulanan = $query->orderBy('tanggal_peminjaman', 'desc')->get();
+    $peminjamanBulanan = $query->orderBy('tanggal_peminjaman', $urutan)->get();
 
     $periode = 'Semua Periode';
-    if ($bulan && $tahun) {
+    if ($tipe_filter === 'bulan' && $bulan && $tahun) {
         $periode = Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F Y');
-    } elseif ($tanggal_awal && $tanggal_akhir) {
-        $periode = 'Periode ' . Carbon::parse($tanggal_awal)->translatedFormat('d F Y') .
-                   ' - ' . Carbon::parse($tanggal_akhir)->translatedFormat('d F Y');
+    } elseif ($tipe_filter === 'tanggal' && $tanggal_awal && $tanggal_akhir) {
+        $periode = Carbon::parse($tanggal_awal)->translatedFormat('d F Y') . ' - ' .
+                   Carbon::parse($tanggal_akhir)->translatedFormat('d F Y');
     }
 
     $pdf = Pdf::loadView('admin.peminjaman.pdf-laporan-bulanan', [
@@ -167,11 +171,11 @@ public function exportLaporanBulanan(Request $request)
         'tanggal_awal' => $tanggal_awal,
         'tanggal_akhir' => $tanggal_akhir,
         'peruntukan' => $peruntukan,
+        'urutan' => $urutan,
     ])->setPaper('A4', 'landscape');
 
     return $pdf->download('Laporan-Peminjaman-' . str_replace(' ', '-', $periode) . '.pdf');
 }
-
 
 	public function editCatatan($id)
 	{

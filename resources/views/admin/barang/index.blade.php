@@ -42,19 +42,32 @@
 
 
   {{-- search form --}}
-  <form class="flex items-center max-w-sm mx-auto ml-6 mr-3 mt-2" action="{{ route('barang.search') }}" method="GET">
-    <label for="simple-search" class="sr-only">Search</label>
-    <div class="w-full relative">
-      <input type="text" id="search" autocomplete="off"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        placeholder="Masukkan kata kunci, + Enter" name="search" />
+  <form class="flex items-center max-w-md mx-auto ml-6 mr-3 mt-2" action="{{ route('barang.search') }}" method="GET">
+  <label for="simple-search" class="sr-only">Search</label>
+  <div class="flex w-full space-x-2">
+    <!-- Dropdown Filter -->
+    <select name="filter" id="filter"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+      <option value="nama_barang" {{ request('filter') == 'nama_barang' ? 'selected' : '' }}>Nama Barang</option>
+      <option value="jenis_barang" {{ request('filter') == 'jenis_barang' ? 'selected' : '' }}>Jenis Barang</option>
+      <option value="status" {{ request('filter') == 'status' ? 'selected' : '' }}>Status</option>
+      <option value="nomor_seri" {{ request('filter') == 'nomor_seri' ? 'selected' : '' }}>Nomor Seri</option>
+      <option value="kode_barang" {{ request('filter') == 'kode_barang' ? 'selected' : '' }}>Kode Barang</option>
+    </select>
+
+    <!-- Input Search -->
+    <div class="relative w-full">
+      <input type="text" id="search" name="search" value="{{ request('search') }}" autocomplete="off"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        placeholder="Masukkan kata kunci dan tekan Enter" />
       <svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-tvri_base_color" aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="m19 19-4-4m0-7A7 7 0 1 1   1 8a7 7 0 0 1 14 0Z" />
       </svg>
     </div>
-  </form>          
+  </div>
+</form>          
 
   @if ($barang->isEmpty())
     <x-empty-data></x-empty-data>
@@ -64,11 +77,13 @@
    <div class="flex justify-center p-3 ml-3 mr-3">
      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 w-full">
       @foreach ($barang as $b)
-        <div
-   hgh                                           class="w-full bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 relative">
+        <div hgh class="w-full bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 relative">
           <a href="{{ route('barang.show', $b->uuid) }}">
-            <img class="w-full rounded-lg h-auto object-cover mx-auto"
-              src="{{ asset('storage/uploads/foto_barang/' . $b->foto) }}" alt="Image  Description" />
+            <div class="w-full h-48 flex items-center justify-center bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+            <img src="{{ asset('storage/uploads/foto_barang/' . $b->foto) }}"
+                alt="Foto Barang"
+                class="object-contain w-full h-full transition-transform duration-300 hover:scale-105" />
+          </div>
           </a>
           <a href="{{ route('barang.jenis-barang', $b->jenisBarang->uuid) }}"
             class="absolute top-3 left-3 bg-tvri_base_color text-white text-xs font-semibold px-2 py-0.5 rounded-full">
@@ -102,8 +117,6 @@
                 class="inline-flex focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-1 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
                 Detail
               </a>
-
-
 
               @if (Auth::user()->role == 'superadmin')
                 <a href="{{ route('barang.edit', ['uuid' => $b->uuid, 'page' => request('page')]) }}" title="Edit"

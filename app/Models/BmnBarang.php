@@ -26,6 +26,8 @@ class BmnBarang extends Model
         'qr_code',
         'ruangan',
         'tahun_pengadaan',
+        'asal_pengadaan',  
+        'peruntukan',
         'catatan',
     ];
 
