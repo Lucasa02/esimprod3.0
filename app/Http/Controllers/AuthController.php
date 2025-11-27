@@ -69,9 +69,17 @@ class AuthController extends Controller
 			if ($user->role == 'admin' || $user->role == 'superadmin') {
 				return redirect()->route('password')->with('success', 'Berhasil, silahkan isi password anda');
 			} elseif ($user->role == 'user') {
-				notify()->success('Login Berhasil, Selamat Datang ' . $user->nama_lengkap);
-				return redirect()->route('user.option');
-			}
+
+    notify()->success('Login Berhasil, Selamat Datang ' . $user->nama_lengkap);
+
+    // cek jabatan
+    if ($user->jabatan && $user->jabatan->jabatan === 'Petugas Inventaris') {
+        return redirect()->route('user.inventaris');
+    }
+
+    return redirect()->route('user.option');
+}
+
 		}
 
 		return redirect()->back()->with('error', 'Kode user tidak terdaftar !');

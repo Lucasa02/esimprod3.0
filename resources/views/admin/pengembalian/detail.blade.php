@@ -6,15 +6,15 @@
 
     <div class="container mx-auto py-8">
       <div class="bg-white shadow rounded-lg p-6 mb-6">
-        <h3 class="text-lg font-bold text-black">Data Peminjaman</h3>
+        <h3 class="text-lg font-bold text-black">Data Penggunaan</h3>
         <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <p class="text-gray-700 mb-2">
-              <span class="font-medium text-black">Kode Peminjaman:</span>
+              <span class="font-medium text-black">Kode Penggunaan:</span>
               {{ $pengembalian->peminjaman->kode_peminjaman }}
             </p>
             <p class="text-gray-700 mb-2">
-              <span class="font-medium text-black">Nomor Peminjaman:</span>
+              <span class="font-medium text-black">Nomor Penggunaan:</span>
               {{ $pengembalian->peminjaman->nomor_peminjaman }}
             </p>
             <p class="text-gray-700 mb-2">
@@ -37,7 +37,7 @@
               {{ date('d F Y', strtotime($pengembalian->peminjaman->tanggal_penggunaan)) }}
             </p>
             <p class="text-gray-700 mb-2">
-              <span class="font-medium text-black">Tanggal Peminjaman:</span>
+              <span class="font-medium text-black">Tanggal Penggunaan:</span>
               {{ date('d F Y', strtotime($pengembalian->peminjaman->tanggal_peminjaman)) }}
             </p>
             <p class="text-gray-700 mb-2">

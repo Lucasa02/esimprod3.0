@@ -6,9 +6,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>Daftar Barang Pinjam</title>
+  <title>Daftar Barang Penggunaan</title>
   <!-- QRCode.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
     body {
@@ -92,17 +93,17 @@
   <div class="container">
     <!-- Header section with h1 and logo aligned -->
     <div class="header">
-      <h1>Daftar Barang Pinjam</h1>
+      <h1>Daftar Barang Penggunaan</h1>
       <img src="{{ asset('img/assets/esimprod_logo.png') }}" alt="Logo" class="logo">
     </div>
 
-    <h3 style="font-weight: normal;"><strong>No Peminjaman:</strong>{{ $peminjaman->nomor_peminjaman }}</h3>
+    <h3 style="font-weight: normal;"><strong>No Penggunaan:</strong>{{ $peminjaman->nomor_peminjaman }}</h3>
     <p><strong>Waktu
-        Peminjaman:</strong>{{ Carbon::parse($peminjaman->tanggal_peminjaman)->translatedFormat('d F Y H:i') }}</p>
+        Penggunaan:</strong>{{ Carbon::parse($peminjaman->tanggal_peminjaman)->translatedFormat('d F Y H:i') }}</p>
 
     <div class="info-section">
       <div class="item">
-        <p><strong>Peminjam:</strong> {{ $peminjaman->peminjam }}</p>
+        <p><strong>Pengguna:</strong> {{ $peminjaman->peminjam }}</p>
         <p><strong>NIP:</strong> {{ Auth::user()->nip }}</p>
         <p><strong>No HP:</strong> {{ Auth::user()->nomor_hp }}</p>
         <p><strong>Jabatan:</strong> {{ Auth::user()->jabatan->jabatan }}</p>
@@ -146,10 +147,15 @@
     </table>
 
     <div class="btn-group">
-      <a href="{{ route('user.peminjaman.pdf') }}" target="_blank" class="btn">Download PDF</a>
-      {{--      <button class="btn">Cetak</button> --}}
-      <a href="{{ route('user.option') }}" type="button" class="btn">Selesai</a>
-    </div>
+  <a href="{{ route('user.peminjaman.pdf') }}" target="_blank" class="btn">Download PDF</a>
+
+  <form action="{{ route('peminjaman.sendEmail', $peminjaman->kode_peminjaman) }}" method="POST" style="display:inline-block;">
+    @csrf
+    <button type="submit" class="btn" onclick="showLoading()">Send Email</button>
+  </form>
+
+  <a href="{{ route('user.option') }}" type="button" class="btn">Selesai</a>
+</div>
   </div>
   <!-- Pastikan QRCode.js sudah disertakan sebelum skrip ini -->
   <script>
@@ -176,6 +182,26 @@
       // qrCode.clear(); // Hapus QR Code sebelumnya jika ada
       // qrCode.makeCode(returnUrl);
     });
+
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            confirmButtonColor: '#3251ad'
+        });
+    @endif
+
+    function showLoading() {
+    Swal.fire({
+        title: 'Mengirim Email...',
+        text: 'Harap tunggu sebentar',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+}
   </script>
 </body>
 

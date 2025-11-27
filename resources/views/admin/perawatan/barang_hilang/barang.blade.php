@@ -4,6 +4,37 @@
       <x-empty-data></x-empty-data>
     @endif
 
+    <div class="flex flex-col md:flex-row md:items-center md:space-x-3 p-3 ml-3 mr-3">
+
+    <!-- Filter Jenis Barang -->
+    <form action="{{ route('perawatan.barang.hilang.index') }}" method="GET" class="flex space-x-3 w-full md:w-auto">
+        <select name="jenis_barang_id"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5">
+            <option value="">-- Semua Jenis Barang --</option>
+
+            @foreach ($jenisBarang as $j)
+                <option value="{{ $j->id }}" {{ request('jenis_barang_id') == $j->id ? 'selected' : '' }}>
+                    {{ $j->jenis_barang }}
+                </option>
+            @endforeach
+        </select>
+
+        <!-- Search -->
+        <input type="text" name="search" placeholder="Kode Barang/Nomor Seri"
+            value="{{ request('search') }}"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full md:w-64" />
+
+        <button type="submit"
+            class="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800">Filter</button>
+        </form>
+
+        <a href="{{ route('perawatan.barang.hilang.cetak.pdf') }}"
+       class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+        <i class="fa-solid fa-file-pdf"></i> Cetak PDF
+    </a>
+    </div>
+    
+
     {{-- card barang  --}}
     <div class="flex justify-center p-3 ml-3 mr-3">
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 w-full">
@@ -47,10 +78,10 @@
                 </a>
 
                 <button data-modal-target="status-modal" data-modal-toggle="status-modal"
-                  onclick="ubahStatus('{{ route('perawatan.ubah.status', ['uuid' => $b->uuid]) }}')"
+                  onclick="ubahStatus('{{ route('perawatan.barang.hilang.ubah-status', ['uuid' => $b->uuid]) }}')"
                   class="inline-flex focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 me-1 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                   type="button">
-                  <i class="fa-solid fa-circle-check"></i>
+                  <i class="fa-solid fa-ban"></i>
                 </button>
               </div>
             </div>
@@ -80,7 +111,7 @@
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
-            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Konfirmasi !</h3>
+            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Apakah Barang sudah ditemukan?</h3>
 
             <form id="statusForm" method="POST">
               @csrf

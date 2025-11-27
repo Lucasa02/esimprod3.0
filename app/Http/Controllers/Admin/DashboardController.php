@@ -9,6 +9,7 @@ use App\Models\Peminjaman;
 use App\Models\Peruntukan;
 use App\Models\JenisBarang;
 use App\Models\Pengembalian;
+use App\Models\SliderImage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -18,6 +19,7 @@ class DashboardController extends Controller
 	{
 		$data['title'] = 'Dashboard';
 		$data['user'] = User::count();
+		$data['slider_images'] = SliderImage::all();
 		$data['barang'] = Barang::count();
 		$data['peruntukan'] = Peruntukan::count();
 		$data['jenis_barang'] = JenisBarang::count();

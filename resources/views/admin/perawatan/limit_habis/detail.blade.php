@@ -2,14 +2,12 @@
 @section('content')
   <div class="flex p-3 ml-3 mr-3">
     <a
-      href="{{ route('perawatan.limit.habis.index') }}"
+       href="{{ route('perawatan.limit.habis.index', request()->query()) }}"
       class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none font-bold rounded-lg text-sm text-center px-5 py-2.5 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
-      type="button"
-    >
+      type="button">
       Kembali
     </a>
   </div>
-
 
   {{-- detail content   --}}
   <div class="p-3 ml-6 mr-3 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -104,7 +102,6 @@
               <span class="leading-tight font-bold text-red-600">Status :</span>
               <span class="text-red-600">Habis</span>
             @endif
-
           </li>
         </ul>
       </div>

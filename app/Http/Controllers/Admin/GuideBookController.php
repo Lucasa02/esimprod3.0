@@ -52,19 +52,39 @@ class GuideBookController extends Controller
 	{
 		GuideBook::where('uuid', $uuid)
 			->firstOrFail()
-			->update('status', 'unused');
+			->update([
+				'status' => 'unused'
+			]);
 
 		notify()->warning('Guidebook tidak digunakan !');
 		return redirect()->back();
 	}
 
-	public function used(string $uuid)
+
+		public function used(string $uuid)
 	{
 		GuideBook::where('uuid', $uuid)
 			->firstOrFail()
-			->update('status', 'used');
+			->update([
+				'status' => 'used'
+			]);
 
 		notify()->success('Guidebook digunakan !');
 		return redirect()->back();
 	}
+
+	public function destroy(string $uuid)
+	{
+		$book = GuideBook::where('uuid', $uuid)->firstOrFail();
+
+		// Hapus file dari storage
+		Storage::disk('public')->delete('uploads/guidebook/' . $book->file);
+
+		// Hapus data dari database
+		$book->delete();
+
+		notify()->success('Guidebook berhasil dihapus !');
+		return redirect()->back();
+	}
+
 }

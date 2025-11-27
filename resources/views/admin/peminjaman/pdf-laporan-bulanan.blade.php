@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Bulanan Peminjaman</title>
+  <title>Laporan Bulanan Penggunaan</title>
 
   <style>
     * { font-family: "DejaVu Sans", sans-serif; box-sizing: border-box; }
@@ -73,12 +73,12 @@
   <table class="header-table">
     <tr>
       <td style="width: 60%;">
-        <div class="header-left">Laporan Bulanan Peminjaman</div>
+        <div class="header-left">Laporan Bulanan Penggunaan</div>
         <div class="periode">Periode: <strong>{{ $periode }}</strong></div>
       </td>
       <td class="header-right">
         <img src="{{ public_path('img/assets/esimprod_logo.png') }}" alt="Esimprod" width="85">
-        <div style="font-size: 11px;">Version 3.0</div>
+        <div style="font-size: 11px;">Version 2.2</div>
       </td>
     </tr>
   </table>
@@ -88,11 +88,11 @@
     <thead>
       <tr>
         <th style="width: 3%;">No</th>
-        <th style="width: 10%;">Kode Peminjaman</th>
-        <th style="width: 10%;">Nomor Peminjaman</th>
-        <th style="width: 13%;">Peminjam</th>
+        <th style="width: 10%;">Kode Penggunaan</th>
+        <th style="width: 10%;">Nomor Penggunaan</th>
+        <th style="width: 13%;">Pengguna</th>
         <th style="width: 12%;">Peruntukan</th>
-        <th style="width: 10%;">Tgl Pinjam</th>
+        <th style="width: 10%;">Tgl Pengguna</th>
         <th style="width: 10%;">Tgl Kembali</th>
         <th style="width: 10%;">Status</th>
       </tr>
@@ -142,7 +142,7 @@
 
       @empty
         <tr>
-          <td colspan="8" style="text-align: center;">Tidak ada data peminjaman pada periode ini</td>
+          <td colspan="8" style="text-align: center;">Tidak ada data penggunaan pada periode ini</td>
         </tr>
       @endforelse
     </tbody>

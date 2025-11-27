@@ -6,11 +6,11 @@
 
     <div class="container mx-auto py-8">
       <div class="bg-white shadow rounded-lg p-6 mb-6">
-        <h3 class="text-lg font-bold text-black mb-4">Data Peminjaman</h3>
+        <h3 class="text-lg font-bold text-black mb-4">Data Penggunaan</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
           <div>
             <p class="text-gray-700 mb-2">
-              <span class="font-bold text-black">Kode Peminjaman:</span>
+              <span class="font-bold text-black">Kode Penggunaan:</span>
               {{ $peminjaman->kode_peminjaman }}
             </p>
             <p class="text-gray-700 mb-2">
@@ -18,7 +18,7 @@
               {{ $peminjaman->nomor_surat }}
             </p>
             <p class="text-gray-700 mb-2">
-              <span class="font-bold text-black">Peminjam:</span>
+              <span class="font-bold text-black">Pengguna:</span>
               {{ $peminjaman->peminjam }}
             </p>
             <p class="text-gray-700 mb-2">
@@ -45,7 +45,7 @@
               {{ date('d F Y', strtotime($peminjaman->tanggal_penggunaan)) }}
             </p>
             <p class="text-gray-700 mb-2">
-              <span class="font-bold text-black">Tanggal Peminjaman:</span>
+              <span class="font-bold text-black">Tanggal Penggunaan:</span>
               {{ date('d F Y', strtotime($peminjaman->tanggal_peminjaman)) }}
             </p>
             <p class="text-gray-700 mb-2">
@@ -66,7 +66,7 @@
 
 
       <div class="bg-white shadow rounded-lg p-6">
-        <h3 class="text-lg font-bold text-black mb-4">Barang yang Dipinjam</h3>
+        <h3 class="text-lg font-bold text-black mb-4">Barang yang Digunakan</h3>
         <div class="relative overflow-x-auto">
           <table class="w-full text-sm text-left text-gray-500">
             <thead class="text-xs text-black uppercase bg-gray-100">

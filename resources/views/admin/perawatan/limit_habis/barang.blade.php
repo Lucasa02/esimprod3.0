@@ -46,7 +46,7 @@
               </a>
 
               <button data-modal-target="reset-modal" data-modal-toggle="reset-modal"
-                onclick="resetLimit('{{ route('perawatan.reset-limit', ['uuid' => $b->uuid]) }}')"
+                onclick="resetLimit('{{ route('perawatan.limit.habis.reset', ['uuid' => $b->uuid]) }}')"
                 class="inline-flex focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 me-1 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 type="button" title="Reset Sisa Limit">
                 <i class="fa-solid fa-rotate-left"></i>
