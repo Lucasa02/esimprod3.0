@@ -99,12 +99,28 @@
 
           {{-- Perawatan MCR --}}
           <li>
-            <a href="#"
+            <a href="{{ route('perawatan_inventaris.index') }}"
               class="flex items-center w-full p-1 pl-9 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
               <i class="fa-solid fa-toolbox text-xs opacity-70 me-2"></i>
               Perawatan
             </a>
           </li>
+                {{-- Rencana Penghapusan --}}
+      <li>
+          <a href="{{ route('rencana_penghapusan.index', ['status' => 'pending']) }}"
+   class="flex items-center w-full p-1 pl-9 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
+    <i class="fa-solid fa-trash-arrow-up text-xs opacity-70 me-2"></i>
+    Rencana Penghapusan
+</a>
+
+      </li>
+      <li>
+          <a href="{{ route('data_penghapusan.index') }}"
+              class="flex items-center w-full p-1 pl-9 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
+              <i class="fa-solid fa-trash-can text-xs opacity-70 me-2"></i>
+              Data Penghapusan
+          </a>
+      </li>
         </ul>
       </li>
 

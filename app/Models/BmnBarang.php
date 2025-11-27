@@ -16,6 +16,7 @@ class BmnBarang extends Model
         'uuid',
         'nama_barang',
         'kode_barang',
+        'nup',
         'kategori',
         'merk',
         'nomor_seri',
@@ -31,6 +32,10 @@ class BmnBarang extends Model
         'posisi',
         'catatan',
     ];
+public function perawatan()
+{
+    return $this->hasMany(PerawatanInventaris::class, 'barang_id');
+}
 
     protected static function booted()
     {
@@ -38,4 +43,13 @@ class BmnBarang extends Model
             $model->uuid = Str::uuid()->toString(); // generate UUID otomatis saat create
         });
     }
+
+public function perawatanAktif()
+{
+    return $this->hasOne(PerawatanInventaris::class, 'barang_id')
+                ->where('status', '!=', 'selesai')
+                ->latest();
+}
+
+
 }

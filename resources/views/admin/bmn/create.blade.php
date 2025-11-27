@@ -19,6 +19,7 @@
                 $fields = [
                   ['label'=>'Nama Barang','name'=>'nama_barang','type'=>'text','required'=>true],
                   ['label'=>'Kode Barang (kosongkan jika ingin otomatis)','name'=>'kode_barang','type'=>'text','required'=>false],
+                  ['label'=>'NUP (Nomor Urut Pendaftaran)','name'=>'nup','type'=>'number','required'=>false],
                   ['label'=>'Kategori','name'=>'kategori','type'=>'text','required'=>true],
                   ['label'=>'Merk (opsional)','name'=>'merk','type'=>'text','required'=>false],
                   ['label'=>'Nomor Seri (opsional)','name'=>'nomor_seri','type'=>'text','required'=>false],
@@ -52,16 +53,19 @@
                 </div>
               @endforeach
 
-              {{-- ✅ Posisi Barang (ubah ke catatan deskripsi) --}}
+             {{-- FOTO POSISI (GANTI DARI TEXTAREA POSISI) --}}
               <div>
-                <label class="block text-sm font-bold text-black">Posisi Barang / Catatan Lokasi</label>
-                <textarea name="posisi" rows="3"
-                  placeholder="Contoh: Disimpan di Rak Besi bagian kanan, lemari bawah, atau meja operator."
-                  class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">{{ old('posisi') }}</textarea>
+                <label class="block text-sm font-bold text-black">Foto Posisi Barang</label>
+                <div class="mb-2">
+                  <img id="fotoPosisiPreview" src="https://via.placeholder.com/150"
+                    class="w-32 h-32 object-cover rounded-lg shadow-md border">
+                </div>
+                <input type="file" name="posisi" id="fotoPosisi" accept="image/*"
+                  class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
                 @error('posisi')
                   <small class="text-red-500 text-sm mt-1">{{ $message }}</small>
                 @enderror
-                <small class="text-gray-600 italic text-xs">Tuliskan deskripsi posisi barang secara bebas.</small>
+                <small class="text-gray-600 italic text-xs">Upload foto yang menunjukkan lokasi/posisi barang.</small>
               </div>
 
               {{-- Catatan --}}
@@ -109,15 +113,26 @@
 
 @section('scripts')
 <script>
-document.getElementById('foto').addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById('photoPreview').src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-});
+/* Fungsi umum untuk preview gambar */
+function previewImage(inputId, previewId) {
+  const input = document.getElementById(inputId);
+  input.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById(previewId).src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+/* Preview Foto Barang */
+previewImage('foto', 'photoPreview');
+
+/* Preview Foto Posisi Barang */
+previewImage('fotoPosisi', 'fotoPosisiPreview');
 </script>
 @endsection
+

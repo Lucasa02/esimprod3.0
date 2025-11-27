@@ -15,7 +15,10 @@ use App\Http\Controllers\Admin\PeruntukanController;
 use App\Http\Controllers\Admin\JenisBarangController;
 use App\Http\Controllers\Admin\PengembalianController;
 use App\Http\Controllers\Admin\Studio2Controller;
+use App\Http\Controllers\Admin\PerawatanInventarisController;
 use App\Http\Controllers\Admin\BmnController;
+use App\Http\Controllers\Admin\RencanaPenghapusanController;
+use App\Http\Controllers\Admin\DataPenghapusanController;
 use App\Http\Controllers\User\PeminjamanController as PeminjamanUser;
 use App\Http\Controllers\User\PengembalianController as PengembalianUser;
 
@@ -271,3 +274,64 @@ Route::get('/admin/bmn/{ruangan}/filter-print', [BmnController::class, 'showFilt
 			Route::get('/pdf', [PengembalianUser::class, 'printReport'])->name('user.pengembalian.pdf');
 		});
 	});
+
+
+Route::prefix('admin')->group(function () {
+
+    // =======================
+    // PERAWATAN
+    // =======================
+    Route::prefix('perawatan')->name('perawatan_inventaris.')->group(function () {
+
+        Route::get('/', [PerawatanInventarisController::class, 'index'])->name('index');
+
+        Route::post('/masuk/{barang_id}', [PerawatanInventarisController::class, 'storeFromBarang'])
+            ->name('storeFromBarang');
+
+        Route::get('/detail/{id}', [PerawatanInventarisController::class, 'detail'])
+            ->name('detail');
+
+        Route::get('/perbaiki/{id}', [PerawatanInventarisController::class, 'perbaiki'])
+            ->name('perbaiki');
+
+        Route::post('/hapuskan/{id}', [PerawatanInventarisController::class, 'hapuskan'])
+            ->name('hapuskan');
+
+        Route::get('/selesai/{id}', [PerawatanInventarisController::class, 'selesaiForm'])
+            ->name('selesaiForm');
+
+        Route::post('/selesai/{id}', [PerawatanInventarisController::class, 'selesaiSubmit'])
+            ->name('selesaiSubmit');
+    });
+
+
+    // =======================
+    // RENCANA PENGHAPUSAN
+    // =======================
+    Route::get('/rencana-penghapusan', 
+        [RencanaPenghapusanController::class, 'index'])
+        ->name('rencana_penghapusan.index');
+
+    Route::post('/rencana-penghapusan/hapuskan/{id}', 
+    [RencanaPenghapusanController::class, 'hapuskan'])
+    ->name('rencana_penghapusan.hapuskan');
+
+
+
+    // =======================
+    // DATA PENGHAPUSAN
+    // =======================
+    Route::get('/data-penghapusan', 
+        [DataPenghapusanController::class, 'index'])
+        ->name('data_penghapusan.index');
+
+	Route::get('/admin/penghapusan', 
+    [App\Http\Controllers\Admin\DataPenghapusanController::class, 'index']
+)->name('penghapusan.index');
+
+Route::get('/admin/penghapusan/pdf', 
+    [App\Http\Controllers\Admin\DataPenghapusanController::class, 'cetakPdf']
+)->name('penghapusan.cetak.pdf');
+
+
+});

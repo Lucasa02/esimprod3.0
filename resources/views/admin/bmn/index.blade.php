@@ -174,7 +174,7 @@
       @php
         $warna = match($item->kondisi) {
           'Sangat Baik' => 'bg-green-500',
-          'Baik' => 'bg-lime-500',
+          'Baik' => 'bg-blue-500',
           'Kurang Baik' => 'bg-yellow-400',
           'Rusak / Cacat', 'Rusak', 'Cacat' => 'bg-red-500',
           default => 'bg-gray-500'
@@ -188,9 +188,44 @@
               alt="{{ $item->nama_barang }}">
         </a>
 
-        <span class="absolute top-3 left-3 bg-tvri_base_color text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-          {{ $item->kategori }}
+       {{-- BADGE ATAS (Kategori + Status) --}}
+<div class="absolute top-3 left-3 right-3 flex items-center justify-between">
+
+    {{-- KATEGORI --}}
+    <span class="bg-tvri_base_color text-white text-xs font-semibold px-2 py-[2px] rounded-full whitespace-nowrap">
+        {{ $item->kategori }}
+    </span>
+
+    @php
+        $penghapusan = $item->perawatan->firstWhere('jenis_perawatan', 'penghapusan');
+        $rencana     = $item->perawatan->firstWhere('jenis_perawatan', 'rencana_penghapusan');
+        $perawatan   = $item->perawatan->firstWhere('jenis_perawatan', 'perbaikan');
+    @endphp
+
+    {{-- STATUS --}}
+    @if ($penghapusan)
+        <span class="bg-red-600 text-white text-xs font-semibold px-2 py-[2px] rounded-full whitespace-nowrap">
+            Penghapusan
         </span>
+    @elseif ($rencana)
+        <span class="bg-orange-600 text-white text-xs font-semibold px-2 py-[2px] rounded-full whitespace-nowrap">
+            Rencana Penghapusan
+        </span>
+    @elseif ($perawatan)
+        <span class="
+            text-white text-xs font-semibold px-2 py-[2px] rounded-full whitespace-nowrap
+            @switch($perawatan->status)
+                @case('pending') bg-gray-500 @break
+                @case('proses') bg-blue-600 @break
+                @case('selesai') bg-green-600 @break
+                @default bg-gray-600
+            @endswitch
+        ">
+            {{ ucfirst($perawatan->status) }}
+        </span>
+    @endif
+</div>
+
 
         <div class="p-4">
           <p class="font-semibold text-gray-900 dark:text-white text-sm truncate">{{ $item->nama_barang }}</p>
@@ -201,7 +236,7 @@
                 style="width: {{ $item->persentase_kondisi ?? 0 }}%; background-color:
                 @switch($item->kondisi)
                     @case('Sangat Baik') green @break
-                    @case('Baik') lime @break
+                    @case('Baik') blue @break
                     @case('Kurang Baik') yellow @break
                     @case('Rusak / Cacat') red @break
                     @default gray @break
