@@ -1,4 +1,4 @@
-@php $title = 'Laporan Bulanan Peminjaman'; @endphp
+@php $title = 'Laporan Bulanan Penggunaan'; @endphp
 @extends('layouts.admin.main')
 
 @section('content')
@@ -22,7 +22,7 @@
     <div class="bg-white shadow rounded-lg p-6 mb-6">
       <div class="flex justify-between items-start mb-4">
         <div>
-          <h2 class="text-2xl font-bold text-gray-800">Laporan Peminjaman Detail</h2>
+          <h2 class="text-2xl font-bold text-gray-800">Laporan Penggunaan Detail</h2>
           <p class="text-gray-600">
             Periode:
             <span class="font-semibold text-black">
@@ -39,7 +39,7 @@
         </div>
         <div class="text-right">
           <img src="{{ asset('img/assets/esimprod_logo.png') }}" alt="Esimprod" class="w-20 mx-auto mb-1">
-          <p class="text-sm text-gray-500">Version 3.0</p>
+          <p class="text-sm text-gray-500">Version 2.2</p>
         </div>
       </div>
 
@@ -71,7 +71,7 @@
     <div class="bg-white shadow rounded-lg p-6 mb-6">
       {{-- HEADER & FILTER --}}
       <div class="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-4">
-        <h3 class="text-lg font-bold text-black">Filter Data Peminjaman</h3>
+        <h3 class="text-lg font-bold text-black">Filter Data Penggunaan</h3>
 
         <form action="{{ route('peminjaman.laporan.bulanan') }}" method="GET"
           class="flex flex-wrap items-end gap-2">
@@ -151,9 +151,9 @@
           <thead class="text-xs text-black uppercase bg-gray-100">
             <tr>
               <th class="px-6 py-3">No</th>
-              <th class="px-6 py-3">Nomor Peminjaman</th>
-              <th class="px-6 py-3">Peminjam</th>
-              <th class="px-6 py-3">Tanggal Peminjaman</th>
+              <th class="px-6 py-3">Nomor Penggunaan</th>
+              <th class="px-6 py-3">Penggunaan</th>
+              <th class="px-6 py-3">Tanggal Penggunaan</th>
               <th class="px-6 py-3">Tanggal Kembali</th>
               <th class="px-6 py-3">Jumlah Barang</th>
               <th class="px-6 py-3">Peruntukan</th>
@@ -181,7 +181,7 @@
               </tr>
             @empty
               <tr>
-                <td colspan="8" class="text-center py-4 text-gray-500">Tidak ada data peminjaman sesuai filter.</td>
+                <td colspan="8" class="text-center py-4 text-gray-500">Tidak ada data penggunaan sesuai filter.</td>
               </tr>
             @endforelse
           </tbody>

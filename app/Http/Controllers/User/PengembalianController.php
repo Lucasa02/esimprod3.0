@@ -141,20 +141,22 @@ class PengembalianController extends Controller
                 // Tentukan status untuk tabel Barang
                 $statusBarang = '';
                 if ($item['isChecked']) {
-                    $barangDikembalikan++;
-                    if ($item['condition'] === 'rusak') {
-                        // Barang dikembalikan dalam kondisi rusak
-                        $statusBarang = 'rusak';
-                    } elseif ($item['condition'] === 'baik') {
-                        // Barang dikembalikan dalam kondisi baik (siap tersedia)
-                        // Logika limit habis akan menangani ketersediaan/reset
-                        $statusBarang = 'tersedia';
-                    }
-                } else {
-                    // Barang tidak dicentang (dianggap hilang)
-                    $statusBarang = 'tidak-tersedia';
-                    $allChecked = false; // Jika ada yang tidak dicentang, pengembalian tidak 'Lengkap'
-                }
+					$barangDikembalikan++;
+
+					if ($item['condition'] === 'rusak') {
+						// Barang rusak tetap tidak tersedia agar masuk menu barang rusak
+						$statusBarang = 'tidak-tersedia';
+
+					} elseif ($item['condition'] === 'baik') {
+						// Barang baik tetap tersedia selama limit masih ada
+						$statusBarang = 'tersedia';
+					}
+
+				} else {
+					// Barang hilang
+					$statusBarang = 'tidak-tersedia';
+					$allChecked = false;
+				}
 
                 // Simpan DetailPengembalian
                 DetailPengembalian::create([
@@ -183,10 +185,17 @@ class PengembalianController extends Controller
                         }
                     }
 
-                    // Khusus untuk barang rusak, sisa_limit jadi 0 (agar masuk ke perawatan/barang-rusak)
-                    if ($statusBarang === 'rusak') {
-                         $updateData['sisa_limit'] = 0;
-                    }
+                    // Barang rusak juga mengurangi limit
+					if ($item['condition'] === 'rusak') {
+						if ($barang->sisa_limit > 0) {
+							$updateData['sisa_limit'] = $barang->sisa_limit - 1;
+						}
+
+						// Jika limit habis, tetap tidak tersedia
+						if ($updateData['sisa_limit'] == 0) {
+							$updateData['status'] = 'tidak-tersedia';
+						}
+					}
                     
                     $barang->update($updateData);
                 }

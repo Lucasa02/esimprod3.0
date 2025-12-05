@@ -51,7 +51,7 @@
             <img src="{{ asset('img/assets/esimprod_logo.png') }}" class="h-8 me-3 bg-blue-900 p-1 rounded-lg"
               alt="ESIMPROD" />
             <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-              <small class="text-xs text-white font-thin">Version 3.0</small>
+              <small class="text-xs text-white font-thin">Version 2.2</small>
             </span>
           </p>
         </div>
@@ -124,7 +124,7 @@
           class="bg-white rounded-lg p-2 shadow-lg flex flex-col sm:flex-row gap-2 items-center justify-center lg:mt-36">
           <a href="{{ route('user.peminjaman.index') }}"
             class="text-white bg-blue-950 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-base sm:text-lg px-10 sm:px-24 py-3 w-full sm:w-auto text-center dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-            Peminjaman Barang
+            Penggunaan Barang
           </a>
           <button type="button" data-modal-target="scan-modal" data-modal-toggle="scan-modal"
             class="focus:outline-none text-white bg-blue-500 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-base sm:text-lg px-10 sm:px-24 py-3 w-full sm:w-auto text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
@@ -142,7 +142,7 @@
       <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
         <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
           <h3 class="text-xl text-center font-semibold text-gray-900 dark:text-white">
-            Scan QR Pengembalian
+            Scan QR Penggunaan
           </h3>
           <button type="button"
             class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
@@ -159,7 +159,7 @@
           <div>
             <input type="text" name="code" id="code"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-              placeholder="Kode Peminjaman" />
+              placeholder="Kode Penggunaan" />
             <span id="error-message" class="text-red-600 text-sm mt-2 hidden"></span>
           </div>
           <button type="button" id="confirm"

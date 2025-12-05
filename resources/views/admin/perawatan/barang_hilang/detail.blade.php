@@ -64,15 +64,29 @@
             </span><span>{{ $barang->jenisBarang->jenis_barang }}</span>
           </li>
           <li class="flex space-x-2 rtl:space-x-reverse items-center">
-            @if ($barang->sisa_limit > 0)
-              <i class="fa-solid fa-circle-check text-sm text-green-600"></i>
-              <span class="leading-tight font-bold text-green-600">Status :
-              </span><span class="text-green-600">Tersedia</span>
-            @else
+            @php
+            $dp = $barang->detail_pengembalian()->latest()->first();
+          @endphp
+
+          @if ($barang->status == 'tidak-tersedia')
+            @if($dp && $dp->status == 'hilang')
               <i class="fa-solid fa-circle-xmark text-sm text-red-600"></i>
               <span class="leading-tight font-bold text-red-600">Status :</span>
               <span class="text-red-600">Hilang</span>
+            @elseif($dp && $dp->status == 'rusak')
+              <i class="fa-solid fa-circle-exclamation text-sm text-yellow-600"></i>
+              <span class="leading-tight font-bold text-yellow-600">Status :</span>
+              <span class="text-yellow-600">Rusak</span>
+            @else
+              <i class="fa-solid fa-circle-xmark text-sm text-red-600"></i>
+              <span class="leading-tight font-bold text-red-600">Status :</span>
+              <span class="text-red-600">Tidak Tersedia</span>
             @endif
+          @else
+            <i class="fa-solid fa-circle-check text-sm text-green-600"></i>
+            <span class="leading-tight font-bold text-green-600">Status :
+            </span><span class="text-green-600">Tersedia</span>
+          @endif
 
           </li>
         </ul>

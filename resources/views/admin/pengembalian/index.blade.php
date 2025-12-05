@@ -12,22 +12,58 @@
     @endif
   </div>
 
+  <div class="flex flex-col md:flex-row justify-between items-center w-full p-3 ml-3 mr-3">
 
-  <div class="flex flex-col md:flex-row items-center lg:space-x-3 space-y-3 md:space-y-0 w-full p-3 mr-6 ml-3">
-    <form class="flex items-center w-80 justify-center" action="{{ route('pengembalian.search') }}" method="GET">
-      <div class="w-full relative flex">
-        <input type="text" id="search" autocomplete="off"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          placeholder="Masukkan Kode Peminjaman + Enter" name="search" />
-        <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-tvri_base_color" aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-        </svg>
-      </div>
-    </form>
-  </div>
+  <form action="{{ route('pengembalian.search') }}" method="GET"
+    class="flex space-x-3 w-full md:w-auto">
 
+    <input id="search-input" type="text" name="search" value="{{ request('search') }}"
+      placeholder="Cari kode pengembalian..."
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 dark:bg-gray-700 dark:text-white w-48">
+
+    <select name="bulan"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 dark:bg-gray-700 dark:text-white">
+      <option value="">Semua Bulan</option>
+      @for ($m = 1; $m <= 12; $m++)
+        <option value="{{ $m }}" {{ request('bulan') == $m ? 'selected' : '' }}>
+          {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+        </option>
+      @endfor
+    </select>
+
+    <select name="tahun"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 dark:bg-gray-700 dark:text-white">
+      <option value="">Semua Tahun</option>
+      @for ($y = 2023; $y <= date('Y'); $y++)
+        <option value="{{ $y }}" {{ request('tahun') == $y ? 'selected' : '' }}>
+          {{ $y }}
+        </option>
+      @endfor
+    </select>
+
+    <select name="status"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 dark:bg-gray-700 dark:text-white">
+      <option value="">Semua Status</option>
+      <option value="Lengkap" {{ request('status') == 'Lengkap' ? 'selected' : '' }}>Lengkap</option>
+      <option value="Tidak Lengkap" {{ request('status') == 'Tidak Lengkap' ? 'selected' : '' }}>Tidak Lengkap</option>
+    </select>
+
+    <button type="submit"
+      class="text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-4 py-2">
+      Filter
+    </button>
+
+  </form>
+
+  {{-- BUTTON CETAK PDF --}}
+  <a href="{{ route('pengembalian.cetak', request()->only(['search','bulan','tahun','status'])) }}"
+    class="flex items-center space-x-2 text-white bg-red-600 hover:bg-red-700 rounded-lg px-4 py-2"
+    target="_blank">
+    <i class="fa-solid fa-print"></i>
+    <span>Cetak PDF</span>
+  </a>
+
+</div>
 
   @if ($pengembalian->isEmpty())
     <x-empty-data></x-empty-data>
@@ -39,7 +75,7 @@
             <tr>
               <th scope="col" class="px-6 py-3 text-center">No.</th>
               <th scope="col" class="px-6 py-3 text-center">Kode Pengembalian</th>
-              <th scope="col" class="px-6 py-3 text-center">Kode Peminjaman</th>
+              <th scope="col" class="px-6 py-3 text-center">Kode Penggunaan</th>
               <th scope="col" class="px-6 py-3 text-center">Tanggal Kembali</th>
               <th scope="col" class="px-6 py-3 text-center">Peminjam</th>
               <th scope="col" class="px-6 py-3 text-center">Status</th>
@@ -86,3 +122,17 @@
   </div>
 
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('search-input');
+
+    // Cegah submit jika user menekan Enter di kolom search dalam keadaan kosong
+    searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && searchInput.value.trim() === "") {
+            e.preventDefault();
+            alert("Kolom pencarian tidak boleh kosong!");
+        }
+    });
+});
+</script>

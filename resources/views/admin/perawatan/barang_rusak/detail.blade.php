@@ -2,7 +2,7 @@
 @section('content')
   <div class="flex p-3 ml-3 mr-3">
     <a
-      href="{{ route('perawatan.limit.habis.index') }}"
+      href="{{ route('perawatan.barang.rusak.index') }}"
       class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none font-bold rounded-lg text-sm text-center px-5 py-2.5 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
       type="button"
     >
@@ -95,15 +95,15 @@
             </span><span>{{ $barang->jenisBarang->jenis_barang }}</span>
           </li>
           <li class="flex space-x-2 rtl:space-x-reverse items-center">
-            @if ($barang->sisa_limit > 0)
-              <i class="fa-solid fa-circle-check text-sm text-green-600"></i>
-              <span class="leading-tight font-bold text-green-600">Status :
-              </span><span class="text-green-600">Tersedia</span>
-            @else
-              <i class="fa-solid fa-circle-xmark text-sm text-red-600"></i>
-              <span class="leading-tight font-bold text-red-600">Status :</span>
-              <span class="text-red-600">Habis</span>
-            @endif
+            @if ($barang->status == 'tidak-tersedia')
+            <i class="fa-solid fa-circle-xmark text-sm text-red-600"></i>
+            <span class="leading-tight font-bold text-red-600">Status :</span>
+            <span class="text-red-600">Rusak</span>
+          @else
+            <i class="fa-solid fa-circle-check text-sm text-green-600"></i>
+            <span class="leading-tight font-bold text-green-600">Status :</span>
+            <span class="text-green-600">Tersedia</span>
+          @endif
 
           </li>
         </ul>

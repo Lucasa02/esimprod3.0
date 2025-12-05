@@ -99,107 +99,89 @@ class PeminjamanController extends Controller
 	}
 
 	public function store(Request $request)
-	{
-		$borrowedItems = session()->get('borrowed_items', []);
-		Log::info('Received request data:', $request->all());
-		if (empty($borrowedItems)) {
-			return response()->json([
-				'success' => false,
-				'message' => 'Tidak ada barang yang dipilih untuk dipinjam'
-			], 400);
-		}
+{
+    $borrowedItems = session()->get('borrowed_items', []);
+    Log::info('Received request data:', $request->all());
 
+    if (empty($borrowedItems)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Tidak ada barang yang dipilih untuk dipinjam'
+        ], 400);
+    }
 
-		$kd_peminjaman = "PMB-" . time();
+    $kd_peminjaman = "PMB-" . time();
 
-		$qrCode = QrCode::format('svg')->size(200)->generate($kd_peminjaman);
-		$qrCodeFilename = time() . '_qr.svg';
-		Storage::disk('public')->put('uploads/qr_codes_peminjaman/' . $qrCodeFilename, $qrCode);
+    $qrCode = QrCode::format('svg')->size(200)->generate($kd_peminjaman);
+    $qrCodeFilename = time() . '_qr.svg';
+    Storage::disk('public')->put('uploads/qr_codes_peminjaman/' . $qrCodeFilename, $qrCode);
 
-		try {
-			DB::beginTransaction();
+    try {
+        DB::beginTransaction();
 
-			$borrowing = Peminjaman::create([
-				'uuid' => Str::uuid(),
-				'kode_peminjaman' => $kd_peminjaman,
-				'nomor_surat' => $request->nomor_surat,
-				'nomor_peminjaman' => 'PMJ-' . date('Ym') . '-' . str_pad(Peminjaman::whereYear('tanggal_peminjaman', date('Y'))->whereMonth('tanggal_peminjaman', date('m'))->count() + 1, 2, '0', STR_PAD_LEFT),
-				'peruntukan_id' => $request->peruntukan_id,
-				'tanggal_penggunaan' => $request->tanggal_penggunaan,
-				'tanggal_peminjaman' => now(),
-				'tanggal_kembali' => $request->tanggal_kembali,
-				'qr_code' => $qrCodeFilename,
-				'peminjam' => Auth::user()->nama_lengkap,
-				'status' => 'Proses'
-			]);
+        $borrowing = Peminjaman::create([
+            'uuid' => Str::uuid(),
+            'kode_peminjaman' => $kd_peminjaman,
+            'nomor_surat' => $request->nomor_surat,
+            'nomor_peminjaman' => 'PMJ-' . date('Ym') . '-' .
+                str_pad(Peminjaman::whereYear('tanggal_peminjaman', date('Y'))
+                    ->whereMonth('tanggal_peminjaman', date('m'))->count() + 1, 2, '0', STR_PAD_LEFT),
+            'peruntukan_id' => $request->peruntukan_id,
+            'tanggal_penggunaan' => $request->tanggal_penggunaan,
+            'tanggal_peminjaman' => now(),
+            'tanggal_kembali' => $request->tanggal_kembali,
+            'qr_code' => $qrCodeFilename,
+            'peminjam' => Auth::user()->nama_lengkap,
+            'status' => 'Proses'
+        ]);
 
-			// Create borrowing details
-			foreach ($borrowedItems as $item) {
-				DetailPeminjaman::create([
-					'uuid' => Str::uuid(),
-					'kode_peminjaman' => $borrowing->kode_peminjaman,
-					'kode_barang' => $item['kode_barang'],
-				]);
+        // Simpan detail barang
+        foreach ($borrowedItems as $item) {
+            DetailPeminjaman::create([
+                'uuid' => Str::uuid(),
+                'kode_peminjaman' => $borrowing->kode_peminjaman,
+                'kode_barang' => $item['kode_barang'],
+            ]);
 
-				$updatedItem = Barang::where('uuid', $item['uuid'])->first();
+            $updatedItem = Barang::where('uuid', $item['uuid'])->first();
 
-				if ($updatedItem) {
-					$newLimit = $updatedItem->sisa_limit - 1;
+            if ($updatedItem) {
+                $newLimit = $updatedItem->sisa_limit - 1;
+                $updatedItem->update(['sisa_limit' => $newLimit]);
 
-					$updatedItem->update(['sisa_limit' => $newLimit]);
+                if ($newLimit == 0) {
+                    $updatedItem->update(['status' => 'tidak-tersedia']);
+                }
+            }
+        }
 
-					if ($newLimit == 0) {
-						$updatedItem->update(['status' => 'tidak-tersedia']);
-					}
-				}
-			}
+        // Clear session
+        session()->forget('borrowed_items');
+        DB::commit();
+        session()->put('kodePeminjaman', $borrowing->kode_peminjaman);
 
-			// Clear session
-			session()->forget('borrowed_items');
-			DB::commit();
-			session()->put('kodePeminjaman', $borrowing->kode_peminjaman);
+        // =============================
+        //   EMAIL DIPINDAHKAN KE METHOD BARU
+        // =============================
 
-			// get barang detail 
-			$barang = [];
-			foreach ($borrowedItems as $item) {
-				$barangDetail = Barang::where('kode_barang', $item['kode_barang'])->first();
-				if ($barangDetail) {
-					$barang[] = [
-						'nama_barang' => $barangDetail->nama_barang,
-						'merk' => $barangDetail->merk,
-						'nomor_seri' => $barangDetail->nomor_seri,
-					];
-				}
-			}
+        return response()->json([
+            'success' => true,
+            'message' => 'Borrowing saved successfully'
+        ], 200);
 
-			$catatan = Catatan::get();
+    } catch (\Exception $e) {
+        DB::rollback();
+        Log::error('Terjadi kesalahan saat menyimpan peminjaman.', [
+            'error' => $e->getMessage(),
+            'user_id' => Auth::user()->id,
+        ]);
 
-			// kirim notif email ke superadmin 
-			Notification::send(
-				[
-					User::where('role', 'superadmin')->first(),
-					Auth::user()
-				],
-				new PeminjamanNotification($borrowing, $barang, $catatan)
-			);
-
-			return response()->json([
-				'success' => true,
-				'message' => 'Borrowing saved successfully'
-			], 200);
-		} catch (\Exception $e) {
-			DB::rollback();
-			Log::error('Terjadi kesalahan saat menyimpan peminjaman.', [
-				'error' => $e->getMessage(),
-				'user_id' => Auth::user()->id,
-			]);
-
-			return response()->json([
-				'success' => false,
-				'message' => 'Error saving borrowing: ' . $e->getMessage()
-			], 500);
-		}
-	}
+        return response()->json([
+            'success' => false,
+            'message' => 'Error saving borrowing: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
 	public function removeItem($uuid)
 	{
@@ -237,6 +219,40 @@ class PeminjamanController extends Controller
 
 		return view('user.laporan.peminjaman.index', compact('detailpeminjaman', 'peminjaman', 'barang'));
 	}
+
+	public function sendEmail($kodePeminjaman)
+{
+    $peminjaman = Peminjaman::where('kode_peminjaman', $kodePeminjaman)->firstOrFail();
+    $detailpeminjaman = DetailPeminjaman::where('kode_peminjaman', $kodePeminjaman)->get();
+
+    // Ambil data barang
+    $barang = [];
+    foreach ($detailpeminjaman as $detail) {
+        $dataBarang = Barang::where('kode_barang', $detail->kode_barang)->first();
+        if ($dataBarang) {
+            $barang[] = [
+                'nama_barang' => $dataBarang->nama_barang,
+                'merk' => $dataBarang->merk,
+                'nomor_seri' => $dataBarang->nomor_seri,
+                'status' => $dataBarang->status,
+            ];
+        }
+    }
+
+    $catatan = Catatan::get();
+
+    // Kirim email ke Superadmin & User
+    Notification::send(
+        [
+            User::where('role', 'superadmin')->first(),
+            Auth::user()
+        ],
+        new PeminjamanNotification($peminjaman, $barang, $catatan)
+    );
+
+    return redirect()->back()->with('success', 'Email berhasil dikirim!');
+}
+
 
 	public function printReport()
 	{

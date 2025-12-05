@@ -134,7 +134,7 @@
         <a href="{{ route('peminjaman.index') }}"
           class="flex items-center p-2 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
           <i class="fa-solid fa-paper-plane"></i>
-          <span class="ms-3">Data Peminjaman</span>
+          <span class="ms-3">Data Penggunaan</span>
         </a>
       </li>
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BarangController;
 use App\Http\Controllers\User\OptionsController;
+use App\Http\Controllers\User\InventarisUserController;
 use App\Http\Controllers\Admin\JabatanController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -14,11 +15,18 @@ use App\Http\Controllers\Admin\PeminjamanController;
 use App\Http\Controllers\Admin\PeruntukanController;
 use App\Http\Controllers\Admin\JenisBarangController;
 use App\Http\Controllers\Admin\PengembalianController;
+use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\Studio2Controller;
 use App\Http\Controllers\Admin\PerawatanInventarisController;
 use App\Http\Controllers\Admin\BmnController;
+
+
+
 use App\Http\Controllers\Admin\RencanaPenghapusanController;
 use App\Http\Controllers\Admin\DataPenghapusanController;
+
+use App\Http\Controllers\User\PeminjamanController as UserPeminjamanController;
+
 use App\Http\Controllers\User\PeminjamanController as PeminjamanUser;
 use App\Http\Controllers\User\PengembalianController as PengembalianUser;
 
@@ -29,7 +37,6 @@ Route::prefix('/')->group(function () {
 	Route::middleware(['auth', 'role:superadmin,admin'])->group(function () {
 		Route::get('/password', [AuthController::class, 'password'])->name('password');
 		Route::post('/password', [AuthController::class, 'passwordValidation'])->name('password.validation');
-		Route::get('/password', [AuthController::class, 'password'])->name('password');
 		Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.request');
 		Route::post('/forgot-password', [AuthController::class, 'forgotPasswordProcess'])->name('password.email');
 		Route::get('/reset-password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
@@ -74,6 +81,7 @@ Route::prefix('/')->group(function () {
 				Route::get('/', [GuideBookController::class, 'index'])->name('buku-panduan.index');
 				Route::post('store', [GuideBookController::class, 'store'])->name('buku-panduan.store');
 				Route::patch('used/{uuid}', [GuideBookController::class, 'used'])->name('buku-panduan.used');
+				Route::delete('buku-panduan/{uuid}/delete', [GuideBookController::class, 'destroy'])->name('buku-panduan.destroy');
 				Route::patch('unused/{uuid}', [GuideBookController::class, 'unused'])->name('buku-panduan.unused');
 				Route::get('download', [GuideBookController::class, 'download'])->name('buku-panduan.download');
 			});
@@ -120,19 +128,16 @@ Route::prefix('/')->group(function () {
                 Route::put('/{id}/update', [Studio2Controller::class, 'update'])->name('update');
                 Route::delete('/{id}/delete', [Studio2Controller::class, 'destroy'])->name('destroy');
                 Route::get('/{id}/detail', [Studio2Controller::class, 'show'])->name('detail');
-                Route::get('/print', [Studio2Controller::class, 'print'])->name('print');
-				Route::get('/studio2/print', [Studio2Controller::class, 'print'])->name('studio2.print');
-
+				Route::get('/print', [Studio2Controller::class, 'print'])->name('print');
             });
         
         }); // End of Route::middleware('role:superadmin,admin')->group(function () 
-        
-        // PROFIL (Accessible by all verified users)
-        Route::prefix('profil')->group(function () {
-            Route::get('/', [ProfileController::class, 'index'])->name('profil.index');
-            Route::patch('/ubah-profil', [ProfileController::class, 'updateProfil'])->name('profil.update-profil');
-            Route::patch('/ubah-password', [ProfileController::class, 'updatePassword'])->name('profil.update-password');
-        });
+
+		Route::prefix('admin')->middleware(['auth', 'role:superadmin,admin'])->group(function () {
+		Route::get('/slider', [SliderController::class, 'index'])->name('slider.index');
+		Route::post('/slider', [SliderController::class, 'store'])->name('slider.store');
+		Route::delete('/slider/{id}', [SliderController::class, 'destroy'])->name('slider.destroy');
+		});
 
         // USERS MANAGEMENT
         Route::prefix('users')->middleware('role:superadmin,admin')->group(function () {
@@ -152,24 +157,6 @@ Route::prefix('/')->group(function () {
             Route::put('/update/{uuid}', [UserController::class, 'update'])->name('users.update');
             Route::delete('/destroy/{uuid}', [UserController::class, 'destroy'])->name('users.destroy');
         });
-        
-        // BMN ROUTES (Dikelompokkan di bawah prefix 'admin/bmn')
-		Route::prefix('admin/bmn')->group(function () {
-			Route::get('/mcr', [BmnController::class, 'index'])->name('bmn.mcr.index')->defaults('studio', 'mcr');
-			Route::get('/studio', [BmnController::class, 'index'])->name('bmn.studio.index')->defaults('studio', 'studio');
-			Route::get('/peralatan', [BmnController::class, 'index'])->name('bmn.peralatan.index')->defaults('studio', 'peralatan');
-
-			Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
-			Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
-			Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
-			Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
-			Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
-			Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
-			Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show');
-			Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
-			Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
-			
-		});
 
 		Route::prefix('users')->group(function () {
 			Route::middleware('role:superadmin,admin')->group(function () {
@@ -208,44 +195,63 @@ Route::prefix('/')->group(function () {
 				Route::get('/', [PengembalianController::class, 'index'])->name('pengembalian.index');
 				Route::get('/detail/{uuid}', [PengembalianController::class, 'show'])->name('pengembalian.show');
 				Route::get('/result', [PengembalianController::class, 'search'])->name('pengembalian.search');
+				Route::get('/pengembalian/cetak', [PengembalianController::class, 'cetak'])->name('pengembalian.cetak');
 			});
 
 			Route::prefix('perawatan')->group(function () {
-				Route::get('/limit-habis', [PerawatanController::class, 'limitHabis'])->name('perawatan.limit.habis.index');
-				Route::get('/barang-limit-habis/{uuid}', [PerawatanController::class, 'detailBarangHabis'])->name('perawatan.limit.habis.detail');
-				Route::get('/barang-hilang', [PerawatanController::class, 'barangHilang'])->name('perawatan.barang.hilang.index');
-				Route::get('/barang-hilang/{uuid}', [PerawatanController::class, 'detailBarangHilang'])->name('perawatan.barang.hilang.detail');
-				Route::put('/reset-limit/{uuid}', [PerawatanController::class, 'resetLimit'])->name('perawatan.reset-limit');
-				Route::get('/barang-rusak', [PerawatanController::class, 'barangRusak'])->name('perawatan.barang.rusak.index');
-				Route::put('/perawatan/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
-				Route::put('/perawatan/barang-hilang/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.ubah.status');
+
+			// LIMIT HABIS
+			Route::get('/limit-habis', [PerawatanController::class, 'limitHabis'])->name('perawatan.limit.habis.index');
+			Route::get('/limit-habis/{uuid}', [PerawatanController::class, 'detailBarangHabis'])->name('perawatan.limit.habis.detail');
+			Route::put('/limit-habis/reset/{uuid}', [PerawatanController::class, 'resetLimit'])->name('perawatan.limit.habis.reset');
+
+			// BARANG HILANG
+			Route::get('/barang-hilang', [PerawatanController::class, 'barangHilang'])->name('perawatan.barang.hilang.index');
+			Route::get('/barang-hilang/{uuid}', [PerawatanController::class, 'detailBarangHilang'])->name('perawatan.barang.hilang.detail');
+			Route::put('/barang-hilang/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.barang.hilang.ubah-status');
+			Route::get('/barang-hilang/cetak/pdf', [PerawatanController::class, 'cetakPdfBarangHilang'])->name('perawatan.barang.hilang.cetak.pdf');
+
+			// BARANG RUSAK
+			Route::get('/barang-rusak', [PerawatanController::class, 'barangRusak'])->name('perawatan.barang.rusak.index');
+			Route::get('/barang-rusak/{uuid}', [PerawatanController::class, 'detailBarangRusak'])->name('perawatan.barang.rusak.detail');
+			Route::get('/barang-rusak/cetak/pdf', [PerawatanController::class, 'cetakPdfBarangRusak'])->name('perawatan.barang.rusak.cetak.pdf');
+			Route::get('/perawatan/lihat-surat', [PerawatanController::class, 'lihatSurat'])->name('perawatan.lihat.surat.index');
+			Route::post('/perawatan/upload-surat/{uuid}', [PerawatanController::class, 'uploadSurat'])->name('perawatan.upload.surat');
+			Route::delete('/surat/{id}', [PerawatanController::class, 'hapusSurat'])->name('perawatan.surat.hapus');
 			}); 
 
 			// ========================
 			// ROUTE DATA BMN
 			// ========================
 			Route::prefix('admin/bmn')->middleware(['auth', 'verified.password', 'role:superadmin,admin'])->group(function () {
+						// Route khusus QR All — harus di atas {ruangan}
+			Route::get('/qr-all/download', [BmnController::class, 'downloadQRAll'])
+				->name('bmn.qr_all.download');
+
 				Route::get('/mcr', [BmnController::class, 'index'])->name('bmn.mcr.index')->defaults('ruangan', 'mcr');
 				Route::get('/studio', [BmnController::class, 'index'])->name('bmn.studio.index')->defaults('ruangan', 'studio');
 				Route::get('/peralatan', [BmnController::class, 'index'])->name('bmn.peralatan.index')->defaults('ruangan', 'peralatan');
 
-    Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
-    Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
-    Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
-    Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
-    Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
-	Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
-	Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show'); //
-	 // 🔹 Tambahkan route print di sini
-    Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
-	Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
-Route::get('/admin/bmn/{ruangan}/print-filter', [BmnController::class, 'printFiltered'])->name('bmn.printFiltered');
-Route::get('/admin/bmn/{ruangan}/print-filtered', [BmnController::class, 'printFiltered'])->name('bmn.printFiltered');
-Route::get('/admin/bmn/{ruangan}/filter-print', [BmnController::class, 'showFilterForm'])
-    ->name('bmn.filterPrint');
-});
-		});
-	});
+			Route::get('/{ruangan}/create', [BmnController::class, 'create'])->name('bmn.create');
+			Route::post('/{ruangan}/store', [BmnController::class, 'store'])->name('bmn.store');
+			Route::get('/{ruangan}/edit/{id}', [BmnController::class, 'edit'])->name('bmn.edit');
+			Route::put('/{ruangan}/update/{id}', [BmnController::class, 'update'])->name('bmn.update');
+			Route::delete('/{ruangan}/delete/{id}', [BmnController::class, 'destroy'])->name('bmn.delete');
+			Route::get('/{ruangan}', [BmnController::class, 'index'])->name('bmn.index');
+			Route::get('/{ruangan}/show/{id}', [BmnController::class, 'show'])->name('bmn.show'); //
+			// 🔹 Tambahkan route print di sini
+			Route::get('/{ruangan}/print', [BmnController::class, 'print'])->name('bmn.print');
+			Route::get('/{ruangan}/search', [BmnController::class, 'search'])->name('bmn.search');
+			Route::get('/admin/bmn/{ruangan}/print-filter', [BmnController::class, 'printFiltered'])->name('bmn.printFiltered');
+			Route::get('/admin/bmn/{ruangan}/print-filtered', [BmnController::class, 'printFiltered'])->name('bmn.printFiltered');
+			Route::get('/admin/bmn/{ruangan}/filter-print', [BmnController::class, 'showFilterForm'])
+				->name('bmn.filterPrint');
+			
+			});
+
+			
+				});
+			});
 
 	// User Route
 	Route::middleware(['role:user'])->group(function () {
@@ -262,6 +268,9 @@ Route::get('/admin/bmn/{ruangan}/filter-print', [BmnController::class, 'showFilt
 			Route::post('/store', [PeminjamanUser::class, 'store'])->name('user.peminjaman.store');
 			Route::get('/report', [PeminjamanUser::class, 'report'])->name('user.peminjaman.report');
 			Route::get('/pdf', [PeminjamanUser::class, 'printReport'])->name('user.peminjaman.pdf');
+			Route::post('/peminjaman/send-email/{kodePeminjaman}', [PeminjamanUser::class, 'sendEmail'])
+    ->name('peminjaman.sendEmail');
+
 		});
 
 		Route::prefix('user/pengembalian')->group(function () {
@@ -273,6 +282,7 @@ Route::get('/admin/bmn/{ruangan}/filter-print', [BmnController::class, 'showFilt
 			Route::post('/update_desc', [PengembalianUser::class, 'desc_update'])->name('user.pengembalian.update_desc');
 			Route::get('/pdf', [PengembalianUser::class, 'printReport'])->name('user.pengembalian.pdf');
 		});
+
 	});
 
 
@@ -334,4 +344,66 @@ Route::get('/admin/penghapusan/pdf',
 )->name('penghapusan.cetak.pdf');
 
 
+});
+
+
+// ============================
+// ROUTE INVENTARIS USER
+// ============================
+
+Route::prefix('user')->middleware(['auth', 'role:user'])->group(function () {
+
+    Route::middleware(['jabatan:Petugas Inventaris'])->group(function () {
+
+        // Halaman daftar inventaris (index)
+        Route::get('/inventaris',
+            [InventarisUserController::class, 'index'])
+            ->name('user.inventaris');
+
+        // Halaman show_all setelah scan ALL (tampil semua barang)
+        Route::get('/inventaris/show_all',
+            [InventarisUserController::class, 'showAll'])
+            ->name('user.inventaris.show_all');
+
+        // Scan QR → cek apakah itu barang atau universal QR
+        Route::get('/scan-barang/{kode}',
+            [InventarisUserController::class, 'scan'])
+            ->name('user.inventaris.scan');
+
+        // Detail barang
+        Route::get('/inventaris/detail/{id}',
+            [InventarisUserController::class, 'detail'])
+            ->name('user.inventaris.detail');
+
+        // QR Universal helper (opsional) -> arahkan ke index
+        Route::get('/inventaris/qr', function () {
+            return redirect()->route('user.inventaris');
+        })->name('user.inventaris.qr');
+
+        // Download QR Universal
+        Route::get('/inventaris/qr/download',
+            [InventarisUserController::class, 'downloadAllQR'])
+            ->name('user.inventaris.qr.download');
+
+    });
+
+});
+
+
+
+
+	
+
+	
+
+use App\Http\Controllers\QrController;
+
+Route::prefix('qr')->group(function () {
+    Route::get('/all', [QrController::class, 'qrAll'])->name('qr.inventaris.all');
+    Route::get('/all/download/png', [QrController::class, 'downloadAllQrPng'])->name('qr.inventaris.all.download.png');
+    Route::get('/all/download/pdf', [QrController::class, 'downloadAllQrPdf'])->name('qr.inventaris.all.download.pdf');
+
+    Route::get('/barang/{kode}', [QrController::class, 'qrBarang'])->name('qr.inventaris.barang');
+    Route::get('/barang/{kode}/download/png', [QrController::class, 'downloadQrBarangPng'])->name('qr.inventaris.barang.download.png');
+    Route::get('/barang/{kode}/download/pdf', [QrController::class, 'downloadQrBarangPdf'])->name('qr.inventaris.barang.download.pdf');
 });

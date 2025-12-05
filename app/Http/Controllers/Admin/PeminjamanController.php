@@ -32,7 +32,7 @@ class PeminjamanController extends Controller
     }
 
     $data = [
-        'title' => 'Peminjaman',
+        'title' => 'Penggunaan',
         'peminjaman' => $query->paginate(5),
         'catatan' => Catatan::get(['id', 'isi_catatan']),
         'bulan' => $bulan,
@@ -49,7 +49,7 @@ class PeminjamanController extends Controller
 	public function show(string $uuid)
 	{
 		$data = [
-			'title' => 'Detail Peminjaman',
+			'title' => 'Detail Penggunaan',
 			'peminjaman' => Peminjaman::where('uuid', $uuid)->first(),
 		];
 
@@ -65,7 +65,7 @@ class PeminjamanController extends Controller
 			->appends(['search' => $search]);
 
 		$data = [
-			'title' => 'Peminjaman',
+			'title' => 'Penggunaan',
 			'peminjaman' => $peminjaman,
 		];
 
@@ -180,7 +180,7 @@ public function exportLaporanBulanan(Request $request)
 	public function editCatatan($id)
 	{
 		$data = [
-			'title' => 'Edit Catatan Peminjaman',
+			'title' => 'Edit Catatan Penggunaan',
 			'catatan' => Catatan::findOrFail($id)
 		];
 

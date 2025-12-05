@@ -6,7 +6,7 @@
   <meta name="viewport"
     content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Laporan Peminjaman</title>
+  <title>Laporan Penggunaan</title>
 </head>
 
 <style>
@@ -87,14 +87,14 @@
     <table style="width: 100%;">
       <tr>
         <td style="width: 50%;">
-          <div style="font-weight: bold; font-size: 30px;">Daftar Barang Pinjam</div>
+          <div style="font-weight: bold; font-size: 30px;">Daftar Barang Penggunaan</div>
           <div style="font-size: 20px;">Nomor Peminjaman: {{ $peminjaman->nomor_peminjaman }}</div>
-          <div>Tanggal Pinjam: {{ \Carbon\Carbon::parse($peminjaman->tanggal_peminjaman)->translatedFormat('d F Y') }}
+          <div>Tanggal Penggunaan: {{ \Carbon\Carbon::parse($peminjaman->tanggal_peminjaman)->translatedFormat('d F Y') }}
           </div>
         </td>
         <td style="width: 50%; text-align: right;">
           <img src="{{ public_path('img/assets/esimprod_logo.png') }}" alt="Esimprod" width="100" />
-          <div>Version 2.0</div>
+          <div>Version 2.2</div>
         </td>
       </tr>
     </table>
@@ -104,7 +104,7 @@
       <table class="w-full">
         <tr>
           <td class="w-half">
-            <div>Peminjam : {{ $peminjaman->peminjam }}</div>
+            <div>Penggunaan : {{ $peminjaman->peminjam }}</div>
             <div>NIP : {{ Auth::user()->nip }}</div>
             <div>No. HP : {{ Auth::user()->nomor_hp }}</div>
             <div>Jabatan : {{ Auth::user()->jabatan->jabatan }}</div>

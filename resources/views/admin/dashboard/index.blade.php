@@ -4,42 +4,58 @@
 <main class="flex-1 px-6 sm:px-10 py-8 bg-white dark:bg-background-dark">
   <div class="w-full max-w-7xl mx-auto">
 
+    {{-- Judul Baru (Selamat datang) --}}
+    <div class="mb-6">
+        <p class="text-2xl sm:text-3xl font-bold text-[#1b365d] dark:text-white">
+            Selamat datang, {{ Auth::user()->nama_lengkap }}!
+        </p>
+        <p class="text-text-light-secondary dark:text-text-dark-secondary text-sm sm:text-base mt-1">
+            Administrator Sistem Peminjaman Barang Produksi
+        </p>
+    </div>
+
+    {{-- Hero Section (Tanpa teks selamat datang lagi) --}}
+
     {{-- Hero Section --}}
-<div class="relative w-full h-80 rounded-xl overflow-hidden mb-8">
-  {{-- Background Images (slider) --}}
-  <div id="hero-slider" class="absolute inset-0 z-0">
-    <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-100"
-      style="background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80');">
-    </div>
-    <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-0"
-      style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80');">
-    </div>
-    <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-0"
-      style="background-image: url('https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=1200&q=80');">
-    </div>
-    <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-0"
-      style="background-image: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80');">
-    </div>
-  </div>
+<div class="relative w-full aspect-[16/5] rounded-2xl overflow-hidden mb-8">
 
-  {{-- Overlay Gelap --}}
-  <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent z-10"></div>
+    {{-- Slider Backgrounds --}}
+    <div id="hero-slider" class="absolute inset-0 z-0">
 
-  {{-- Konten Hero --}}
-  <div class="relative z-20 flex h-full items-end p-6 sm:p-8">
-    <div class="flex w-full flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
-      <div class="flex items-center gap-4">
-        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-16 w-16 sm:h-20 sm:w-20 border-4 border-white/20"
-          style='background-image: url("https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->nama_lengkap) }}&background=0D8ABC&color=fff");'>
-        </div>
-        <div class="flex flex-col justify-center">
-          <p class="text-white text-xl sm:text-2xl font-bold leading-tight">Selamat datang, {{ Auth::user()->nama_lengkap }}!</p>
-          <p class="text-slate-300 text-sm sm:text-base font-normal leading-normal">Administrator Sistem Peminjaman Barang Produksi</p>
-        </div>
-      </div>
+        {{-- Default Image --}}
+        @if ($slider_images->count() == 0)
+            <div class="absolute inset-0 bg-cover bg-center opacity-100"
+                style="background-image: url('{{ asset('images/default-image.jpg') }}')">
+            </div>
+        @endif
+
+        {{-- Uploaded Images --}}
+        @foreach ($slider_images as $index => $img)
+            <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 
+                {{ $index === 0 ? 'opacity-100' : 'opacity-0' }}"
+                style="background-image: url('{{ asset('storage/' . $img->image_path) }}');">
+            </div>
+        @endforeach
+
     </div>
-  </div>
+
+    {{-- Overlay Gelap --}}
+    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent z-10"></div>
+
+            {{-- 🔥 Button Kelola Slider --}}
+            <div class="relative z-20 flex h-full items-end p-6 sm:p-8">
+          <div class="flex w-full justify-end">
+          <a href="{{ route('slider.index') }}"
+           class="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-medium backdrop-blur-sm px-4 py-2 rounded-lg transition">
+            <span class="material-symbols-outlined">photo_library</span>
+            Kelola Slider
+        </a>
+    </div>
 </div>
+
+
+</div>
+
 
 
     {{-- Statistik Cards --}}
@@ -64,7 +80,7 @@
       {{-- Peminjaman --}}
       <div class="flex flex-col gap-2 rounded-xl p-6 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark">
         <div class="flex items-center justify-between text-text-light-secondary dark:text-text-dark-secondary">
-          <p class="text-sm font-medium">Total Peminjaman</p>
+          <p class="text-sm font-medium">Total Penggunaan</p>
           <span class="material-symbols-outlined">local_shipping</span>
         </div>
         <p class="text-text-light-primary dark:text-white text-3xl font-bold leading-tight tracking-tight">
