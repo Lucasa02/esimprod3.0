@@ -8,6 +8,10 @@
       type="button" title="Menu">
       <i class="fa-solid fa-gear mr-2"></i> Opsi
   </button>
+<a href="{{ route('bmn.qr_all.download') }}"
+   class="bg-blue-600 text-white px-4 py-2 rounded-lg">
+   Download QR Semua Barang
+</a>
 
   <div id="dropdownRight"
       class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">

@@ -144,8 +144,11 @@ class BmnController extends Controller
         $qrName = 'qr_' . $validated['kode_barang'] . '.png';
         $qrPath = 'bmn/qrcode/' . $qrName;
 
-        QrCode::format('png')->size(300)->margin(2)
-            ->generate($validated['kode_barang'], Storage::disk('public')->path($qrPath));
+$scanUrl = route('user.inventaris.scan', $validated['kode_barang']);
+
+QrCode::format('png')->size(300)->margin(2)
+    ->generate($scanUrl, Storage::disk('public')->path($qrPath));
+
 
         $validated['qr_code'] = $qrPath;
 
@@ -234,6 +237,20 @@ return view('admin.bmn.show', compact('barang', 'ruangan', 'title','perawatan'))
 
             $validated['posisi'] = $path;
         }
+        if ($request->hasFile('foto') || $request->hasFile('posisi') || $request->kode_barang !== $barang->kode_barang) {
+
+        if ($barang->qr_code) Storage::disk('public')->delete($barang->qr_code);
+
+        $qrName = 'qr_' . $validated['kode_barang'] . '.png';
+        $qrPath = 'bmn/qrcode/' . $qrName;
+        $scanUrl = route('user.inventaris.scan', $validated['kode_barang']);
+
+        QrCode::format('png')->size(300)->margin(2)
+            ->generate($scanUrl, Storage::disk('public')->path($qrPath));
+
+        $validated['qr_code'] = $qrPath;
+    }
+
 
         $barang->update($validated);
 
@@ -331,5 +348,25 @@ return redirect()->route('bmn.index', $ruangan)
 
         return $pdf->stream('Laporan_BMN_Filtered_' . ucfirst($ruangan) . '.pdf');
     }
+
+
+    /** 🔥 Download QR ALL Barang */
+public function downloadQRAll()
+{
+    $url = route('user.inventaris.index');
+
+    // Buat QR PNG
+    $qr = QrCode::format('png')
+        ->size(400)
+        ->errorCorrection('H')
+        ->generate($url);
+
+    $filename = 'QR-ALL-INVENTARIS.png';
+
+    return response($qr)
+        ->header('Content-Type', 'image/png')
+        ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
+}
+
 }
 

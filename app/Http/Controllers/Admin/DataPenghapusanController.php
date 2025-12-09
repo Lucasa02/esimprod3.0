@@ -72,4 +72,4 @@ class DataPenghapusanController extends Controller
     }
 }
 
-   
+
