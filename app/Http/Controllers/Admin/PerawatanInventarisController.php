@@ -108,7 +108,7 @@ class PerawatanInventarisController extends Controller
         $p->save();
 
         return redirect()->route('perawatan_inventaris.detail', $p->id)
-                         ->with('success', 'Data perbaikan disimpan. Status: proses.');
+                        ->with('success', 'Data perbaikan disimpan. Status: proses.');
     }
 
     // ==============================
@@ -153,7 +153,7 @@ class PerawatanInventarisController extends Controller
 
         // <-- FIX BAGIAN INI
     return redirect()->route('data_penghapusan.index')
-                     ->with('success', 'Barang berhasil masuk ke Data Penghapusan.');
+                    ->with('success', 'Barang berhasil masuk ke Data Penghapusan.');
     }
 
     // ==============================

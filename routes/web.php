@@ -19,8 +19,7 @@ use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\Studio2Controller;
 use App\Http\Controllers\Admin\PerawatanInventarisController;
 use App\Http\Controllers\Admin\BmnController;
-
-
+use App\Http\Controllers\QrController;
 
 use App\Http\Controllers\Admin\RencanaPenghapusanController;
 use App\Http\Controllers\Admin\DataPenghapusanController;
@@ -387,23 +386,4 @@ Route::prefix('user')->middleware(['auth', 'role:user'])->group(function () {
 
     });
 
-});
-
-
-
-
-	
-
-	
-
-use App\Http\Controllers\QrController;
-
-Route::prefix('qr')->group(function () {
-    Route::get('/all', [QrController::class, 'qrAll'])->name('qr.inventaris.all');
-    Route::get('/all/download/png', [QrController::class, 'downloadAllQrPng'])->name('qr.inventaris.all.download.png');
-    Route::get('/all/download/pdf', [QrController::class, 'downloadAllQrPdf'])->name('qr.inventaris.all.download.pdf');
-
-    Route::get('/barang/{kode}', [QrController::class, 'qrBarang'])->name('qr.inventaris.barang');
-    Route::get('/barang/{kode}/download/png', [QrController::class, 'downloadQrBarangPng'])->name('qr.inventaris.barang.download.png');
-    Route::get('/barang/{kode}/download/pdf', [QrController::class, 'downloadQrBarangPdf'])->name('qr.inventaris.barang.download.pdf');
 });
