@@ -17,8 +17,16 @@ use App\Http\Controllers\Admin\JenisBarangController;
 use App\Http\Controllers\Admin\PengembalianController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\Studio2Controller;
+use App\Http\Controllers\Admin\PerawatanInventarisController;
 use App\Http\Controllers\Admin\BmnController;
+
+
+
+use App\Http\Controllers\Admin\RencanaPenghapusanController;
+use App\Http\Controllers\Admin\DataPenghapusanController;
+
 use App\Http\Controllers\User\PeminjamanController as UserPeminjamanController;
+
 use App\Http\Controllers\User\PeminjamanController as PeminjamanUser;
 use App\Http\Controllers\User\PengembalianController as PengembalianUser;
 
@@ -217,6 +225,10 @@ Route::prefix('/')->group(function () {
 			// ROUTE DATA BMN
 			// ========================
 			Route::prefix('admin/bmn')->middleware(['auth', 'verified.password', 'role:superadmin,admin'])->group(function () {
+						// Route khusus QR All — harus di atas {ruangan}
+			Route::get('/qr-all/download', [BmnController::class, 'downloadQRAll'])
+				->name('bmn.qr_all.download');
+
 				Route::get('/mcr', [BmnController::class, 'index'])->name('bmn.mcr.index')->defaults('ruangan', 'mcr');
 				Route::get('/studio', [BmnController::class, 'index'])->name('bmn.studio.index')->defaults('ruangan', 'studio');
 				Route::get('/peralatan', [BmnController::class, 'index'])->name('bmn.peralatan.index')->defaults('ruangan', 'peralatan');
@@ -235,7 +247,10 @@ Route::prefix('/')->group(function () {
 			Route::get('/admin/bmn/{ruangan}/print-filtered', [BmnController::class, 'printFiltered'])->name('bmn.printFiltered');
 			Route::get('/admin/bmn/{ruangan}/filter-print', [BmnController::class, 'showFilterForm'])
 				->name('bmn.filterPrint');
+			
 			});
+
+			
 				});
 			});
 
@@ -268,12 +283,127 @@ Route::prefix('/')->group(function () {
 			Route::get('/pdf', [PengembalianUser::class, 'printReport'])->name('user.pengembalian.pdf');
 		});
 
-		Route::prefix('user')->middleware(['auth', 'role:user'])->group(function () {
+	});
+
+
+Route::prefix('admin')->group(function () {
+
+    // =======================
+    // PERAWATAN
+    // =======================
+    Route::prefix('perawatan')->name('perawatan_inventaris.')->group(function () {
+
+        Route::get('/', [PerawatanInventarisController::class, 'index'])->name('index');
+
+        Route::post('/masuk/{barang_id}', [PerawatanInventarisController::class, 'storeFromBarang'])
+            ->name('storeFromBarang');
+
+        Route::get('/detail/{id}', [PerawatanInventarisController::class, 'detail'])
+            ->name('detail');
+
+        Route::get('/perbaiki/{id}', [PerawatanInventarisController::class, 'perbaiki'])
+            ->name('perbaiki');
+
+        Route::post('/hapuskan/{id}', [PerawatanInventarisController::class, 'hapuskan'])
+            ->name('hapuskan');
+
+        Route::get('/selesai/{id}', [PerawatanInventarisController::class, 'selesaiForm'])
+            ->name('selesaiForm');
+
+        Route::post('/selesai/{id}', [PerawatanInventarisController::class, 'selesaiSubmit'])
+            ->name('selesaiSubmit');
+    });
+
+
+    // =======================
+    // RENCANA PENGHAPUSAN
+    // =======================
+    Route::get('/rencana-penghapusan', 
+        [RencanaPenghapusanController::class, 'index'])
+        ->name('rencana_penghapusan.index');
+
+    Route::post('/rencana-penghapusan/hapuskan/{id}', 
+    [RencanaPenghapusanController::class, 'hapuskan'])
+    ->name('rencana_penghapusan.hapuskan');
+
+
+
+    // =======================
+    // DATA PENGHAPUSAN
+    // =======================
+    Route::get('/data-penghapusan', 
+        [DataPenghapusanController::class, 'index'])
+        ->name('data_penghapusan.index');
+
+	Route::get('/admin/penghapusan', 
+    [App\Http\Controllers\Admin\DataPenghapusanController::class, 'index']
+)->name('penghapusan.index');
+
+Route::get('/admin/penghapusan/pdf', 
+    [App\Http\Controllers\Admin\DataPenghapusanController::class, 'cetakPdf']
+)->name('penghapusan.cetak.pdf');
+
+
+});
+
+
+// ============================
+// ROUTE INVENTARIS USER
+// ============================
+
+Route::prefix('user')->middleware(['auth', 'role:user'])->group(function () {
 
     Route::middleware(['jabatan:Petugas Inventaris'])->group(function () {
-        Route::get('/inventaris', [InventarisUserController::class, 'index'])->name('user.inventaris');
-		Route::get('/scan-barang/{kode}', [InventarisUserController::class, 'scan'])->name('scan.barang');
+
+        // Halaman daftar inventaris (index)
+        Route::get('/inventaris',
+            [InventarisUserController::class, 'index'])
+            ->name('user.inventaris');
+
+        // Halaman show_all setelah scan ALL (tampil semua barang)
+        Route::get('/inventaris/show_all',
+            [InventarisUserController::class, 'showAll'])
+            ->name('user.inventaris.show_all');
+
+        // Scan QR → cek apakah itu barang atau universal QR
+        Route::get('/scan-barang/{kode}',
+            [InventarisUserController::class, 'scan'])
+            ->name('user.inventaris.scan');
+
+        // Detail barang
+        Route::get('/inventaris/detail/{id}',
+            [InventarisUserController::class, 'detail'])
+            ->name('user.inventaris.detail');
+
+        // QR Universal helper (opsional) -> arahkan ke index
+        Route::get('/inventaris/qr', function () {
+            return redirect()->route('user.inventaris');
+        })->name('user.inventaris.qr');
+
+        // Download QR Universal
+        Route::get('/inventaris/qr/download',
+            [InventarisUserController::class, 'downloadAllQR'])
+            ->name('user.inventaris.qr.download');
+
     });
 
 });
-	});
+
+
+
+
+	
+
+	
+
+use App\Http\Controllers\QrController;
+
+Route::prefix('qr')->group(function () {
+    Route::get('/all', [QrController::class, 'qrAll'])->name('qr.inventaris.all');
+    Route::get('/all/download/png', [QrController::class, 'downloadAllQrPng'])->name('qr.inventaris.all.download.png');
+    Route::get('/all/download/pdf', [QrController::class, 'downloadAllQrPdf'])->name('qr.inventaris.all.download.pdf');
+
+    Route::get('/barang/{kode}', [QrController::class, 'qrBarang'])->name('qr.inventaris.barang');
+    Route::get('/barang/{kode}/download/png', [QrController::class, 'downloadQrBarangPng'])->name('qr.inventaris.barang.download.png');
+    Route::get('/barang/{kode}/download/pdf', [QrController::class, 'downloadQrBarangPdf'])->name('qr.inventaris.barang.download.pdf');
+});

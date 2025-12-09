@@ -10,12 +10,12 @@ use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use App\Models\PerawatanInventaris;
 
 class BmnController extends Controller
 {
-    /**
-     * Tentukan kondisi berdasarkan persentase
-     */
     private function tentukanKondisi($persentase)
     {
         if ($persentase >= 90) return 'Sangat Baik';
@@ -24,10 +24,6 @@ class BmnController extends Controller
         return 'Rusak / Cacat';
     }
 
-    /**
-     * Generate kode barang unik jika tidak diisi
-     * Format: BRG-YYYY-0001
-     */
     private function generateUniqueKode()
     {
         $prefix = 'BRG';
@@ -37,120 +33,146 @@ class BmnController extends Controller
             ->orderBy('kode_barang', 'desc')
             ->first();
 
-        $nextNumber = $last
-            ? intval(substr($last->kode_barang, -4)) + 1
-            : 1;
+        $next = $last ? intval(substr($last->kode_barang, -4)) + 1 : 1;
 
-        return sprintf("%s-%s-%04d", $prefix, $year, $nextNumber);
+        return sprintf("%s-%s-%04d", $prefix, $year, $next);
     }
 
-    /**
-     * Menampilkan daftar barang berdasarkan ruangan
-     */
-    public function index(Request $request, $ruangan)
-    {
-        $keyword = $request->input('q') ?? $request->input('search');
-        $filterPosisi = $request->input('posisi');
+   public function index(Request $request, $ruangan)
+{
+    $keyword = $request->input('q') ?? $request->input('search');
 
-        $data = BmnBarang::where('ruangan', ucfirst($ruangan))
-            ->when($keyword, function ($query) use ($keyword) {
-                $query->where(function ($q) use ($keyword) {
-                    $q->where('nama_barang', 'like', "%{$keyword}%")
-                        ->orWhere('kode_barang', 'like', "%{$keyword}%")
-                        ->orWhere('kategori', 'like', "%{$keyword}%")
-                        ->orWhere('merk', 'like', "%{$keyword}%")
-                        ->orWhere('nomor_seri', 'like', "%{$keyword}%")
-                        ->orWhere('asal_pengadaan', 'like', "%{$keyword}%")
-                        ->orWhere('peruntukan', 'like', "%{$keyword}%")
-                        ->orWhere('kondisi', 'like', "%{$keyword}%");
-                });
-            })
-            
-            ->orderBy('nama_barang')
-            ->paginate(10)
-            ->appends($request->all());
+    $data = BmnBarang::with([
+        'perawatan' => function($q){
+            $q->whereIn('status', ['pending', 'proses'])
+              ->orderBy('tanggal_perawatan', 'desc');
+        },
+        'perawatanAktif'
+    ])
+    ->where('ruangan', ucfirst($ruangan))
+    ->when($keyword, function ($query) use ($keyword) {
+        $query->where(function ($q) use ($keyword) {
+            $q->where('nama_barang', 'like', "%{$keyword}%")
+                ->orWhere('kode_barang', 'like', "%{$keyword}%")
+                ->orWhere('nup', 'like', "%{$keyword}%")
+                ->orWhere('kategori', 'like', "%{$keyword}%")
+                ->orWhere('merk', 'like', "%{$keyword}%")
+                ->orWhere('asal_pengadaan', 'like', "%{$keyword}%")
+                ->orWhere('peruntukan', 'like', "%{$keyword}%")
+                ->orWhere('kondisi', 'like', "%{$keyword}%");
+        });
+    })
+    ->orderBy('nama_barang')
+    ->paginate(20);
 
-        $title = 'Data BMN - ' . ucfirst($ruangan);
-        
+    $title = 'Data BMN - ' . ucfirst($ruangan);
 
-        return view('admin.bmn.index', compact('data', 'ruangan', 'title', 'keyword'));
-    }
+    return view('admin.bmn.index', compact('data', 'ruangan', 'title', 'keyword'));
+}
 
-    /**
-     * Form tambah barang
-     */
+
+
     public function create($ruangan)
     {
         $title = 'Tambah Barang - ' . ucfirst($ruangan);
         return view('admin.bmn.create', compact('ruangan', 'title'));
     }
 
-    /**
-     * Simpan barang baru (dengan auto kode jika kosong)
-     */
     public function store(Request $request, $ruangan)
     {
         $validated = $request->validate([
-            'nama_barang'        => 'required|string|max:255',
+            'nama_barang'        => 'required',
+            'nup'                => 'required|string|max:255|unique:bmn_barangs',
             'kode_barang'        => 'nullable|string|max:255|unique:bmn_barangs',
-            'kategori'           => 'required|string|max:255',
-            'merk'               => 'nullable|string|max:255',
-            'nomor_seri'         => 'nullable|string|max:255',
+            'kategori'           => 'required',
+            'merk'               => 'nullable',
+            'nomor_seri'         => 'nullable',
             'jumlah'             => 'required|integer|min:1',
             'persentase_kondisi' => 'required|numeric|min:0|max:100',
-            'tahun_pengadaan'    => 'nullable|digits:4|integer|min:1900|max:' . date('Y'),
-            'asal_pengadaan'     => 'nullable|string|max:255',
-            'peruntukan'         => 'nullable|string|max:255',
-            'catatan'            => 'nullable|string',
+            'tahun_pengadaan'    => 'nullable|digits:4',
+            'asal_pengadaan'     => 'nullable',
+            'peruntukan'         => 'nullable',
+            'catatan'            => 'nullable',
+            // FOTO BARANG
             'foto'               => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'posisi'             => 'nullable|string|max:255',
+            // FOTO POSISI (nama input tetap posisi_foto)
+            'posisi'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // Generate kode otomatis jika kosong
         $validated['kode_barang'] = $validated['kode_barang'] ?? $this->generateUniqueKode();
-
-        $validated['ruangan'] = ucfirst($ruangan);
         $validated['uuid'] = Str::uuid();
+        $validated['ruangan'] = ucfirst($ruangan);
         $validated['kondisi'] = $this->tentukanKondisi($validated['persentase_kondisi']);
 
-        // Upload foto
+        $manager = new ImageManager(new Driver());
+
+        // =====================
+        // UPLOAD FOTO BARANG
+        // =====================
         if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('bmn/foto', 'public');
+            $file = $request->file('foto');
+            $name = time() . "_barang." . $file->getClientOriginalExtension();
+
+            $img = $manager->read($file)->scaleDown(800, 800);
+            $canvas = $manager->create(800, 800)->fill('#ffffff')->place($img, 'center');
+
+            $path = 'bmn/foto/' . $name;
+            Storage::disk('public')->put($path, $canvas->encodeByExtension($file->getClientOriginalExtension(), quality: 80));
+
+            $validated['foto'] = $path;
         }
 
-        // Generate QR Code
-        $namaFileQR = 'qr_' . $validated['kode_barang'] . '.png';
-        $pathQR = 'bmn/qrcode/' . $namaFileQR;
-        if (!Storage::disk('public')->exists('bmn/qrcode')) {
-            Storage::disk('public')->makeDirectory('bmn/qrcode');
+        // =====================
+        // UPLOAD FOTO POSISI (disimpan ke kolom: posisi)
+        // =====================
+        if ($request->hasFile('posisi')) {
+            $file   = $request->file('posisi');
+            $name   = time() . "_posisi." . $file->getClientOriginalExtension();
+
+            $img    = $manager->read($file)->scaleDown(800, 800);
+            $canvas = $manager->create(800, 800)->fill('#ffffff')->place($img, 'center');
+
+            $path = 'bmn/posisi/' . $name;
+            Storage::disk('public')->put($path, $canvas->encodeByExtension($file->getClientOriginalExtension(), quality: 80));
+
+            $validated['posisi'] = $path;
         }
 
-        QrCode::format('png')
-            ->size(300)
-            ->margin(2)
-            ->generate($validated['kode_barang'], Storage::disk('public')->path($pathQR));
+        // =====================
+        // QR CODE
+        // =====================
+        $qrName = 'qr_' . $validated['kode_barang'] . '.png';
+        $qrPath = 'bmn/qrcode/' . $qrName;
 
-        $validated['qr_code'] = $pathQR;
+        QrCode::format('png')->size(300)->margin(2)
+            ->generate($validated['kode_barang'], Storage::disk('public')->path($qrPath));
+
+        $validated['qr_code'] = $qrPath;
 
         BmnBarang::create($validated);
 
         return redirect()->route('bmn.index', $ruangan)
-            ->with('success', 'Barang berhasil ditambahkan (kode: ' . $validated['kode_barang'] . ') dan QR Code dibuat.');
+            ->with('success', 'Barang berhasil ditambahkan.');
     }
 
-    /**
-     * Tampilkan detail barang
-     */
     public function show($ruangan, $id)
-    {
-        $barang = BmnBarang::findOrFail($id);
-        $title = 'Detail Barang - ' . ucfirst($ruangan);
-        return view('admin.bmn.show', compact('barang', 'ruangan', 'title'));
-    }
+{
+// Eager load perawatan yang statusnya pending atau proses
+$barang = BmnBarang::with(['perawatan' => function($q){
+$q->whereIn('status', ['proses', 'pending'])->orderBy('tanggal_perawatan', 'desc');
+}])->findOrFail($id);
 
-    /**
-     * Form edit barang
-     */
+
+$title = 'Detail Barang - ' . ucfirst($ruangan);
+
+
+// Ambil perawatan aktif (jika ada) — gunakan koleksi dari relasi yang sudah eager-loaded
+$perawatan = $barang->perawatan->first(); // null jika tidak ada
+
+
+return view('admin.bmn.show', compact('barang', 'ruangan', 'title','perawatan'));
+}
+
     public function edit($ruangan, $id)
     {
         $barang = BmnBarang::findOrFail($id);
@@ -158,39 +180,60 @@ class BmnController extends Controller
         return view('admin.bmn.edit', compact('barang', 'ruangan', 'title'));
     }
 
-    /**
-     * Update barang
-     */
+
     public function update(Request $request, $ruangan, $id)
     {
         $barang = BmnBarang::findOrFail($id);
 
         $validated = $request->validate([
-            'nama_barang'        => 'required|string|max:255',
+            'nama_barang'        => 'required',
+            'nup'                => 'required|string|max:255|unique:bmn_barangs,nup,' . $barang->id,
             'kode_barang'        => 'required|string|max:255|unique:bmn_barangs,kode_barang,' . $barang->id,
-            'kategori'           => 'required|string|max:255',
-            'merk'               => 'nullable|string|max:255',
-            'nomor_seri'         => 'nullable|string|max:255',
+            'kategori'           => 'required',
             'jumlah'             => 'required|integer|min:1',
             'persentase_kondisi' => 'required|numeric|min:0|max:100',
-            'tahun_pengadaan'    => 'nullable|digits:4|integer|min:1900|max:' . date('Y'),
-            'asal_pengadaan'     => 'nullable|string|max:255',
-            'peruntukan'         => 'nullable|string|max:255',
-            'catatan'            => 'nullable|string',
-            'foto'               => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'posisi'             => 'nullable|string|max:255',
 
+            'foto'               => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+
+            // posisi tetap file foto
+            'posisi'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // Upload foto baru (jika ada)
+        $validated['kondisi'] = $this->tentukanKondisi($validated['persentase_kondisi']);
+
+        $manager = new ImageManager(new Driver());
+
+        // UPDATE FOTO BARANG
         if ($request->hasFile('foto')) {
-            if ($barang->foto && Storage::disk('public')->exists($barang->foto)) {
-                Storage::disk('public')->delete($barang->foto);
-            }
-            $validated['foto'] = $request->file('foto')->store('bmn/foto', 'public');
+            if ($barang->foto) Storage::disk('public')->delete($barang->foto);
+
+            $file = $request->file('foto');
+            $name = time() . "_barang." . $file->getClientOriginalExtension();
+
+            $img = $manager->read($file)->scaleDown(800, 800);
+            $canvas = $manager->create(800, 800)->fill('#ffffff')->place($img, 'center');
+
+            $path = 'bmn/foto/' . $name;
+            Storage::disk('public')->put($path, $canvas->encodeByExtension($file->getClientOriginalExtension(), quality: 80));
+
+            $validated['foto'] = $path;
         }
 
-        $validated['kondisi'] = $this->tentukanKondisi($validated['persentase_kondisi']);
+        // UPDATE FOTO POSISI (kolom: posisi)
+        if ($request->hasFile('posisi')) {
+            if ($barang->posisi) Storage::disk('public')->delete($barang->posisi);
+
+            $file = $request->file('posisi');
+            $name = time() . "_posisi." . $file->getClientOriginalExtension();
+
+            $img = $manager->read($file)->scaleDown(800, 800);
+            $canvas = $manager->create(800, 800)->fill('#ffffff')->place($img, 'center');
+
+            $path = 'bmn/posisi/' . $name;
+            Storage::disk('public')->put($path, $canvas->encodeByExtension($file->getClientOriginalExtension(), quality: 80));
+
+            $validated['posisi'] = $path;
+        }
 
         $barang->update($validated);
 
@@ -198,29 +241,29 @@ class BmnController extends Controller
             ->with('success', 'Data barang berhasil diperbarui.');
     }
 
-    /**
-     * Hapus barang
-     */
     public function destroy($ruangan, $id)
-    {
-        $barang = BmnBarang::findOrFail($id);
+{
+$barang = BmnBarang::findOrFail($id);
 
-        if ($barang->foto && Storage::disk('public')->exists($barang->foto)) {
-            Storage::disk('public')->delete($barang->foto);
-        }
-        if ($barang->qr_code && Storage::disk('public')->exists($barang->qr_code)) {
-            Storage::disk('public')->delete($barang->qr_code);
-        }
 
-        $barang->delete();
+if ($barang->foto && Storage::disk('public')->exists($barang->foto)) {
+Storage::disk('public')->delete($barang->foto);
+}
+if ($barang->posisi && Storage::disk('public')->exists($barang->posisi)) {
+Storage::disk('public')->delete($barang->posisi);
+}
+if ($barang->qr_code && Storage::disk('public')->exists($barang->qr_code)) {
+Storage::disk('public')->delete($barang->qr_code);
+}
 
-        return redirect()->route('bmn.index', $ruangan)
-            ->with('success', 'Data barang berhasil dihapus.');
-    }
 
-    /**
-     * Cetak semua barang di ruangan
-     */
+$barang->delete();
+
+
+return redirect()->route('bmn.index', $ruangan)
+->with('success', 'Barang berhasil dihapus.');
+}
+
     public function print($ruangan)
     {
         $data = BmnBarang::where('ruangan', ucfirst($ruangan))
@@ -231,13 +274,9 @@ class BmnController extends Controller
         return view('admin.bmn.print', compact('data', 'ruangan', 'title'));
     }
 
-    /**
-     * Fitur pencarian barang
-     */
     public function search(Request $request, $ruangan)
     {
         $keyword = $request->input('search');
-        $filterPosisi = $request->input('posisi');
 
         $data = BmnBarang::where('ruangan', ucfirst($ruangan))
             ->when($keyword, function ($query) use ($keyword) {
@@ -248,25 +287,19 @@ class BmnController extends Controller
                         ->orWhere('merk', 'like', "%{$keyword}%")
                         ->orWhere('nomor_seri', 'like', "%{$keyword}%")
                         ->orWhere('asal_pengadaan', 'like', "%{$keyword}%")
-                        ->orWhere('posisi', 'like', "%{$keyword}%")
                         ->orWhere('peruntukan', 'like', "%{$keyword}%")
                         ->orWhere('kondisi', 'like', "%{$keyword}%");
                 });
             })
-            
             ->orderBy('nama_barang', 'asc')
             ->paginate(10)
             ->appends($request->all());
 
         $title = 'Hasil Pencarian BMN - ' . ucfirst($ruangan);
-        
 
         return view('admin.bmn.index', compact('data', 'ruangan', 'title', 'keyword'));
     }
 
-    /**
-     * Form filter laporan PDF
-     */
     public function showFilterForm($ruangan)
     {
         $kategoriList = BmnBarang::select('kategori')->distinct()->pluck('kategori');
@@ -277,9 +310,6 @@ class BmnController extends Controller
         return view('admin.bmn.filter_form', compact('ruangan', 'kategoriList', 'asalList', 'posisiList', 'tahunList'));
     }
 
-    /**
-     * Cetak PDF berdasarkan filter
-     */
     public function printFiltered(Request $request, $ruangan)
     {
         $query = BmnBarang::where('ruangan', ucfirst($ruangan));
@@ -292,7 +322,7 @@ class BmnController extends Controller
         if ($request->filled('peruntukan')) $query->where('peruntukan', $request->peruntukan);
         if ($request->filled('merk')) $query->where('merk', $request->merk);
         if ($request->filled('nomor_seri')) $query->where('nomor_seri', $request->nomor_seri);
-        
+
         $data = $query->orderBy('nama_barang', 'asc')->get();
         $title = 'Laporan BMN (Filtered) - ' . ucfirst($ruangan);
 
@@ -302,3 +332,4 @@ class BmnController extends Controller
         return $pdf->stream('Laporan_BMN_Filtered_' . ucfirst($ruangan) . '.pdf');
     }
 }
+
