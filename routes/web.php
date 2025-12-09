@@ -202,6 +202,7 @@ Route::prefix('/')->group(function () {
 			Route::get('/barang-hilang/{uuid}', [PerawatanController::class, 'detailBarangHilang'])->name('perawatan.barang.hilang.detail');
 			Route::put('/barang-hilang/ubah-status/{uuid}', [PerawatanController::class, 'ubahStatus'])->name('perawatan.barang.hilang.ubah-status');
 			Route::get('/barang-hilang/cetak/pdf', [PerawatanController::class, 'cetakPdfBarangHilang'])->name('perawatan.barang.hilang.cetak.pdf');
+			Route::post('/barang-hilang/upload-surat/{uuid}', [PerawatanController::class, 'uploadSuratDitemukan'])->name('perawatan.barang.hilang.upload.surat');
 
 			// BARANG RUSAK
 			Route::get('/barang-rusak', [PerawatanController::class, 'barangRusak'])->name('perawatan.barang.rusak.index');
@@ -253,8 +254,7 @@ Route::prefix('/')->group(function () {
 			Route::post('/store', [PeminjamanUser::class, 'store'])->name('user.peminjaman.store');
 			Route::get('/report', [PeminjamanUser::class, 'report'])->name('user.peminjaman.report');
 			Route::get('/pdf', [PeminjamanUser::class, 'printReport'])->name('user.peminjaman.pdf');
-			Route::post('/peminjaman/send-email/{kodePeminjaman}', [PeminjamanUser::class, 'sendEmail'])
-    ->name('peminjaman.sendEmail');
+			Route::post('/peminjaman/send-email/{kodePeminjaman}', [PeminjamanUser::class, 'sendEmail'])->name('peminjaman.sendEmail');
 
 		});
 

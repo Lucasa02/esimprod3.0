@@ -20,16 +20,17 @@ class BarangController extends Controller
 	 * Display a listing of the resource.
 	 */
 	public function index()
-	{
-		$data = [
-			'title' => 'Barang',
-			'barang' => Barang::where('status', 'tersedia')
-				->orderBy('created_at', 'DESC')
-				->paginate(10),
-		];
+{
+    $data = [
+        'title' => 'Barang',
+        // UBAH DISINI: Tambahkan 'ditemukan' ke dalam array whereIn
+        'barang' => Barang::whereIn('status', ['tersedia', 'perbaikan', 'ditemukan'])
+            ->orderBy('created_at', 'DESC')
+            ->paginate(10),
+    ];
 
-		return view('admin.barang.index', $data);
-	}
+    return view('admin.barang.index', $data);
+}
 
 	/**
 	 * Show the form for creating a new resource.

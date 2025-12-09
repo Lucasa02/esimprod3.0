@@ -252,15 +252,50 @@ class PerawatanController extends Controller
             'nama_file'   => $namaFile
         ]);
 
-        notify()->success('Surat berhasil diupload');
+        // --- TAMBAHAN KODE ---
+        // Update status barang menjadi 'perbaikan' agar hilang dari list rusak
+        // dan bisa dideteksi sebagai 'Perbaikan' di halaman index
+        $barang = Barang::where('uuid', $uuid)->first();
+        if ($barang) {
+            $barang->update(['status' => 'perbaikan']);
+        }
+        // ---------------------
+
+        notify()->success('Surat berhasil diupload dan status barang menjadi Perbaikan');
         return back();
     }
 
-    public function lihatSurat()
+    public function lihatSurat(Request $request)
     {
+        // Ambil parameter kategori dari URL (rusak atau hilang)
+        $kategori = $request->query('kategori');
+
+        // Query dasar
+        $query = \App\Models\Surat::with('barang');
+
+        if ($kategori == 'hilang') {
+            // Filter khusus barang hilang (Cari yang nama filenya mengandung _DITEMUKAN_)
+            $query->where('nama_file', 'LIKE', '%_DITEMUKAN_%');
+            
+            $pageTitle = 'Daftar Surat Barang Ditemukan';
+            $tableHeader = 'Surat Bukti Ditemukan';
+            // Set tombol kembali ke halaman barang hilang
+            $backUrl = route('perawatan.barang.hilang.index');
+        } else {
+            // Default: Barang Rusak (Cari yang nama filenya TIDAK mengandung _DITEMUKAN_)
+            $query->where('nama_file', 'NOT LIKE', '%_DITEMUKAN_%');
+
+            $pageTitle = 'Daftar Surat Perbaikan';
+            $tableHeader = 'Surat Perbaikan';
+            // Set tombol kembali ke halaman barang rusak
+            $backUrl = route('perawatan.barang.rusak.index');
+        }
+
         return view('admin.perawatan.surat.index', [
-            'title' => 'Lihat Surat',
-            'surat' => \App\Models\Surat::with('barang')->get()
+            'title'       => $pageTitle,
+            'tableHeader' => $tableHeader,
+            'backUrl'     => $backUrl,
+            'surat'       => $query->get()
         ]);
     }
 
@@ -295,5 +330,42 @@ class PerawatanController extends Controller
         notify()->success('Surat berhasil dihapus');
         return back();
     }
+
+    public function uploadSuratDitemukan(Request $request, $uuid)
+{
+    // 1. Validasi File
+    $request->validate([
+        'surat' => 'required|mimes:pdf,jpg,jpeg,png|max:2048'
+    ]);
+
+    // 2. Cari Barang
+    $barang = Barang::where('uuid', $uuid)->first();
+
+    if (!$barang) {
+        notify()->error('Barang tidak ditemukan');
+        return back();
+    }
+
+    // 3. Proses Upload File
+    $file = $request->file('surat');
+    $namaFile = time() . '_DITEMUKAN_' . $file->getClientOriginalName(); 
+    $file->move(public_path('uploads/surat'), $namaFile);
+
+    // 4. Simpan ke Tabel Surat
+    \App\Models\Surat::create([
+        'barang_uuid' => $uuid,
+        'nama_file'   => $namaFile
+    ]);
+
+    // 5. Update Status Barang 
+    // UBAH DISINI: Status menjadi 'ditemukan' agar muncul badge khusus
+    $barang->update([
+        'sisa_limit' => $barang->limit,
+        'status'     => 'ditemukan' 
+    ]);
+
+    notify()->success('Surat Berhasil Diupload & Barang Status Ditemukan ✅');
+    return back();
+}
 
 }

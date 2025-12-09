@@ -116,4 +116,8 @@ if (empty($model->kode_barang)) {
     {
         return $this->hasMany(DetailPengembalian::class, 'kode_barang', 'kode_barang');
     }
+    public function surat(): HasMany
+    {
+        return $this->hasMany(Surat::class, 'barang_uuid', 'uuid');
+    }
 }

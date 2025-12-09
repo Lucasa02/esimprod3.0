@@ -221,37 +221,48 @@ class PeminjamanController extends Controller
 	}
 
 	public function sendEmail($kodePeminjaman)
-{
-    $peminjaman = Peminjaman::where('kode_peminjaman', $kodePeminjaman)->firstOrFail();
-    $detailpeminjaman = DetailPeminjaman::where('kode_peminjaman', $kodePeminjaman)->get();
+    {
+        try {
+            $peminjaman = Peminjaman::where('kode_peminjaman', $kodePeminjaman)->firstOrFail();
+            $detailpeminjaman = DetailPeminjaman::where('kode_peminjaman', $kodePeminjaman)->get();
 
-    // Ambil data barang
-    $barang = [];
-    foreach ($detailpeminjaman as $detail) {
-        $dataBarang = Barang::where('kode_barang', $detail->kode_barang)->first();
-        if ($dataBarang) {
-            $barang[] = [
-                'nama_barang' => $dataBarang->nama_barang,
-                'merk' => $dataBarang->merk,
-                'nomor_seri' => $dataBarang->nomor_seri,
-                'status' => $dataBarang->status,
-            ];
+            // Ambil data barang
+            $barang = [];
+            foreach ($detailpeminjaman as $detail) {
+                $dataBarang = Barang::where('kode_barang', $detail->kode_barang)->first();
+                if ($dataBarang) {
+                    $barang[] = [
+                        'nama_barang' => $dataBarang->nama_barang,
+                        'merk' => $dataBarang->merk,
+                        'nomor_seri' => $dataBarang->nomor_seri,
+                        'status' => $dataBarang->status,
+                    ];
+                }
+            }
+
+            $catatan = Catatan::get();
+
+            // PERBAIKAN: Filter user untuk menghindari nilai NULL jika superadmin tidak ada
+            $recipients = array_filter([
+                User::where('role', 'superadmin')->first(),
+                Auth::user()
+            ]);
+
+            if (empty($recipients)) {
+                return redirect()->back()->with('error', 'Tidak ada penerima email yang valid.');
+            }
+
+            // Kirim email ke penerima yang valid
+            Notification::send($recipients, new PeminjamanNotification($peminjaman, $barang, $catatan));
+
+            return redirect()->back()->with('success', 'Email berhasil dikirim!');
+
+        } catch (\Exception $e) {
+            Log::error('Gagal mengirim email: ' . $e->getMessage());
+            // Kembalikan error yang lebih user friendly tanpa merusak halaman (Internal Server Error)
+            return redirect()->back()->with('error', 'Gagal mengirim email. Periksa koneksi internet atau konfigurasi SMTP.');
         }
     }
-
-    $catatan = Catatan::get();
-
-    // Kirim email ke Superadmin & User
-    Notification::send(
-        [
-            User::where('role', 'superadmin')->first(),
-            Auth::user()
-        ],
-        new PeminjamanNotification($peminjaman, $barang, $catatan)
-    );
-
-    return redirect()->back()->with('success', 'Email berhasil dikirim!');
-}
 
 
 	public function printReport()

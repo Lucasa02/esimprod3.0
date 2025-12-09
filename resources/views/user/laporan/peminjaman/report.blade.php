@@ -82,6 +82,31 @@
   }
 </style>
 
+@php
+    // PERBAIKAN: Cek apakah fungsi sudah ada sebelum mendefinisikannya
+    if (!function_exists('imageToBase64')) {
+        function imageToBase64($path) {
+            try {
+                if (!file_exists($path)) {
+                    return ''; // Return kosong jika file tidak ada
+                }
+                $type = pathinfo($path, PATHINFO_EXTENSION);
+                $data = file_get_contents($path);
+                return 'data:image/' . $type . ';base64,' . base64_encode($data);
+            } catch (\Exception $e) {
+                return '';
+            }
+        }
+    }
+    
+    // Siapkan path gambar
+    $logoPath = public_path('img/assets/esimprod_logo.png');
+    // Pastikan path QR code benar (kadang perlu path absolute folder storage)
+    // Jika menggunakan symlink (php artisan storage:link), public_path('storage/...') sudah benar.
+    // Jika tidak, mungkin perlu storage_path('app/public/...')
+    $qrPath = public_path('storage/uploads/qr_codes_peminjaman/' . $peminjaman->qr_code);
+@endphp
+
 <body>
   <div class="content-border">
     <table style="width: 100%;">

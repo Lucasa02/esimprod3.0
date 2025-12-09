@@ -1,9 +1,15 @@
 <aside id="logo-sidebar"
-    class="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform -translate-x-full bg-tvri_base_color sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700 shadow-xl"
-    aria-label="Sidebar">
+  class="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform -translate-x-full bg-tvri_base_color sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700 shadow-xl"
+  aria-label="Sidebar">
 
   <div class="h-full px-3 pb-4 bg-tvri_base_color dark:bg-gray-800">
     <ul class="space-y-2 font-medium font-sans">
+
+      {{-- Definisikan class Active dan Inactive agar kodingan lebih rapi --}}
+      @php
+          $activeClass = 'bg-gray-100 text-tvri_base_color';
+          $inactiveClass = 'text-white hover:bg-gray-100 hover:text-tvri_base_color';
+      @endphp
 
       {{-- === GENERAL === --}}
       <div class="flex items-center my-2">
@@ -14,7 +20,7 @@
       {{-- Dashboard --}}
       <li>
         <a href="{{ route('dashboard.index') }}"
-          class="flex items-center p-2 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
+          class="flex items-center p-2 rounded-lg {{ request()->routeIs('dashboard.*') ? $activeClass : $inactiveClass }}">
           <i class="fa-solid fa-house"></i>
           <span class="ms-3">Dashboard</span>
         </a>
@@ -33,31 +39,32 @@
           </svg>
         </button>
 
-        <ul id="dropdown-example" class="hidden py-2">
+        {{-- Logika: Jika salah satu anak menu aktif, dropdown jangan di-hidden (ganti hidden jadi block) --}}
+        <ul id="dropdown-example" class="{{ request()->routeIs('barang.*', 'jenis-barang.*', 'peruntukan.*', 'jabatan.*') ? 'block' : 'hidden' }} py-2">
           <li>
             <a href="{{ route('barang.index') }}"
-              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('barang.*') ? $activeClass : $inactiveClass }}">
               <i class="fa-solid fa-box text-xs opacity-70 me-2"></i>
               Barang
             </a>
           </li>
           <li>
             <a href="{{ route('jenis-barang.index') }}"
-              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('jenis-barang.*') ? $activeClass : $inactiveClass }}">
               <i class="fa-solid fa-tags text-xs opacity-70 me-2"></i>
               Jenis Barang
             </a>
           </li>
           <li>
             <a href="{{ route('peruntukan.index') }}"
-              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('peruntukan.*') ? $activeClass : $inactiveClass }}">
               <i class="fa-solid fa-location-dot text-xs opacity-70 me-2"></i>
               Peruntukan
             </a>
           </li>
           <li>
             <a href="{{ route('jabatan.index') }}"
-              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('jabatan.*') ? $activeClass : $inactiveClass }}">
               <i class="fa-solid fa-user-tie text-xs opacity-70 me-2"></i>
               Jabatan
             </a>
@@ -78,11 +85,12 @@
           </svg>
         </button>
 
-        <ul id="dropdown-bmn" class="hidden flex-col gap-1 py-2 ps-2 border-l border-gray-700/40 mt-1">
+        {{-- Cek dropdown Inventaris --}}
+        <ul id="dropdown-bmn" class="{{ request()->routeIs('bmn.mcr.*', 'studio2.*') ? 'flex' : 'hidden' }} flex-col gap-1 py-2 ps-2 border-l border-gray-700/40 mt-1">
           {{-- MCR --}}
           <li>
             <a href="{{ route('bmn.mcr.index') }}"
-              class="flex items-center w-full p-1 pl-9 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
+              class="flex items-center w-full p-1 pl-9 rounded-lg {{ request()->routeIs('bmn.mcr.*') ? $activeClass : $inactiveClass }}">
               <i class="fa-solid fa-network-wired text-xs opacity-70 me-2"></i>
               MCR
             </a>
@@ -91,13 +99,13 @@
           {{-- Studio --}}
           <li>
             <a href="{{ route('studio2.index') }}"
-              class="flex items-center w-full p-1 pl-9 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
+              class="flex items-center w-full p-1 pl-9 rounded-lg {{ request()->routeIs('studio2.*') ? $activeClass : $inactiveClass }}">
               <i class="fa-solid fa-video text-xs opacity-70 me-2"></i>
               Studio
             </a>
           </li>
 
-          {{-- Perawatan MCR --}}
+          {{-- Perawatan MCR (Link masih # jadi saya biarkan default inactive) --}}
           <li>
             <a href="#"
               class="flex items-center w-full p-1 pl-9 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
@@ -116,7 +124,7 @@
 
       <li>
         <a href="{{ route('peminjaman.index') }}"
-          class="flex items-center p-2 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
+          class="flex items-center p-2 rounded-lg {{ request()->routeIs('peminjaman.*') ? $activeClass : $inactiveClass }}">
           <i class="fa-solid fa-paper-plane"></i>
           <span class="ms-3">Data Penggunaan</span>
         </a>
@@ -124,7 +132,7 @@
 
       <li>
         <a href="{{ route('pengembalian.index') }}"
-          class="flex items-center p-2 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
+          class="flex items-center p-2 rounded-lg {{ request()->routeIs('pengembalian.*') ? $activeClass : $inactiveClass }}">
           <i class="fa-solid fa-rotate-left"></i>
           <span class="ms-3">Data Pengembalian</span>
         </a>
@@ -143,24 +151,24 @@
           </svg>
         </button>
 
-        <ul id="dropdown-perawatan" class="hidden py-2">
+        <ul id="dropdown-perawatan" class="{{ request()->routeIs('perawatan.*') ? 'block' : 'hidden' }} py-2">
           <li>
             <a href="{{ route('perawatan.limit.habis.index') }}"
-              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('perawatan.limit.habis.*') ? $activeClass : $inactiveClass }}">
               <i class="fa-solid fa-battery-empty text-xs opacity-70 me-2"></i>
               Limit Habis
             </a>
           </li>
           <li>
             <a href="{{ route('perawatan.barang.hilang.index') }}"
-              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('perawatan.barang.hilang.*') ? $activeClass : $inactiveClass }}">
               <i class="fa-solid fa-circle-xmark text-xs opacity-70 me-2"></i>
               Barang Hilang
             </a>
           </li>
           <li>
             <a href="{{ route('perawatan.barang.rusak.index') }}"
-              class="flex items-center p-1 pl-9 text-white hover:bg-gray-100 hover:text-tvri_base_color">
+              class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('perawatan.barang.rusak.*') ? $activeClass : $inactiveClass }}">
               <i class="fa-solid fa-screwdriver text-xs opacity-70 me-2"></i>
               Barang Rusak
             </a>
@@ -176,7 +184,7 @@
 
       <li>
         <a href="{{ route('users.index') }}"
-          class="flex items-center p-2 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
+          class="flex items-center p-2 rounded-lg {{ request()->routeIs('users.*') ? $activeClass : $inactiveClass }}">
           <i class="fa-solid fa-user"></i>
           <span class="ms-3">Data User</span>
         </a>
@@ -184,7 +192,7 @@
 
       <li>
         <a href="{{ route('buku-panduan.index') }}"
-          class="flex items-center p-2 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color">
+          class="flex items-center p-2 rounded-lg {{ request()->routeIs('buku-panduan.*') ? $activeClass : $inactiveClass }}">
           <i class="fa-solid fa-bookmark"></i>
           <span class="ms-3">Buku Panduan</span>
         </a>

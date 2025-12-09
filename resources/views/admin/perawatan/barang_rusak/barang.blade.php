@@ -31,12 +31,14 @@
         </button>
     </form>
     
-    <a href="{{ route('perawatan.lihat.surat.index') }}"
-    class="px-4 py-2 rounded-lg flex items-center"
-    style="background-color:#1b365d; color:white;">
-    <i class="fa-solid fa-envelope-open-text mr-2"></i>
-    Lihat Surat
-</a>
+    {{-- Tombol Lihat Surat --}}
+    {{-- Tambahkan parameter ['kategori' => 'rusak'] --}}
+    <a href="{{ route('perawatan.lihat.surat.index', ['kategori' => 'rusak']) }}"
+        class="px-4 py-2 rounded-lg flex items-center"
+        style="background-color:#1b365d; color:white;">
+        <i class="fa-solid fa-envelope-open-text mr-2"></i>
+        Lihat Surat
+    </a>
 
       <div class="flex justify-end p-3 ml-3 mr-3">
       <a href="{{ route('perawatan.barang.rusak.cetak.pdf', request()->query()) }}"

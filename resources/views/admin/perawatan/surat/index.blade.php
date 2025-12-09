@@ -25,26 +25,29 @@
     }
 </style>
 
-
 @section('content')
 
 <div class="p-5">
     
-    <!-- Tombol Back -->
-    <a href="{{ route('perawatan.barang.rusak.index') }}"
+    {{-- Menggunakan variabel $backUrl dari controller --}}
+    <a href="{{ $backUrl }}"
        class="inline-flex items-center px-4 py-2 mb-4 rounded-lg text-white"
        style="background-color:#1b365d;">
         <i class="fa-solid fa-arrow-left mr-2"></i>
         Kembali
     </a>
 
-    <h2 class="text-xl font-bold mb-3">Daftar Surat Perbaikan</h2>
+    {{-- Menggunakan variabel $title dari controller --}}
+    <h2 class="text-xl font-bold mb-3">{{ $title }}</h2>
 
     <table class="min-w-full bg-white shadow rounded">
         <thead class="bg-gray-200">
             <tr>
-                <th class="px-4 py-2 text-center">Nama Barang Rusak</th>
-                <th class="px-4 py-2 text-center">Surat Perbaikan</th>
+                <th class="px-4 py-2 text-center">Nama Barang</th>
+                
+                {{-- Menggunakan variabel $tableHeader dari controller --}}
+                <th class="px-4 py-2 text-center">{{ $tableHeader }}</th>
+                
                 <th class="px-4 py-2 text-center">Aksi</th>
             </tr>
         </thead>
@@ -52,18 +55,17 @@
         <tbody>
             @foreach ($surat as $s)
                 <tr class="border-b">
-                    <td class="px-4 py-2 text-center">{{ $s->barang->nama_barang }}</td>
+                    <td class="px-4 py-2 text-center">{{ $s->barang->nama_barang ?? 'Barang Terhapus' }}</td>
 
                     <td class="px-4 py-2 text-center">
                         <a href="{{ url('uploads/surat/' . $s->nama_file) }}"
                            class="text-blue-600 underline font-medium"
                            target="_blank">
-                            Lihat Surat
+                           Lihat File
                         </a>
                     </td>
 
                     <td class="px-4 py-2 text-center flex justify-center space-x-2">
-
                         {{-- Button Hapus --}}
                         <button type="button"
                                 onclick="confirmDelete({{ $s->id }})"
@@ -77,7 +79,6 @@
                             @csrf
                             @method('DELETE')
                         </form>
-
                     </td>
                 </tr>
             @endforeach

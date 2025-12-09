@@ -85,10 +85,29 @@
                 class="object-contain w-full h-full transition-transform duration-300 hover:scale-105" />
           </div>
           </a>
-          <a href="{{ route('barang.jenis-barang', $b->jenisBarang->uuid) }}"
-            class="absolute top-3 left-3 bg-tvri_base_color text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-            {{ $b->jenisBarang->jenis_barang }}
-          </a>
+          {{-- Ubah class flex menjadi flex-col dan tambahkan gap-1 --}}
+          <div class="absolute top-3 left-3 flex flex-col items-start gap-2">
+              
+              {{-- Badge Jenis Barang --}}
+              <a href="{{ route('barang.jenis-barang', $b->jenisBarang->uuid) }}"
+                class="bg-tvri_base_color text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm">
+                {{ $b->jenisBarang->jenis_barang }}
+              </a>
+              
+              {{-- Badge Status Perbaikan --}}
+              @if($b->status == 'perbaikan')
+                  <span class="bg-tvri_base_color text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm">
+                    <i class="fa-solid fa-wrench mr-1"></i> Perbaikan
+                  </span>
+              @endif
+
+              @if($b->status == 'ditemukan')
+                  <span class="bg-blue-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm">
+                    <i class="fa-solid fa-check-double mr-1"></i> Ditemukan
+                  </span>
+              @endif
+
+          </div>
           <div class="p-5">
             <div class="flex justify-between items-center">
             </div>
@@ -104,6 +123,10 @@
                 <span
                   class="bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
                   Habis
+                </span>
+              @elseif ($b->status == 'ditemukan')
+                <span class="bg-blue-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                  Ditemukan
                 </span>
               @else
                 <span

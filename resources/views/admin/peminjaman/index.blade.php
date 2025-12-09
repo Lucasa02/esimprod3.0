@@ -13,15 +13,31 @@
 
     @foreach ($catatan as $c)
       <a href="{{ route('peminjaman.catatan', $c->id) }}"
-        class="edit-item text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">
-        Catatan
-      </a>
+  class="edit-item flex items-center gap-2 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">
+
+  <!-- ICON PENCIL -->
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+    <path stroke-linecap="round" stroke-linejoin="round"
+      d="M16.862 4.487l1.687 1.688m-2.475-2.475l-9.9 9.9a4.5 4.5 0 00-1.068 1.72L4.5 18l2.68-.606c.65-.147 1.243-.487 1.72-1.068l9.9-9.9-2.475-2.475z" />
+  </svg>
+
+  Catatan
+</a>
     @endforeach
 
     <a href="{{ route('peminjaman.laporan.bulanan', ['bulan' => request('bulan', date('m')), 'tahun' => request('tahun', date('Y'))]) }}"
-      class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-      Cetak Laporan 
-    </a>
+  class="flex items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+
+  <!-- ICON PRINTER -->
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+    <path stroke-linecap="round" stroke-linejoin="round"
+      d="M6 9V4h12v5m-1.5 7.5h-9v5h9v-5zM3 13h18v8H3v-8z" />
+  </svg>
+
+  Cetak Laporan
+</a>
   </div>
 
   <!-- FORM SEARCH & FILTER SEJAJAR -->
