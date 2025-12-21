@@ -176,10 +176,12 @@
 
                     {{-- Tombol Aksi --}}
                     <div class="mt-4 flex gap-2">
-                        <a href="{{ route('bmn.index', $ruangan) }}"
+                        {{-- UBAHAN: href diganti ke route('barang.index') --}}
+                        <a href="{{ route('barang.index') }}"
                             class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                             Kembali
                         </a>
+                        
                         <button type="submit"
                             class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center">
                             Simpan Perubahan

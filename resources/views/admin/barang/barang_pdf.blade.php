@@ -2,9 +2,7 @@
 <html>
 
 <head>
-
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-
   <title>Laporan Barang</title>
   <style>
     body {
@@ -62,6 +60,10 @@
 <body>
   <center>
     <h5>Laporan Data Barang</h5>
+    {{-- Menampilkan Info Filter jika ada --}}
+    @if(isset($filter_info))
+        <h6>Kategori: {{ $filter_info }}</h6>
+    @endif
   </center>
 
   <table>
@@ -73,25 +75,66 @@
         <th class="center-text">Nama Barang</th>
         <th class="center-text">Nomor Seri</th>
         <th class="center-text">Merk</th>
-        <th class="center-text">Jenis Barang</th>
-        <th class="center-text">Limit Peminjaman (Harian)</th>
-        <th class="center-text">Catatan</th>
+        <th class="center-text">Jenis / Kategori</th>
+        <th class="center-text">Limit / Kondisi</th>
+        <th class="center-text">Catatan / Ruangan</th>
       </tr>
     </thead>
     <tbody>
       @foreach ($barang as $b)
         <tr>
           <td class="center-text">{{ $loop->iteration }}</td>
+          
+          {{-- LOGIC GAMBAR QR CODE --}}
           <td class="center-text">
-            <img src="{{ public_path('storage/uploads/qr_codes_barang/' . $b->qr_code) }}" width="40px">
+            @php
+                // Pastikan file ada sebelum load untuk menghindari error file not found
+                $qrPath = public_path('storage/uploads/qr_codes_barang/' . $b->qr_code);
+            @endphp
+            @if(file_exists($qrPath) && $b->qr_code)
+                <img src="{{ $qrPath }}" width="40px">
+            @else
+                -
+            @endif
           </td>
+
           <td class="center-text">{{ $b->kode_barang }}</td>
           <td class="center-text">{{ $b->nama_barang }}</td>
-          <td class="center-text">{{ $b->nomor_seri }}</td>
-          <td class="center-text">{{ $b->merk }}</td>
-          <td class="center-text">{{ $b->jenisBarang->jenis_barang }}</td>
-          <td class="center-text">{{ $b->limit }}</td>
-          <td class="center-text">{{ $b->deskripsi }}</td>
+          <td class="center-text">{{ $b->nomor_seri ?? '-' }}</td>
+          <td class="center-text">{{ $b->merk ?? '-' }}</td>
+
+          {{-- PERBAIKAN UTAMA DISINI --}}
+          <td class="center-text">
+            @if(isset($b->jenisBarang))
+                {{-- Jika Barang Master --}}
+                {{ $b->jenisBarang->jenis_barang }}
+            @elseif(isset($b->kategori))
+                {{-- Jika Barang BMN --}}
+                BMN - {{ $b->kategori }}
+            @else
+                -
+            @endif
+          </td>
+
+          {{-- LOGIC LIMIT / KONDISI (BMN tidak punya limit, tapi punya kondisi) --}}
+          <td class="center-text">
+             @if(isset($b->limit))
+                {{ $b->limit }} Hari
+             @elseif(isset($b->kondisi))
+                {{ $b->kondisi }}
+             @else
+                -
+             @endif
+          </td>
+
+          {{-- LOGIC DESKRIPSI / RUANGAN --}}
+          <td class="center-text">
+             @if(isset($b->ruangan))
+                Ruang: {{ $b->ruangan }}
+             @else
+                {{ $b->deskripsi ?? '-' }}
+             @endif
+          </td>
         </tr>
       @endforeach
     </tbody>

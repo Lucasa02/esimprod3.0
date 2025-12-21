@@ -39,48 +39,54 @@ class BmnController extends Controller
     }
 
    public function index(Request $request, $ruangan)
-{
-    $keyword = $request->input('q') ?? $request->input('search');
+    {
+        $keyword = $request->input('q') ?? $request->input('search');
 
-    $data = BmnBarang::with([
-        'perawatan' => function($q){
-            $q->whereIn('status', ['pending', 'proses'])
-              ->orderBy('tanggal_perawatan', 'desc');
-        },
-        'perawatanAktif'
-    ])
-    ->where('ruangan', ucfirst($ruangan))
-    ->when($keyword, function ($query) use ($keyword) {
-        $query->where(function ($q) use ($keyword) {
-            $q->where('nama_barang', 'like', "%{$keyword}%")
-                ->orWhere('kode_barang', 'like', "%{$keyword}%")
-                ->orWhere('nup', 'like', "%{$keyword}%")
-                ->orWhere('kategori', 'like', "%{$keyword}%")
-                ->orWhere('merk', 'like', "%{$keyword}%")
-                ->orWhere('asal_pengadaan', 'like', "%{$keyword}%")
-                ->orWhere('peruntukan', 'like', "%{$keyword}%")
-                ->orWhere('kondisi', 'like', "%{$keyword}%");
-        });
-    })
-    ->orderBy('nama_barang')
-    ->paginate(20);
+        $data = BmnBarang::with([
+            'perawatan' => function($q){
+                $q->whereIn('status', ['pending', 'proses'])
+                  ->orderBy('tanggal_perawatan', 'desc');
+            },
+            'perawatanAktif'
+        ])
+        // UBAHAN 1: Gunakan LIKE agar 'Studio' bisa menangkap 'Studio 1', 'Studio 2', dst.
+        ->where('ruangan', 'LIKE', ucfirst($ruangan) . '%') 
+        ->when($keyword, function ($query) use ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('nama_barang', 'like', "%{$keyword}%")
+                    ->orWhere('kode_barang', 'like', "%{$keyword}%")
+                    ->orWhere('nup', 'like', "%{$keyword}%")
+                    ->orWhere('kategori', 'like', "%{$keyword}%")
+                    ->orWhere('merk', 'like', "%{$keyword}%")
+                    ->orWhere('asal_pengadaan', 'like', "%{$keyword}%")
+                    ->orWhere('peruntukan', 'like', "%{$keyword}%")
+                    ->orWhere('kondisi', 'like', "%{$keyword}%");
+            });
+        })
+        ->orderBy('nama_barang')
+        ->paginate(20);
 
-    $title = 'Data BMN - ' . ucfirst($ruangan);
+        $title = 'Data BMN - ' . ucfirst($ruangan);
 
-    return view('admin.bmn.index', compact('data', 'ruangan', 'title', 'keyword'));
-}
-
-
+        return view('admin.bmn.index', compact('data', 'ruangan', 'title', 'keyword'));
+    }
 
     public function create($ruangan)
     {
-        $title = 'Tambah Barang - ' . ucfirst($ruangan);
+        // PERUBAHAN DISINI: Logika Judul
+        if ($ruangan == 'general') {
+            $title = 'Tambah Barang BMN'; // Judul sesuai permintaan
+        } else {
+            $title = 'Tambah Barang - ' . ucfirst($ruangan);
+        }
+
         return view('admin.bmn.create', compact('ruangan', 'title'));
     }
 
     public function store(Request $request, $ruangan)
     {
-        $validated = $request->validate([
+        // 1. Definisikan rule validasi dasar
+        $rules = [
             'nama_barang'        => 'required',
             'nup'                => 'required|string|max:255|unique:bmn_barangs',
             'kode_barang'        => 'nullable|string|max:255|unique:bmn_barangs',
@@ -93,69 +99,78 @@ class BmnController extends Controller
             'asal_pengadaan'     => 'nullable',
             'peruntukan'         => 'nullable',
             'catatan'            => 'nullable',
-            // FOTO BARANG
             'foto'               => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            // FOTO POSISI (nama input tetap posisi_foto)
-            'posisi'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'posisi'             => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ];
+
+        // 2. Jika ruangan 'general', wajib pilih ruangan dari dropdown
+        if ($ruangan == 'general') {
+            $rules['ruangan_pilihan'] = 'required|in:Mcr,Studio';
+        }
+
+        $validated = $request->validate($rules, [
+            'ruangan_pilihan.required' => 'Lokasi ruangan (MCR/Studio) wajib dipilih.',
         ]);
 
+        // UBAHAN 2: Logic Penentuan Lokasi Detail
+        if ($ruangan == 'general') {
+            if ($validated['ruangan_pilihan'] == 'Studio') {
+                // Jika pilih Studio, WAJIB ada detail lokasinya (Studio 1 / Studio 2)
+                $request->validate([
+                    'detail_lokasi' => 'required|string'
+                ], [
+                    'detail_lokasi.required' => 'Silahkan pilih Studio 1 atau Studio 2'
+                ]);
+                $finalRuangan = $request->detail_lokasi; // Simpan sebagai "Studio 1" atau "Studio 2"
+            } else {
+                $finalRuangan = $validated['ruangan_pilihan']; // Simpan sebagai "Mcr"
+            }
+        } else {
+            $finalRuangan = ucfirst($ruangan);
+        }
+
         $validated['kode_barang'] = $validated['kode_barang'] ?? $this->generateUniqueKode();
-        $validated['uuid'] = Str::uuid();
-        $validated['ruangan'] = ucfirst($ruangan);
-        $validated['kondisi'] = $this->tentukanKondisi($validated['persentase_kondisi']);
+        $validated['uuid']        = Str::uuid();
+        $validated['ruangan']     = $finalRuangan; // Ruangan tersimpan spesifik
+        $validated['kondisi']     = $this->tentukanKondisi($validated['persentase_kondisi']);
 
         $manager = new ImageManager(new Driver());
 
-        // =====================
-        // UPLOAD FOTO BARANG
-        // =====================
+        // ... (Kode upload foto, posisi, dan QR Code tetap sama, tidak berubah) ...
         if ($request->hasFile('foto')) {
             $file = $request->file('foto');
             $name = time() . "_barang." . $file->getClientOriginalExtension();
-
             $img = $manager->read($file)->scaleDown(800, 800);
             $canvas = $manager->create(800, 800)->fill('#ffffff')->place($img, 'center');
-
             $path = 'bmn/foto/' . $name;
             Storage::disk('public')->put($path, $canvas->encodeByExtension($file->getClientOriginalExtension(), quality: 80));
-
             $validated['foto'] = $path;
         }
 
-        // =====================
-        // UPLOAD FOTO POSISI (disimpan ke kolom: posisi)
-        // =====================
         if ($request->hasFile('posisi')) {
             $file   = $request->file('posisi');
             $name   = time() . "_posisi." . $file->getClientOriginalExtension();
-
             $img    = $manager->read($file)->scaleDown(800, 800);
             $canvas = $manager->create(800, 800)->fill('#ffffff')->place($img, 'center');
-
             $path = 'bmn/posisi/' . $name;
             Storage::disk('public')->put($path, $canvas->encodeByExtension($file->getClientOriginalExtension(), quality: 80));
-
             $validated['posisi'] = $path;
         }
 
-        // =====================
-        // QR CODE
-        // =====================
         $qrName = 'qr_' . $validated['kode_barang'] . '.png';
         $qrPath = 'bmn/qrcode/' . $qrName;
-
-$scanUrl = route('user.inventaris.scan', $validated['kode_barang']);
-
-QrCode::format('png')->size(300)->margin(2)
-    ->generate($scanUrl, Storage::disk('public')->path($qrPath));
-
-
+        $scanUrl = route('user.inventaris.scan', $validated['kode_barang']);
+        QrCode::format('png')->size(300)->margin(2)
+            ->generate($scanUrl, Storage::disk('public')->path($qrPath));
         $validated['qr_code'] = $qrPath;
 
         BmnBarang::create($validated);
 
-        return redirect()->route('bmn.index', $ruangan)
-            ->with('success', 'Barang berhasil ditambahkan.');
+        // Redirect: Jika Studio 1, kita ambil kata pertamanya saja untuk redirect ke index umum "studio"
+        $redirectRuangan = Str::startsWith($finalRuangan, 'Studio') ? 'studio' : strtolower($finalRuangan);
+
+        return redirect()->route('barang.index')
+            ->with('success', 'Barang berhasil ditambahkan ke ' . $finalRuangan);
     }
 
     public function show($ruangan, $id)
@@ -369,4 +384,3 @@ public function downloadQRAll()
 }
 
 }
-

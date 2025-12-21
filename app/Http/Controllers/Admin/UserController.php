@@ -273,15 +273,19 @@ class UserController extends Controller
 	}
 
 	public function printIDCard($uuid)
-	{
-		$user = User::where('uuid', $uuid)->first();
-		if (!$user) {
-			notify()->error('User tidak ditemukan !');
-			return redirect()->back();
-		}
-		$pdf = Pdf::loadView('admin.user.id-card', ['user' => $user])->setPaper('A4', 'portrait');
-		return $pdf->stream('ID-Card-' . $user->nama_lengkap . '-' . time() . '.pdf');
-	}
+{
+    $user = User::where('uuid', $uuid)->first();
+    if (!$user) {
+        notify()->error('User tidak ditemukan !');
+        return redirect()->back();
+    }
+    
+    // Gunakan 'landscape' agar dua kartu muat bersisian dengan aman
+    $pdf = Pdf::loadView('admin.user.id-card', ['user' => $user])
+              ->setPaper('a4', 'landscape'); 
+              
+    return $pdf->stream('ID-Card-' . $user->nama_lengkap . '.pdf');
+}
 
 	public function log(string $uuid)
 	{

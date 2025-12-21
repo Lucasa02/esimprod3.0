@@ -130,6 +130,19 @@
         <p class="text-xs text-gray-400">
             {{ $row->created_at->format('d-m-Y') }}
         </p>
+{{-- Tombol Lihat Surat Penghapusan --}}
+@if($row->surat_penghapusan)
+    <a href="{{ asset('storage/' . $row->surat_penghapusan) }}" 
+       target="_blank"
+       class="block mt-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-lg text-center">
+        <i class="fa-solid fa-file-pdf mr-1"></i> Lihat Surat Penghapusan
+    </a>
+@else
+    <button 
+        class="block mt-3 bg-gray-400 text-white text-xs font-semibold px-3 py-2 rounded-lg w-full cursor-not-allowed">
+        Surat belum di-upload
+    </button>
+@endif
 
       </div>
 

@@ -105,6 +105,11 @@
             </div>
 
         </div>
+        <a href="{{ route('user.inventaris.lapor-kerusakan.form', $barang->id) }}"
+   class="mt-4 block bg-red-600 text-white px-4 py-2 rounded-lg text-center hover:bg-red-700">
+    Laporkan Kerusakan Barang
+</a>
+
     </div>
 
 </div>

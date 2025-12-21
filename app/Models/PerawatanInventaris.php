@@ -19,11 +19,15 @@ class PerawatanInventaris extends Model
         'deskripsi',
         'status',
         'biaya',
-        'foto_bukti'
+        'foto_bukti',
+        'surat_penghapusan'
+        
     ];
 
     public function barang()
     {
         return $this->belongsTo(BmnBarang::class, 'barang_id');
     }
+
+    
 }

@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PerawatanInventaris;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
 class RencanaPenghapusanController extends Controller
 {
     public function index()
     {
-        // Ambil hanya data yang jenis_perawatan = rencana_penghapusan
         $data = PerawatanInventaris::with('barang')
             ->where('jenis_perawatan', 'rencana_penghapusan')
             ->latest()
@@ -20,27 +22,59 @@ class RencanaPenghapusanController extends Controller
         return view('admin.rencana_penghapusan.index', compact('data', 'title'));
     }
 
-     // =====================================
-    // PINDAHKAN KE DATA PENGHAPUSAN
-    // =====================================
+    /**
+     * UPLOAD SURAT PENGHAPUSAN
+     */
+    public function uploadSurat(Request $request, $id)
+    {
+        $request->validate([
+            'surat' => 'required|mimes:pdf,jpg,jpeg,png|max:2048',
+        ]);
+
+        $rencana = PerawatanInventaris::findOrFail($id);
+
+        // Hapus surat lama jika ada
+        if ($rencana->surat_penghapusan) {
+            Storage::disk('public')->delete($rencana->surat_penghapusan);
+        }
+
+        // Upload surat baru
+        $path = $request->file('surat')->store('surat_penghapusan', 'public');
+
+        // Simpan ke database
+        $rencana->update([
+            'surat_penghapusan' => $path,
+        ]);
+
+        return back()->with('success', 'Surat penghapusan berhasil diupload.');
+    }
+
+    /**
+     * PINDAHKAN KE DATA PENGHAPUSAN
+     */
     public function hapuskan($id)
     {
         $rencana = PerawatanInventaris::with('barang')->findOrFail($id);
 
+        // CEK: Surat harus sudah ada!
+        if (!$rencana->surat_penghapusan) {
+            return back()->with('error', 'Upload surat penghapusan terlebih dahulu!');
+        }
 
-        // 1. Pindahkan ke data penghapusan
+        // Pindahkan ke data penghapusan
         PerawatanInventaris::create([
             'uuid' => Str::uuid(),
             'barang_id' => $rencana->barang_id,
             'tanggal_perawatan' => now(),
             'jenis_perawatan' => 'penghapusan',
             'status' => 'pending',
+            'deskripsi' => $rencana->deskripsi,
+            'surat_penghapusan' => $rencana->surat_penghapusan,
         ]);
 
-        // 2. Hapus dari rencana penghapusan
+        // Hapus dari rencana penghapusan
         $rencana->delete();
 
         return back()->with('success', 'Barang berhasil dipindahkan ke data penghapusan.');
     }
-
 }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Response;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Imagick;
 use ImagickException;
+use App\Models\PerawatanInventaris;
 
 class InventarisUserController extends Controller
 {
@@ -118,4 +119,36 @@ class InventarisUserController extends Controller
             return back()->with('error', 'Gagal membuat QR. Error: ' . $e->getMessage());
         }
     }
+
+    public function laporKerusakanForm($id)
+{
+    $barang = BmnBarang::findOrFail($id);
+    return view('user.inventaris.lapor_kerusakan', compact('barang'));
+}
+
+public function laporKerusakanSubmit(Request $request)
+{
+    $request->validate([
+        'barang_id' => 'required|exists:bmn_barangs,id',
+        'deskripsi' => 'required|string',
+        'foto'      => 'required|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+
+    // Upload Foto
+    $path = $request->file('foto')->store('laporan/foto', 'public');
+
+    // Simpan ke tabel perawatan_inventaris
+    PerawatanInventaris::create([
+        'barang_id' => $request->barang_id,
+        'tanggal_perawatan' => now(),
+        'deskripsi' => $request->deskripsi,
+        'foto' => $path,
+        'status' => 'pending', // laporan baru masuk
+        'jenis' => 'laporan_kerusakan'
+    ]);
+
+    return redirect()->route('user.inventaris.detail', $request->barang_id)
+        ->with('success', 'Laporan kerusakan berhasil dikirim dan menunggu proses admin.');
+}
+
 }

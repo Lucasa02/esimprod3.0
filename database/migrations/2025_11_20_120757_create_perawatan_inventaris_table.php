@@ -33,7 +33,7 @@ return new class extends Migration
 
             $table->string('foto_bukti')->nullable();
             $table->string('foto_kerusakan')->nullable();
-
+            $table->string('surat_penghapusan')->nullable();
             $table->timestamps();
         });
     }

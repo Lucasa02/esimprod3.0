@@ -34,10 +34,9 @@ class DataPenghapusanController extends Controller
         }
 
         $data = $query->get();
-        $title = "Data Penghapusan"; 
-        return view('admin.data_penghapusan.index', compact('data','title'));
+        $title = "Data Penghapusan";
+        return view('admin.data_penghapusan.index', compact('data', 'title'));
     }
-    
 
     // ===============================
     // CETAK PDF
@@ -66,10 +65,8 @@ class DataPenghapusanController extends Controller
         $data = $query->get();
 
         $pdf = Pdf::loadView('admin.data_penghapusan.pdf', compact('data'))
-                ->setPaper('A4', 'portrait');
+            ->setPaper('A4', 'portrait');
 
         return $pdf->download('data_penghapusan.pdf');
     }
 }
-
-
