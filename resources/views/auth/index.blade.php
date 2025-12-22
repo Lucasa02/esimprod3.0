@@ -44,7 +44,18 @@
             autocomplete="off">
         </div>
       </form>
-
+      <div class="mt-6 w-full max-w-md">
+    <div class="relative flex py-5 items-center">
+        <div class="flex-grow border-t border-gray-300"></div>
+        <span class="flex-shrink mx-4 text-gray-400 text-sm">Atau</span>
+        <div class="flex-grow border-t border-gray-300"></div>
+    </div>
+    <a href="{{ route('user.inventaris') }}" 
+      style="background-color: #1b365d; border-color: #1b365d;"
+      class="block w-full text-center py-3 px-4 text-white font-semibold rounded-lg transition-all hover:opacity-90">
+        Masuk Sebagai Tamu (Lihat Inventaris)
+    </a>
+    </div>
     </div>
   </div>
 

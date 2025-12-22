@@ -86,7 +86,7 @@ class InventarisUserController extends Controller
             ->size(600)
             ->margin(1)
             ->generate($url);
-
+            
         try {
             $qr = new Imagick();
             $qr->readImageBlob($qrData);
@@ -121,34 +121,35 @@ class InventarisUserController extends Controller
     }
 
     public function laporKerusakanForm($id)
-{
-    $barang = BmnBarang::findOrFail($id);
-    return view('user.inventaris.lapor_kerusakan', compact('barang'));
-}
+    {
+        $barang = BmnBarang::findOrFail($id);
+        // Pastikan path view sesuai dengan letak file .blade.php Anda
+        // Jika file ada di resources/views/user/inventaris/lapor_kerusakan.blade.php
+        return view('user.inventaris.lapor_kerusakan', compact('barang'));
+    }
 
-public function laporKerusakanSubmit(Request $request)
-{
-    $request->validate([
-        'barang_id' => 'required|exists:bmn_barangs,id',
-        'deskripsi' => 'required|string',
-        'foto'      => 'required|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
+    public function laporKerusakanSubmit(Request $request)
+    {
+        $request->validate([
+            'barang_id' => 'required|exists:bmn_barangs,id',
+            'jenis_kerusakan' => 'required|string', // Tambahkan ini
+            'deskripsi' => 'required|string',
+            'foto'      => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
-    // Upload Foto
-    $path = $request->file('foto')->store('laporan/foto', 'public');
+        $path = $request->file('foto')->store('laporan/foto', 'public');
 
-    // Simpan ke tabel perawatan_inventaris
-    PerawatanInventaris::create([
-        'barang_id' => $request->barang_id,
-        'tanggal_perawatan' => now(),
-        'deskripsi' => $request->deskripsi,
-        'foto' => $path,
-        'status' => 'pending', // laporan baru masuk
-        'jenis' => 'laporan_kerusakan'
-    ]);
+        PerawatanInventaris::create([
+            'barang_id' => $request->barang_id,
+            'tanggal_perawatan' => now(),
+            'deskripsi' => $request->jenis_kerusakan . ' - ' . $request->deskripsi, // Gabungkan agar tersimpan
+            'foto' => $path,
+            'status' => 'pending',
+            'jenis' => 'laporan_kerusakan'
+        ]);
 
-    return redirect()->route('user.inventaris.detail', $request->barang_id)
-        ->with('success', 'Laporan kerusakan berhasil dikirim dan menunggu proses admin.');
-}
+        return redirect()->route('user.inventaris.detail', $request->barang_id)
+            ->with('success', 'Laporan kerusakan berhasil dikirim.');
+    }
 
 }

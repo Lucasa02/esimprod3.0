@@ -19,14 +19,12 @@ use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\Studio2Controller;
 use App\Http\Controllers\Admin\PerawatanInventarisController;
 use App\Http\Controllers\Admin\BmnController;
-
+use App\Http\Controllers\QrController;
 use App\Http\Controllers\Admin\RencanaPenghapusanController;
 use App\Http\Controllers\Admin\DataPenghapusanController;
 use App\Http\Controllers\User\PeminjamanController as UserPeminjamanController;
 use App\Http\Controllers\User\PeminjamanController as PeminjamanUser;
 use App\Http\Controllers\User\PengembalianController as PengembalianUser;
-
-
 use App\Http\Controllers\User\LaporanKerusakanController;
 use App\Http\Controllers\Admin\LaporanKerusakanAdminController;
 
@@ -356,73 +354,21 @@ Route::prefix('admin')->group(function () {
 // ============================
 // ROUTE INVENTARIS USER
 // ============================
+// Route yang bisa diakses Publik (Guest & User)
+Route::prefix('user')->group(function () {
+	Route::get('/inventaris', [InventarisUserController::class, 'index'])->name('user.inventaris');
+	Route::get('/inventaris/show_all', [InventarisUserController::class, 'showAll'])->name('user.inventaris.show_all');
+	Route::get('/scan-barang/{kode}', [InventarisUserController::class, 'scan'])->name('user.inventaris.scan');
+	Route::get('/inventaris/detail/{id}', [InventarisUserController::class, 'detail'])->name('user.inventaris.detail');
 
-Route::prefix('user')->middleware(['auth', 'role:user'])->group(function () {
-
-	Route::middleware(['jabatan:Petugas Inventaris'])->group(function () {
-
-		// Halaman daftar inventaris (index)
-		Route::get(
-			'/inventaris',
-			[InventarisUserController::class, 'index']
-		)
-			->name('user.inventaris');
-
-		// Halaman show_all setelah scan ALL (tampil semua barang)
-		Route::get(
-			'/inventaris/show_all',
-			[InventarisUserController::class, 'showAll']
-		)
-			->name('user.inventaris.show_all');
-
-		// Scan QR → cek apakah itu barang atau universal QR
-		Route::get(
-			'/scan-barang/{kode}',
-			[InventarisUserController::class, 'scan']
-		)
-			->name('user.inventaris.scan');
-
-		// Detail barang
-		Route::get(
-			'/inventaris/detail/{id}',
-			[InventarisUserController::class, 'detail']
-		)
-			->name('user.inventaris.detail');
-
-		// QR Universal helper (opsional) -> arahkan ke index
-		Route::get('/inventaris/qr', function () {
-			return redirect()->route('user.inventaris');
-		})->name('user.inventaris.qr');
-
-		// Download QR Universal
-		Route::get(
-			'/inventaris/qr/download',
-			[InventarisUserController::class, 'downloadAllQR']
-		)
-			->name('user.inventaris.qr.download');
-		// USER
-		Route::get(
-			'/user/inventaris/{id}/lapor-kerusakan',
-			[InventarisUserController::class, 'laporKerusakanForm']
-		)
-			->name('user.inventaris.lapor-kerusakan.form');
-
-		Route::post(
-			'/user/inventaris/lapor-kerusakan',
-			[InventarisUserController::class, 'laporKerusakanSubmit']
-		)
-			->name('user.inventaris.lapor-kerusakan.submit');
-
-		// USER
-		Route::get('/lapor-kerusakan/{id}', [LaporanKerusakanController::class, 'form'])
-			->name('user.inventaris.lapor-kerusakan.form');
-
-		Route::post('/lapor-kerusakan/store', [LaporanKerusakanController::class, 'store'])
-			->name('user.inventaris.lapor-kerusakan.store');
+	// Route yang WAJIB Login & Jabatan Tertentu
+	Route::middleware(['auth', 'role:user', 'jabatan:Petugas Inventaris'])->group(function () {
+		Route::get('/inventaris/qr/download', [InventarisUserController::class, 'downloadAllQR'])->name('user.inventaris.qr.download');
+		Route::get('/inventaris/{id}/lapor-kerusakan', [InventarisUserController::class, 'laporKerusakanForm'])->name('user.inventaris.lapor-kerusakan.form');
+		Route::post('/inventaris/lapor-kerusakan/store', [InventarisUserController::class, 'laporKerusakanSubmit'])->name('user.inventaris.lapor-kerusakan.store');
 	});
 });
 
-use App\Http\Controllers\QrController;
 
 Route::prefix('qr')->group(function () {
 	Route::get('/all', [QrController::class, 'qrAll'])->name('qr.inventaris.all');

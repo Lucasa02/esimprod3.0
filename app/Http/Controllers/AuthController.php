@@ -72,16 +72,13 @@ class AuthController extends Controller
 
     notify()->success('Login Berhasil, Selamat Datang ' . $user->nama_lengkap);
 
-    // cek jabatan
-    if ($user->jabatan && $user->jabatan->jabatan === 'Petugas Inventaris') {
-        return redirect()->route('user.inventaris');
-    }
-
-    return redirect()->route('user.option');
-}
-
+				return redirect()->intended(
+					($user->jabatan && $user->jabatan->jabatan === 'Petugas Inventaris')
+						? route('user.inventaris')
+						: route('user.option')
+				);
+			}
 		}
-
 		return redirect()->back()->with('error', 'Kode user tidak terdaftar !');
 	}
 

@@ -10,15 +10,16 @@ class CheckJabatan
 {
     public function handle(Request $request, Closure $next, ...$jabatans)
     {
+        // Jika tidak login, biarkan Laravel ditangani oleh middleware 'auth' di web.php
         if (!Auth::check()) {
-            return redirect()->route('login');
+            return $next($request);
         }
 
-        $userJabatan = Auth::user()->jabatan->jabatan; // Mengambil nama jabatan
+        $userJabatan = Auth::user()->jabatan->jabatan ?? null;
 
-        if (!in_array($userJabatan, $jabatans)) {
+        if (!$userJabatan || !in_array($userJabatan, $jabatans)) {
             notify()->error('Anda tidak memiliki akses ke halaman ini!');
-            return redirect()->route('user.option'); // Halaman default user lain
+            return redirect()->route('user.option');
         }
 
         return $next($request);

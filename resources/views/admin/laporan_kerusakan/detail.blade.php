@@ -21,7 +21,7 @@
 
             <form action="{{ route('admin.laporan-kerusakan.setujui', $laporan->uuid) }}" method="POST">
                 @csrf
-                <button class="px-4 py-2 bg-green-600 text-white rounded">Setujui</button>
+                <button class="px-4 py-2 bg-green-600 text-black rounded">Setujui</button>
             </form>
 
             <form action="{{ route('admin.laporan-kerusakan.tolak', $laporan->uuid) }}" method="POST">

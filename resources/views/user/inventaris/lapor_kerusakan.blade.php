@@ -56,7 +56,7 @@
 
     <a href="{{ url()->previous() }}"
        class="block mt-4 text-center text-gray-600 hover:underline">
-        ← Kembali
+        Kembali
     </a>
 
 </div>
