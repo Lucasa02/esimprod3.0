@@ -152,4 +152,17 @@ class InventarisUserController extends Controller
             ->with('success', 'Laporan kerusakan berhasil dikirim.');
     }
 
+    public function scanRak($nama_rak)
+    {
+        $nama_rak = urldecode($nama_rak); // Mengubah %20 kembali jadi spasi
+
+        // Cari semua barang yang memiliki lokasi di rak tersebut
+        $barang = \App\Models\BmnBarang::where('ruangan', $nama_rak)->get();
+
+        return view('user.inventaris.hasil_scan_rak', [
+            'barang' => $barang,
+            'nama_rak' => $nama_rak
+        ]);
+    }
+
 }

@@ -55,15 +55,32 @@
       </tr>
     </thead>
     <tbody>
-      @foreach ($barang as $b)
-        <tr>
-          <td>
-            <img src="{{ public_path('storage/uploads/qr_codes_barang/' . $b->qr_code) }}" alt="QR Code">
-          </td>
-          <td>{{ $b->nama_barang }}</td>
-        </tr>
-      @endforeach
-    </tbody>
+  @foreach ($barang as $b)
+    <tr>
+      <td>
+        @php
+            // Deteksi apakah ini barang BMN (punya kolom ruangan) atau Master
+            $isBmn = isset($b->ruangan);
+            
+            if ($isBmn) {
+                // Jalur untuk BMN: database sudah menyimpan 'bmn/qrcode/filename.png'
+                $qrPath = public_path('storage/' . $b->qr_code);
+            } else {
+                // Jalur untuk Master: database hanya menyimpan 'filename.svg'
+                $qrPath = public_path('storage/uploads/qr_codes_barang/' . $b->qr_code);
+            }
+        @endphp
+
+        @if($b->qr_code && file_exists($qrPath))
+            <img src="{{ $qrPath }}" alt="QR Code">
+        @else
+            <span style="color: red; font-size: 8px;">QR Tidak Ditemukan</span>
+        @endif
+      </td>
+      <td>{{ $b->nama_barang }}</td>
+    </tr>
+  @endforeach
+</tbody>
   </table>
 </body>
 

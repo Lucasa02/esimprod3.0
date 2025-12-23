@@ -60,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
 				Route::get('/detail/{uuid}', [BarangController::class, 'show'])->name('barang.show');
 				Route::get('/print-barang', [BarangController::class, 'printBarang'])->name('barang.print-barang');
 				Route::get('/print-qrcode', [BarangController::class, 'printQrCode'])->name('barang.print-qrcode');
+				Route::get('/print-qr-rak', [BarangController::class, 'printQrRak'])->name('barang.print-qr-rak');
 				Route::get('/result', [BarangController::class, 'search'])->name('barang.search');
 				Route::get('jenis-barang/{jenisBarang:uuid}', [BarangController::class, 'jenisBarang'])->name('barang.jenis-barang');
 				Route::get('/export', [BarangController::class, 'export'])->name('barang.export');
@@ -360,6 +361,7 @@ Route::prefix('user')->group(function () {
 	Route::get('/inventaris/show_all', [InventarisUserController::class, 'showAll'])->name('user.inventaris.show_all');
 	Route::get('/scan-barang/{kode}', [InventarisUserController::class, 'scan'])->name('user.inventaris.scan');
 	Route::get('/inventaris/detail/{id}', [InventarisUserController::class, 'detail'])->name('user.inventaris.detail');
+	Route::get('/inventaris/rak/{nama_rak}', [InventarisUserController::class, 'scanRak'])->name('user.inventaris.rak');
 
 	// Route yang WAJIB Login & Jabatan Tertentu
 	Route::middleware(['auth', 'role:user', 'jabatan:Petugas Inventaris'])->group(function () {

@@ -86,16 +86,19 @@
               <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-6">Detail Barang</h3>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
                 
-                {{-- HIGHLIGHT LOKASI RUANGAN (Digabungkan ke desain baru) --}}
-                <div class="col-span-1 sm:col-span-2 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 mb-2">
-                    <p class="text-xs font-bold text-blue-600 dark:text-blue-300 mb-1 uppercase tracking-wider flex items-center">
-                        <span class="material-symbols-outlined text-[18px] mr-1">location_on</span> Lokasi Ruangan
-                    </p>
-                    <p class="text-2xl font-black text-gray-800 dark:text-white">
-                        {{ ucfirst($barang->ruangan) }}
-                    </p>
-                </div>
-                {{-- END HIGHLIGHT --}}
+                {{-- HIGHLIGHT LOKASI RUANGAN --}}
+              <div class="col-span-1 sm:col-span-2 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 mb-2">
+                  <p class="text-xs font-bold text-blue-600 dark:text-blue-300 mb-1 uppercase tracking-wider flex items-center">
+                      <span class="material-symbols-outlined text-[18px] mr-1">location_on</span> Lokasi & Detail Rak
+                  </p>
+                  <p class="text-2xl font-black text-gray-800 dark:text-white">
+                      {{ $barang->ruangan }}
+                  </p>
+                  @if(Str::contains($barang->ruangan, 'MCR'))
+                  @elseif(Str::contains($barang->ruangan, 'Studio'))
+                      <span class="text-sm text-blue-500 font-medium italic">Penyimpanan: Studio Production Area</span>
+                  @endif
+              </div>
 
                 <div>
                   <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kondisi</p>

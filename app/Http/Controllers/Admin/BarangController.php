@@ -321,7 +321,7 @@ class BarangController extends Controller
             
             // Filter ruangan hanya jika kategori BMN dipilih secara spesifik
             if ($kategori == 'bmn' && $ruangan != 'all') {
-                $bmnQuery->where('ruangan', $ruangan);
+                $bmnQuery->where('ruangan', 'like', $ruangan . '%');
             }
 
             $bmn = $bmnQuery->orderBy('nama_barang', 'ASC')->get();
@@ -363,7 +363,7 @@ class BarangController extends Controller
         if ($kategori == 'all' || $kategori == 'bmn') {
             $query = BmnBarang::query();
             if ($kategori == 'bmn' && $ruangan != 'all') {
-                $query->where('ruangan', $ruangan);
+                $query->where('ruangan', 'like', $ruangan . '%');
             }
             $collection = $collection->concat($query->get());
         }
@@ -390,5 +390,51 @@ class BarangController extends Controller
             'count' => $barang->count()
         ];
         return view('admin.barang.index', $data);
+    }
+
+    /**
+     * Cetak QR Code khusus untuk Rak (MCR)
+     */
+    public function printQrRak(Request $request)
+    {
+        // Ambil semua ruangan unik yang mengandung kata 'MCR'
+        $racks = BmnBarang::where('ruangan', 'like', 'MCR%')
+            ->select('ruangan')
+            ->distinct()
+            ->get();
+
+        if ($racks->isEmpty()) {
+            notify()->error('Tidak ada data Rak MCR ditemukan.');
+            return redirect()->back();
+        }
+
+        $data = [
+            'racks' => $racks,
+            'title' => 'QR Code Rak MCR'
+        ];
+
+        $pdf = Pdf::loadView('admin.barang.qrcode_rak_pdf', $data)->setPaper('a4', 'portrait');
+        return $pdf->stream('QRCode-Rak-MCR.pdf');
+    }
+
+    /**
+     * Tampilan saat QR Rak di-scan
+     */
+    public function scanRak($nama_rak)
+    {
+        // Cari semua barang yang berada di ruangan/rak tersebut
+        // Kita gunakan decode karena URL mungkin mengandung spasi (%20)
+        $nama_rak = urldecode($nama_rak);
+
+        $barang = BmnBarang::where('ruangan', $nama_rak)->get();
+
+        if ($barang->isEmpty()) {
+            return "Rak tidak ditemukan atau kosong.";
+        }
+
+        return view('user.inventaris.hasil_scan_rak', [
+            'barang' => $barang,
+            'nama_rak' => $nama_rak
+        ]);
     }
 }

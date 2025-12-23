@@ -103,27 +103,32 @@ class BmnController extends Controller
             'posisi'             => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
 
-        // 2. Jika ruangan 'general', wajib pilih ruangan dari dropdown
+        // Tambahkan validasi ruangan jika 'general'
         if ($ruangan == 'general') {
             $rules['ruangan_pilihan'] = 'required|in:Mcr,Studio';
         }
 
+        // --- EKSEKUSI VALIDASI TERLEBIH DAHULU (Agar $validated tersedia) ---
         $validated = $request->validate($rules, [
-            'ruangan_pilihan.required' => 'Lokasi ruangan (MCR/Studio) wajib dipilih.',
+            'ruangan_pilihan.required' => 'Lokasi ruangan wajib dipilih.',
         ]);
 
-        // UBAHAN 2: Logic Penentuan Lokasi Detail
+        // 2. Logic Penentuan Lokasi Detail
         if ($ruangan == 'general') {
             if ($validated['ruangan_pilihan'] == 'Studio') {
-                // Jika pilih Studio, WAJIB ada detail lokasinya (Studio 1 / Studio 2)
-                $request->validate([
-                    'detail_lokasi' => 'required|string'
-                ], [
-                    'detail_lokasi.required' => 'Silahkan pilih Studio 1 atau Studio 2'
-                ]);
-                $finalRuangan = $request->detail_lokasi; // Simpan sebagai "Studio 1" atau "Studio 2"
+                $request->validate(['detail_lokasi' => 'required|string']);
+                $finalRuangan = $request->detail_lokasi;
+            } elseif ($validated['ruangan_pilihan'] == 'Mcr') {
+                // Logika Rak: Jika pilih 'Lainnya', ambil dari input 'custom_rak'
+                if ($request->rak_pilihan === 'Lainnya') {
+                    $namaRak = $request->custom_rak ?? 'Server/Lainnya';
+                } else {
+                    $namaRak = $request->rak_pilihan;
+                }
+
+                $finalRuangan = $namaRak ? "MCR - " . $namaRak : "MCR";
             } else {
-                $finalRuangan = $validated['ruangan_pilihan']; // Simpan sebagai "Mcr"
+                $finalRuangan = $validated['ruangan_pilihan'];
             }
         } else {
             $finalRuangan = ucfirst($ruangan);
@@ -174,22 +179,22 @@ class BmnController extends Controller
     }
 
     public function show($ruangan, $id)
-{
-// Eager load perawatan yang statusnya pending atau proses
-$barang = BmnBarang::with(['perawatan' => function($q){
-$q->whereIn('status', ['proses', 'pending'])->orderBy('tanggal_perawatan', 'desc');
-}])->findOrFail($id);
+    {
+    // Eager load perawatan yang statusnya pending atau proses
+    $barang = BmnBarang::with(['perawatan' => function($q){
+    $q->whereIn('status', ['proses', 'pending'])->orderBy('tanggal_perawatan', 'desc');
+    }])->findOrFail($id);
 
 
-$title = 'Detail Barang - ' . ucfirst($ruangan);
+    $title = 'Detail Barang - ' . ucfirst($ruangan);
 
 
-// Ambil perawatan aktif (jika ada) — gunakan koleksi dari relasi yang sudah eager-loaded
-$perawatan = $barang->perawatan->first(); // null jika tidak ada
+    // Ambil perawatan aktif (jika ada) — gunakan koleksi dari relasi yang sudah eager-loaded
+    $perawatan = $barang->perawatan->first(); // null jika tidak ada
 
 
-return view('admin.bmn.show', compact('barang', 'ruangan', 'title','perawatan'));
-}
+    return view('admin.bmn.show', compact('barang', 'ruangan', 'title','perawatan'));
+    }
 
     public function edit($ruangan, $id)
     {
@@ -203,6 +208,7 @@ return view('admin.bmn.show', compact('barang', 'ruangan', 'title','perawatan'))
     {
         $barang = BmnBarang::findOrFail($id);
 
+        // 1. Validasi (Sama dengan store tapi abaikan unique untuk ID ini)
         $validated = $request->validate([
             'nama_barang'        => 'required',
             'nup'                => 'required|string|max:255|unique:bmn_barangs,nup,' . $barang->id,
@@ -210,14 +216,27 @@ return view('admin.bmn.show', compact('barang', 'ruangan', 'title','perawatan'))
             'kategori'           => 'required',
             'jumlah'             => 'required|integer|min:1',
             'persentase_kondisi' => 'required|numeric|min:0|max:100',
-
+            'ruangan_pilihan'    => 'required|in:Mcr,Studio', // Tambahkan ini
             'foto'               => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-
-            // posisi tetap file foto
-            'posisi'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'posisi'             => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
+        // 2. Logic Penentuan Lokasi Detail (SAMA DENGAN STORE)
+        if ($request->ruangan_pilihan == 'Studio') {
+            $finalRuangan = $request->detail_lokasi;
+        } elseif ($request->ruangan_pilihan == 'Mcr') {
+            $namaRak = ($request->rak_pilihan === 'Lainnya') ? ($request->custom_rak ?? 'Lainnya') : $request->rak_pilihan;
+            $finalRuangan = "MCR - " . $namaRak;
+        } else {
+            $finalRuangan = $request->ruangan_pilihan;
+        }
+
+        $validated['ruangan'] = $finalRuangan;
         $validated['kondisi'] = $this->tentukanKondisi($validated['persentase_kondisi']);
+        $validated['merk'] = $request->merk;
+        $validated['nomor_seri'] = $request->nomor_seri;
+        $validated['tahun_pengadaan'] = $request->tahun_pengadaan;
+        $validated['catatan'] = $request->catatan;
 
         $manager = new ImageManager(new Driver());
 
@@ -266,39 +285,38 @@ return view('admin.bmn.show', compact('barang', 'ruangan', 'title','perawatan'))
         $validated['qr_code'] = $qrPath;
     }
 
-
         $barang->update($validated);
 
-        return redirect()->route('bmn.index', $ruangan)
-            ->with('success', 'Data barang berhasil diperbarui.');
+        return redirect()->route('barang.index')
+            ->with('success', 'Data barang BMN berhasil diperbarui.');
     }
 
     public function destroy($ruangan, $id)
-{
-$barang = BmnBarang::findOrFail($id);
+    {
+    $barang = BmnBarang::findOrFail($id);
 
 
-if ($barang->foto && Storage::disk('public')->exists($barang->foto)) {
-Storage::disk('public')->delete($barang->foto);
-}
-if ($barang->posisi && Storage::disk('public')->exists($barang->posisi)) {
-Storage::disk('public')->delete($barang->posisi);
-}
-if ($barang->qr_code && Storage::disk('public')->exists($barang->qr_code)) {
-Storage::disk('public')->delete($barang->qr_code);
-}
+    if ($barang->foto && Storage::disk('public')->exists($barang->foto)) {
+    Storage::disk('public')->delete($barang->foto);
+    }
+    if ($barang->posisi && Storage::disk('public')->exists($barang->posisi)) {
+    Storage::disk('public')->delete($barang->posisi);
+    }
+    if ($barang->qr_code && Storage::disk('public')->exists($barang->qr_code)) {
+    Storage::disk('public')->delete($barang->qr_code);
+    }
 
 
-$barang->delete();
+    $barang->delete();
 
 
-return redirect()->route('bmn.index', $ruangan)
-->with('success', 'Barang berhasil dihapus.');
-}
+    return redirect()->route('bmn.index', $ruangan)
+    ->with('success', 'Barang berhasil dihapus.');
+    }
 
     public function print($ruangan)
     {
-        $data = BmnBarang::where('ruangan', ucfirst($ruangan))
+        $data = BmnBarang::where('ruangan', 'like', ucfirst($ruangan) . '%')
             ->orderBy('nama_barang')
             ->get();
 

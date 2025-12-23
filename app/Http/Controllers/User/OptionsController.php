@@ -83,6 +83,12 @@ class OptionsController extends Controller
 		}
 
 		notify()->success('Profil berhasil diubah.');
+
+		// LOGIKA REDIRECT BARU:
+		if ($request->input('from') === 'inventaris') {
+			return redirect()->route('user.inventaris');
+		}
+
 		return redirect()->route('user.option');
 	}
 }

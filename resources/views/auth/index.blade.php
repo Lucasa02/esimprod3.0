@@ -20,7 +20,7 @@
 
   <div class="flex justify-center items-center w-full h-screen">
     <div class="w-1/2 h-full hidden lg:block">
-      <img src="{{ asset('img/assets/login_1.png') }}" alt="Placeholder Image" class="object-cover w-full h-full">
+      <img src="{{ asset('img/assets/login_2.jpeg') }}" alt="Placeholder Image" class="object-cover w-full h-full">
     </div>
 
     <div class="flex flex-col justify-center items-center lg:p-36 md:p-52 sm:p-20 p-8 w-full lg:w-1/2">

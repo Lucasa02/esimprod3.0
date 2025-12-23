@@ -1,3 +1,10 @@
+@php
+    // 1. Ambil parameter 'from' dari URL (contoh: profil?from=inventaris)
+    $from = request('from');
+
+    // 2. Tentukan link kembali berdasarkan asal halaman
+    $backRoute = ($from === 'inventaris') ? route('user.inventaris') : route('user.option');
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
@@ -81,7 +88,7 @@
         <form method="POST" action="{{ route('user.profil.update') }}" class="space-y-5" enctype="multipart/form-data">
           @csrf
           @method('PATCH')
-
+          <input type="hidden" name="from" value="{{ $from }}">
           <div class="mb-3">
             <label for="nama_lengkap" class="block text-sm font-bold text-gray-900 dark:text-white">Nama Lengkap
             </label>
@@ -142,10 +149,10 @@
           </div>
 
           <div class="flex space-x-2">
-            <a href="{{ route('user.option') }}"
-              class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-3 py-2 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
-              Kembali
-            </a>
+            <a href="{{ $backRoute }}"
+       class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-3 py-2 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+        Kembali
+    </a>
             <button type="submit"
               class="text-white  bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
               Simpan

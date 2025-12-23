@@ -3,12 +3,6 @@
 @section('content')
 <div class="py-6 px-4 sm:px-6 lg:px-8">
     <div class="max-w-5xl mx-auto">
-        <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between border-b pb-4">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Tambah Data BMN</h1>
-                <p class="text-sm text-gray-500 mt-1">Lengkapi detail informasi barang milik negara di bawah ini.</p>
-            </div>
-        </div>
 
         <form action="{{ route('bmn.store', $ruangan) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
             @csrf
@@ -18,7 +12,7 @@
             <div class="bg-blue-50/50 border border-blue-100 rounded-xl p-6">
                 <div class="flex items-center gap-2 mb-4 text-blue-800">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="Intersection" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     </svg>
                     <h3 class="font-bold text-lg">Konfigurasi Lokasi</h3>
                 </div>
@@ -33,6 +27,7 @@
                         @error('ruangan_pilihan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 
+                    {{-- Container Detail Studio --}}
                     <div id="sub_lokasi_container" class="{{ old('ruangan_pilihan') == 'Studio' ? '' : 'hidden' }}">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Detail Studio</label>
                         <select name="detail_lokasi" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 transition-all">
@@ -41,6 +36,27 @@
                             <option value="Studio 2" {{ old('detail_lokasi') == 'Studio 2' ? 'selected' : '' }}>Studio 2</option>
                         </select>
                     </div>
+
+                    {{-- Container Rak MCR --}}
+            <div id="rak_mcr_container" class="{{ old('ruangan_pilihan') == 'Mcr' ? '' : 'hidden' }} space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Rak (MCR)</label>
+                    <select id="rak_select" name="rak_pilihan" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 transition-all">
+                        <option value="" disabled selected>-- Pilih Nomor Rak --</option>
+                        @for ($i = 1; $i <= 10; $i++)
+                            <option value="Rak {{ $i }}" {{ old('rak_pilihan') == "Rak $i" ? 'selected' : '' }}>Rak {{ $i }}</option>
+                        @endfor
+                        <option value="Lainnya" {{ old('rak_pilihan') == 'Lainnya' ? 'selected' : '' }}>Lainnya / Manual</option>
+                    </select>
+                </div>
+
+                {{-- Input Manual Rak (Muncul jika pilih Lainnya) --}}
+                <div id="custom_rak_container" class="{{ old('rak_pilihan') == 'Lainnya' ? '' : 'hidden' }}">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Masukkan Nama Rak / Server (Contoh: Rak 15)</label>
+                    <input type="text" name="custom_rak" value="{{ old('custom_rak') }}" placeholder="Ketik nomor rak di sini..." 
+                        class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                </div>
+            </div>
                 </div>
             </div>
             @endif
@@ -205,16 +221,33 @@ setupPreview('fotoPosisi', 'fotoPosisiPreview', 'posisiPreviewContainer', 'posis
 document.addEventListener('DOMContentLoaded', function() {
     const ruanganSelect = document.getElementById('ruangan_select');
     const subLokasiContainer = document.getElementById('sub_lokasi_container');
+    const rakMcrContainer = document.getElementById('rak_mcr_container');
+    
+    // Dropdown Rak & Input Manual
+    const rakSelect = document.getElementById('rak_select');
+    const customRakContainer = document.getElementById('custom_rak_container');
 
     if(ruanganSelect) {
         ruanganSelect.addEventListener('change', function() {
+            subLokasiContainer.classList.add('hidden');
+            rakMcrContainer.classList.add('hidden');
+
             if (this.value === 'Studio') {
                 subLokasiContainer.classList.remove('hidden');
-                subLokasiContainer.classList.add('animate-fade-in-down'); // Optional animation class
+            } else if (this.value === 'Mcr') {
+                rakMcrContainer.classList.remove('hidden');
+            }
+        });
+    }
+
+    // Logic untuk memunculkan input manual Rak 11-20 dst
+    if(rakSelect) {
+        rakSelect.addEventListener('change', function() {
+            if (this.value === 'Lainnya') {
+                customRakContainer.classList.remove('hidden');
+                customRakContainer.classList.add('animate-fade-in-down');
             } else {
-                subLokasiContainer.classList.add('hidden');
-                const subSelect = subLokasiContainer.querySelector('select');
-                if(subSelect) subSelect.value = "";
+                customRakContainer.classList.add('hidden');
             }
         });
     }

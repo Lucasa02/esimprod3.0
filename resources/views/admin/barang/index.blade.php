@@ -118,28 +118,15 @@
                 @endif
 
                 {{-- BADGE ITEM --}}
-                <div class="absolute top-3 left-3 flex flex-col items-start gap-1.5 z-10">
-                    <span class="bg-blue-900 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                      @if($isBmn)
-                          BMN - {{ $b->kategori }}
-                      @else
-                          {{ $b->jenisBarang->jenis_barang ?? '-' }}
-                      @endif
-                    </span>
-                    
-                    @if(!$isBmn)
-                        @if($b->status == 'perbaikan')
-                            <span class="bg-yellow-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
-                              <i class="fa-solid fa-wrench mr-1"></i> Rusak
-                            </span>
-                        @endif
-                        @if($b->status == 'ditemukan')
-                            <span class="bg-blue-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
-                              <i class="fa-solid fa-check-double mr-1"></i> Hilang
-                            </span>
-                        @endif
+              <div class="absolute top-3 left-3 flex flex-col items-start gap-1.5 z-10">
+                  <span class="bg-blue-900 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                    @if($isBmn)
+                        BMN - {{ $b->kategori }}
+                    @else
+                        {{ $b->jenisBarang->jenis_barang ?? '-' }}
                     @endif
-                </div>
+                  </span>
+              </div>
             </div>
           </a>
 
@@ -246,39 +233,49 @@
               </div>
               
               {{-- FORM CETAK --}}
-              <div class="p-4 md:p-5">
-                  <form id="printForm" action="" method="GET" target="_blank">
-                      
-                      <div class="mb-4">
-                          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pilih Jenis Data</label>
-                          <select id="print_kategori" name="kategori" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
-                              <option value="all">Semua Barang (Master & BMN)</option>
-                              <option value="master">Hanya Barang Master</option>
-                              <option value="bmn">Hanya Barang BMN</option>
-                          </select>
-                      </div>
+<div class="p-4 md:p-5">
+    <form id="printForm" action="" method="GET" target="_blank">
+        
+        <div class="mb-4">
+            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pilih Jenis Data</label>
+            <select id="print_kategori" name="kategori" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                <option value="all">Semua Barang (Master & BMN)</option>
+                <option value="master">Hanya Barang Master</option>
+                <option value="bmn">Hanya Barang BMN</option>
+            </select>
+        </div>
 
-                      <div id="print_ruangan_container" class="mb-4 hidden">
-                          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pilih Ruangan (BMN)</label>
-                          <select name="ruangan" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
-                              <option value="all">Seluruh Barang BMN</option>
-                              <option value="MCR">MCR</option>
-                              <option value="Studio 1">Studio 1</option>
-                              <option value="Studio 2">Studio 2</option>
-                              {{-- Tambahkan ruangan lain jika ada --}}
-                          </select>
-                      </div>
+        <div id="print_ruangan_container" class="mb-4 hidden">
+    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pilih Ruangan (BMN)</label>
+    {{-- TAMBAHKAN id="print_ruangan" --}}
+    <select id="print_ruangan" name="ruangan" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+        <option value="all">Seluruh Barang BMN</option>
+        <option value="MCR">MCR</option>
+        <option value="Studio 1">Studio 1</option>
+        <option value="Studio 2">Studio 2</option>
+    </select>
+</div>
 
-                      <div class="grid grid-cols-2 gap-4">
-                          <button type="button" onclick="submitPrint('{{ route('barang.print-barang') }}')" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                            <i class="fa-solid fa-print mr-2"></i> Cetak Data
-                          </button>
-                          <button type="button" onclick="submitPrint('{{ route('barang.print-qrcode') }}')" class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
-                            <i class="fa-solid fa-qrcode mr-2"></i> Cetak QR
-                          </button>
-                      </div>
-                  </form>
-              </div>
+        {{-- START: Tambahan Kode dari Gambar --}}
+        <div id="rak_khusus_container" class="p-4 md:p-5 border-t mt-4 dark:border-gray-600 hidden">
+    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Opsi Khusus Rak</label>
+    <button type="button" onclick="submitPrint('{{ route('barang.print-qr-rak') }}')" 
+        class="w-full text-black bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-purple-600 dark:hover:bg-purple-700">
+        <i class="fa-solid fa-layer-group mr-2"></i> Cetak Semua QR Rak MCR
+    </button>
+</div>
+        {{-- END: Tambahan Kode dari Gambar --}}
+
+        <div class="grid grid-cols-2 gap-4 mt-4">
+            <button type="button" onclick="submitPrint('{{ route('barang.print-barang') }}')" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                <i class="fa-solid fa-print mr-2"></i> Cetak Data
+            </button>
+            <button type="button" onclick="submitPrint('{{ route('barang.print-qrcode') }}')" class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+                <i class="fa-solid fa-qrcode mr-2"></i> Cetak QR
+            </button>
+        </div>
+    </form>
+</div>
           </div>
       </div>
   </div>
@@ -324,36 +321,51 @@
 @endsection
 
 @section('scripts')
-  <script>
-    // Logic untuk Modal Cetak
+<script>
     const kategoriSelect = document.getElementById('print_kategori');
+    const ruanganSelect = document.getElementById('print_ruangan'); // Element baru
     const ruanganContainer = document.getElementById('print_ruangan_container');
+    const rakKhususContainer = document.getElementById('rak_khusus_container'); // Container Rak
 
-    if (kategoriSelect) {
-        kategoriSelect.addEventListener('change', function() {
-            if (this.value === 'bmn') {
-                ruanganContainer.classList.remove('hidden');
-            } else {
-                ruanganContainer.classList.add('hidden');
-            }
-        });
+    function updateModalVisibility() {
+        const selectedKategori = kategoriSelect.value;
+        const selectedRuangan = ruanganSelect.value;
+
+        // 1. Logika Tampilkan Select Ruangan
+        if (selectedKategori === 'bmn') {
+            ruanganContainer.classList.remove('hidden');
+        } else {
+            ruanganContainer.classList.add('hidden');
+            // Reset ruangan ke 'all' jika kategori bukan BMN agar rak hidden kembali
+            ruanganSelect.value = 'all'; 
+        }
+
+        // 2. Logika Tampilkan Opsi Khusus Rak
+        // Muncul HANYA JIKA Kategori = BMN DAN Ruangan = MCR
+        if (selectedKategori === 'bmn' && selectedRuangan === 'MCR') {
+            rakKhususContainer.classList.remove('hidden');
+        } else {
+            rakKhususContainer.classList.add('hidden');
+        }
     }
 
+    // Jalankan fungsi setiap kali ada perubahan pada Kategori
+    kategoriSelect.addEventListener('change', updateModalVisibility);
+
+    // Jalankan fungsi setiap kali ada perubahan pada Ruangan
+    ruanganSelect.addEventListener('change', updateModalVisibility);
+
+    // Fungsi Submit (Tetap sama)
     function submitPrint(url) {
         const form = document.getElementById('printForm');
         form.action = url;
         form.submit();
     }
 
-    // Logic Delete (Tetap dari kode lama)
+    // Logic Delete (Tetap sama)
     function confirmDelete(url) {
       const form = document.getElementById('deleteForm');
       form.action = url;
     }
-    
-    // Opsional: Logic Toggle Search Input (jika diperlukan oleh kode HTML baru)
-    function toggleSearchInput() {
-       // Tambahkan logika disini jika ingin input text disable saat filter tertentu dipilih
-    }
-  </script>
+</script>
 @endsection
