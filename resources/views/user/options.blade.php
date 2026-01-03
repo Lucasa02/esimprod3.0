@@ -11,6 +11,51 @@
   <link rel="shortcut icon" href="{{ asset('/favicon.ico') }}" type="image/x-icon">
   <link href="https://fonts.cdnfonts.com/css/avenir" rel="stylesheet">
   <title>User Options</title>
+
+  {{-- CSS Animasi Logo Premium --}}
+  <style>
+    /* Definisi animasi gerakan cahaya */
+    @keyframes sheenAnimation {
+      0% {
+        /* Mulai dari posisi jauh di kiri */
+        transform: translateX(-200%) skewX(-25deg);
+      }
+      /* Selesai bergerak ke kanan pada 50% durasi */
+      50%, 100% {
+        /* Berakhir di posisi jauh di kanan */
+        transform: translateX(200%) skewX(-25deg);
+      }
+    }
+
+    /* Wrapper logo */
+    .premium-sheen-wrapper {
+      position: relative;
+      overflow: hidden; /* Cahaya tidak keluar area */
+      display: inline-block;
+      /* Border radius akan mengikuti class tailwind di elemen ini */
+    }
+
+    /* Elemen cahaya (pseudo-element) */
+    .premium-sheen-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* Gradien putih transparan */
+      background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0) 30%,
+        rgba(255, 255, 255, 0.6) 50%, /* Sedikit lebih terang (0.6) agar terlihat jelas saat cepat */
+        rgba(255, 255, 255, 0) 70%
+      );
+      /* UPDATE: Durasi diubah menjadi 3s (lebih cepat dari 5s) */
+      animation: sheenAnimation 3s infinite cubic-bezier(0.4, 0.0, 0.2, 1);
+      pointer-events: none;
+    }
+  </style>
+
   @notifyCss
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -44,17 +89,25 @@
 
   {{-- Navbar --}}
   <nav class="fixed top-0 z-50 w-full dark:bg-gray-800 dark:border-gray-700 font-sans">
-    <div class="px-3 py-3 lg:px-5 lg:pl-3">
+    <div class="px-4 py-3 lg:px-6">
       <div class="flex items-center justify-between">
-        <div class="flex items-center justify-start rtl:justify-end">
-          <p class="flex ms-2 md:me-24">
-            <img src="{{ asset('img/assets/esimprod_logo.png') }}" class="h-8 me-3 bg-blue-900 p-1 rounded-lg"
-              alt="ESIMPROD" />
-            <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-              <small class="text-xs text-white font-thin">Version 2.2</small>
-            </span>
-          </p>
+        
+        {{-- BAGIAN KIRI: LOGO --}}
+        <div class="flex items-center justify-start">
+            <div class="flex items-center gap-3">
+              {{-- Wrapper Logo dengan Efek Kilauan --}}
+              <div class="premium-sheen-wrapper h-8 bg-blue-900 p-1 rounded-lg">
+                 <img src="{{ asset('img/assets/esimprod_logo.png') }}" class="h-full w-auto object-contain"
+                   alt="ESIMPROD" />
+              </div>
+  
+              <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
+                <small class="text-xs text-white font-thin">Version 2.2</small>
+              </span>
+            </div>
         </div>
+
+        {{-- BAGIAN KANAN: USER PROFILE --}}
         <div class="flex items-center">
           <div>
             <button type="button"
@@ -70,12 +123,11 @@
             class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600"
             id="dropdown-user">
             <ul class="py-1" role="none">
-              {{-- Cari baris ini di navbar (sekitar baris 85) --}}
               <li>
                   <a href="{{ route('user.profil', ['from' => 'options']) }}"
                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                     role="menuitem">
-                      <span class="font-semibold">Profil Saya</span>
+                    <span class="font-semibold">Profil Saya</span>
                   </a>
               </li>
               <div class="my-2 border-t border-gray-200 dark:border-gray-600"></div>
@@ -174,6 +226,8 @@
   </div>
 
   @notifyJs
+
+  
 </body>
 
 @if (session('error'))

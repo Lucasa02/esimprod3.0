@@ -85,10 +85,10 @@
                 <div class="space-y-1">
                     <div class="flex items-center gap-2 text-primary/80 font-bold text-xs tracking-[0.2em] uppercase">
                         <span class="material-symbols-outlined text-sm">location_on</span>
-                        <span>Inventory Monitoring System</span>
+                        <span>BMN Storage Area</span>
                     </div>
                     <h1 class="text-4xl font-black tracking-tight text-slate-900">
-                        Rak: <span class="text-primary">{{ $nama_rak }}</span>
+                        Ruangan: <span class="text-primary">{{ $nama_rak }}</span>
                     </h1>
                     <p class="text-slate-500 font-medium">
                         Ditemukan <span class="text-primary font-bold">{{ $barang->count() }}</span> unit barang di lokasi ini.
@@ -137,8 +137,8 @@
                             <span class="text-sm font-bold text-slate-700">{{ $b->kategori }}</span>
                         </div>
                         <div class="flex flex-col text-right">
-                            <span class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">Status Rak</span>
-                            <span class="text-sm font-bold text-emerald-600">Terdaftar</span>
+                            <span class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">Status Ruangan</span>
+                            <span class="text-sm font-bold text-emerald-600">{{ $nama_rak }}</span>
                         </div>
                     </div>
 

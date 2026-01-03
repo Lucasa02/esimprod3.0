@@ -16,47 +16,19 @@
                     </svg>
                     <h3 class="font-bold text-lg">Konfigurasi Lokasi</h3>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 gap-6"> {{-- Ubah grid ke 1 kolom agar rapi --}}
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Ruangan Utama <span class="text-red-500">*</span></label>
                         <select id="ruangan_select" name="ruangan_pilihan" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 transition-all">
                             <option value="" disabled selected>-- Pilih Lokasi --</option>
-                            <option value="Mcr" {{ old('ruangan_pilihan') == 'Mcr' ? 'selected' : '' }}>MCR (Master Control Room)</option>
-                            <option value="Studio" {{ old('ruangan_pilihan') == 'Studio' ? 'selected' : '' }}>Studio</option>
+                            @foreach($ruangans as $item)
+                                <option value="{{ $item->nama_ruangan }}" {{ old('ruangan_pilihan') == $item->nama_ruangan ? 'selected' : '' }}>
+                                    {{ $item->nama_ruangan }}
+                                </option>
+                            @endforeach
                         </select>
                         @error('ruangan_pilihan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
-
-                    {{-- Container Detail Studio --}}
-                    <div id="sub_lokasi_container" class="{{ old('ruangan_pilihan') == 'Studio' ? '' : 'hidden' }}">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Detail Studio</label>
-                        <select name="detail_lokasi" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 transition-all">
-                            <option value="" disabled selected>-- Pilih Studio --</option>
-                            <option value="Studio 1" {{ old('detail_lokasi') == 'Studio 1' ? 'selected' : '' }}>Studio 1</option>
-                            <option value="Studio 2" {{ old('detail_lokasi') == 'Studio 2' ? 'selected' : '' }}>Studio 2</option>
-                        </select>
-                    </div>
-
-                    {{-- Container Rak MCR --}}
-            <div id="rak_mcr_container" class="{{ old('ruangan_pilihan') == 'Mcr' ? '' : 'hidden' }} space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Rak (MCR)</label>
-                    <select id="rak_select" name="rak_pilihan" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 transition-all">
-                        <option value="" disabled selected>-- Pilih Nomor Rak --</option>
-                        @for ($i = 1; $i <= 10; $i++)
-                            <option value="Rak {{ $i }}" {{ old('rak_pilihan') == "Rak $i" ? 'selected' : '' }}>Rak {{ $i }}</option>
-                        @endfor
-                        <option value="Lainnya" {{ old('rak_pilihan') == 'Lainnya' ? 'selected' : '' }}>Lainnya / Manual</option>
-                    </select>
-                </div>
-
-                {{-- Input Manual Rak (Muncul jika pilih Lainnya) --}}
-                <div id="custom_rak_container" class="{{ old('rak_pilihan') == 'Lainnya' ? '' : 'hidden' }}">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Masukkan Nama Rak / Server (Contoh: Rak 15)</label>
-                    <input type="text" name="custom_rak" value="{{ old('custom_rak') }}" placeholder="Ketik nomor rak di sini..." 
-                        class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
-                </div>
-            </div>
                 </div>
             </div>
             @endif
@@ -74,14 +46,22 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Kategori <span class="text-red-500">*</span></label>
-                        <input type="text" name="kategori" value="{{ old('kategori') }}" placeholder="Elektronik / Alat Studio" class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" required>
+                        <select name="kategori" class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" required>
+                            <option value="" disabled selected>-- Pilih Kategori --</option>
+                            @foreach($kategoris as $kat)
+                                <option value="{{ $kat->nama_kategori }}" {{ old('kategori') == $kat->nama_kategori ? 'selected' : '' }}>
+                                    {{ $kat->nama_kategori }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('kategori') <small class="text-red-500">{{ $message }}</small> @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nomor Seri (S/N)</label>
                         <input type="text" name="nomor_seri" value="{{ old('nomor_seri') }}" placeholder="Masukkan S/N jika ada" class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Merk / Brand</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Merk</label>
                         <input type="text" name="merk" value="{{ old('merk') }}" placeholder="Contoh: Sony, Panasonic, dll" class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
                     </div>
                     <div>
@@ -100,23 +80,42 @@
                 <div class="bg-gray-50 px-6 py-4 border-b">
                     <h3 class="font-bold text-gray-800">Spesifikasi & Kondisi</h3>
                 </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {{-- Jumlah Unit --}}
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Jumlah Unit <span class="text-red-500">*</span></label>
                         <input type="number" name="jumlah" value="{{ old('jumlah') }}" min="1" class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" required>
+                        @error('jumlah') <small class="text-red-500">{{ $message }}</small> @enderror
                     </div>
+
+                    {{-- Persentase Kondisi --}}
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Persentase Kondisi (%) <span class="text-red-500">*</span></label>
-                        <div class="relative mt-1">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Kondisi (%) <span class="text-red-500">*</span></label>
+                        <div class="relative">
                             <input type="number" name="persentase_kondisi" value="{{ old('persentase_kondisi') }}" min="0" max="100" class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 pr-10" required>
                             <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400">%</span>
                         </div>
+                        @error('persentase_kondisi') <small class="text-red-500">{{ $message }}</small> @enderror
                     </div>
+
+                    {{-- Tanggal Perolehan --}}
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Tahun Pengadaan</label>
-                        <input type="number" name="tahun_pengadaan" value="{{ old('tahun_pengadaan', date('Y')) }}" class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Tanggal Perolehan</label>
+                        <input type="date" name="tanggal_perolehan" value="{{ old('tanggal_perolehan', date('Y-m-d')) }}" class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                        @error('tanggal_perolehan') <small class="text-red-500">{{ $message }}</small> @enderror
                     </div>
-                    <div class="md:col-span-3">
+
+                    {{-- Nilai Perolehan --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nilai Perolehan (Rp)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-medium">Rp</span>
+                            <input type="number" name="nilai_perolehan" value="{{ old('nilai_perolehan') }}" placeholder="0" class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 pl-10">
+                        </div>
+                        @error('nilai_perolehan') <small class="text-red-500">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="md:col-span-2 lg:col-span-4">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Asal Pengadaan / Peruntukan</label>
                         <input type="text" name="asal_pengadaan" value="{{ old('asal_pengadaan') }}" placeholder="Contoh: Hibah APBN 2024 - Untuk Produksi Berita" class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
                     </div>
@@ -174,7 +173,7 @@
             {{-- ACTION BUTTONS --}}
             <div class="flex flex-col-reverse md:flex-row gap-4 justify-end pt-6 border-t">
                 @if($ruangan == 'general')
-                    <a href="{{ route('barang.index') }}" class="inline-flex justify-center items-center px-6 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <a href="{{ route('barang.bmn_index') }}" class="inline-flex justify-center items-center px-6 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                         Batal
                     </a>
                 @else
@@ -217,41 +216,6 @@ function setupPreview(inputId, previewImgId, containerId, labelId) {
 
 setupPreview('foto', 'photoPreview', 'previewContainer', 'fotoLabel');
 setupPreview('fotoPosisi', 'fotoPosisiPreview', 'posisiPreviewContainer', 'posisiLabel');
-
-document.addEventListener('DOMContentLoaded', function() {
-    const ruanganSelect = document.getElementById('ruangan_select');
-    const subLokasiContainer = document.getElementById('sub_lokasi_container');
-    const rakMcrContainer = document.getElementById('rak_mcr_container');
-    
-    // Dropdown Rak & Input Manual
-    const rakSelect = document.getElementById('rak_select');
-    const customRakContainer = document.getElementById('custom_rak_container');
-
-    if(ruanganSelect) {
-        ruanganSelect.addEventListener('change', function() {
-            subLokasiContainer.classList.add('hidden');
-            rakMcrContainer.classList.add('hidden');
-
-            if (this.value === 'Studio') {
-                subLokasiContainer.classList.remove('hidden');
-            } else if (this.value === 'Mcr') {
-                rakMcrContainer.classList.remove('hidden');
-            }
-        });
-    }
-
-    // Logic untuk memunculkan input manual Rak 11-20 dst
-    if(rakSelect) {
-        rakSelect.addEventListener('change', function() {
-            if (this.value === 'Lainnya') {
-                customRakContainer.classList.remove('hidden');
-                customRakContainer.classList.add('animate-fade-in-down');
-            } else {
-                customRakContainer.classList.add('hidden');
-            }
-        });
-    }
-});
 </script>
 
 <style>

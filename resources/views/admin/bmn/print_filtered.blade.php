@@ -1,104 +1,171 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ $title ?? 'Laporan Barang BMN' }}</title>
-  <style>
-    * { font-family: "Calibri", Arial, sans-serif; box-sizing: border-box; }
-    body { margin: 20px; color: #111827; background-color: #fff; }
-    .header { display: flex; justify-content: space-between; align-items: center;
-              border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px; }
-    .header-left h2 { margin: 0; font-size: 24px; color: #1e3a8a; }
-    .header-left p { margin: 3px 0; font-size: 14px; }
-    .header-right { text-align: right; }
-    .header-right img { width: 90px; height: auto; }
-    .header-right small { display: block; margin-top: 4px; color: #6b7280; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ $title ?? 'Laporan Barang BMN' }}</title>
+    <style>
+        /* Margin diperkecil sedikit untuk memastikan konten fit di satu halaman */
+        @page { size: a4 landscape; margin: 0.8cm; }
+        * { font-family: "Calibri", Arial, sans-serif; box-sizing: border-box; }
+        body { margin: 0; color: #111827; background-color: #fff; font-size: 11px; }
+        
+        /* CSS untuk Cover */
+        .cover-page {
+            width: 100%;
+            text-align: center;
+            display: block;
+            padding-top: 50px;
+        }
+        .cover-title {
+            font-size: 32pt;
+            font-weight: bold;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+        .cover-subtitle {
+            font-size: 18pt;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+        .logo-container-cover {
+            margin: 50px 0;
+        }
+        .logo-large {
+            width: 300px;
+            height: auto;
+        }
+        .cover-footer {
+            margin-top: 60px;
+            font-size: 16pt;
+            font-weight: bold;
+            line-height: 1.5;
+            text-transform: uppercase;
+        }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
-    th { background-color: #2563eb; color: #fff; padding: 6px; text-align: center; border: 1px solid #ddd; }
-    td { border: 1px solid #ddd; padding: 6px; text-align: center; vertical-align: middle; }
-    tr:nth-child(even) { background-color: #f9fafb; }
-    .foto img { width: 55px; height: 55px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc; }
-    .footer { margin-top: 30px; text-align: right; font-size: 12px; color: #6b7280; }
-  </style>
+        .page-break {
+            page-break-before: always;
+            clear: both;
+        }
+
+        /* Styling Table Data & Header */
+        .header-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb; 
+        }
+        .header-table td { border: none; vertical-align: middle; padding-bottom: 10px; }
+        .header-left { text-align: left; width: 50%; }
+        .header-right { text-align: right; width: 50%; }
+        
+        /* Logo TVRI di header tetap 45px */
+        .logo-img { height: 45px; width: auto; }
+        
+        /* Class khusus untuk mengecilkan logo Esimprod (30px) */
+        .logo-esimprod { height: 30px; width: auto; }
+
+        table.data-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        th { 
+            background-color: #1b365d; 
+            color: #ffffff; 
+            padding: 10px 4px; 
+            text-align: center; 
+            border: 1px solid #000; 
+            font-weight: bold; 
+            font-size: 10px; 
+            text-transform: uppercase;
+        }
+        .data-table td { border: 1px solid #000; padding: 6px 4px; text-align: center; vertical-align: middle; word-wrap: break-word; font-size: 10px; }
+        .col-no { width: 25px; }        /* Diperkecil dari 30px */
+        .col-kode { width: 85px; }
+        .col-nup { width: 35px; }       /* Diperkecil sedikit dari 40px */
+        .col-nama { width: 160px; }     /* Dikurangi sedikit untuk memberi ruang ke Keterangan */
+        .col-merk { width: 90px; }      /* Dikurangi sedikit */
+        .col-kondisi { width: 65px; }   
+        .col-tgl { width: 80px; }
+        .col-nilai { width: 95px; text-align: right !important; }
+        .col-ruang { width: 90px; }     /* Dikurangi sedikit */
+        .col-ket { width: 190px; }
+    </style>
 </head>
-
 <body>
-  <div class="header">
-    <div class="header-left">
-      <h2>Laporan Data Barang BMN</h2>
-      <p>Ruangan: {{ strtoupper($ruangan ?? '-') }}</p>
-      <p>Periode: {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</p>
-    </div>
-    <div class="header-right">
-      @php $logoPath = public_path('img/assets/esimprod_logo.png'); @endphp
-      @if(file_exists($logoPath))
-        <img src="data:image/png;base64,{{ base64_encode(file_get_contents($logoPath)) }}" alt="Logo">
-      @endif
-      <small>ESIMPROD v3.0</small>
-    </div>
-  </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>Kode Barang</th>
-        <th>Nama Barang</th>
-        <th>Jumlah barang</th>
-        <th>Kategori</th>
-        <th>Merk</th>
-        <th>Tahun Perolehan</th>
-        <th>Asal Pengadaan</th>
-        <th>posisi barang</th>
-        <th>Kondisi (%)</th>
-        <th>Status</th>
-        <th>Keterangan</th>
-        <th>Foto</th>
-      </tr>
-    </thead>
-    <tbody>
-      @forelse ($data as $b)
-        <tr>
-          <td>{{ $loop->iteration }}</td>
-          
-          <td>{{ $b->kode_barang }}</td>
-          <td>{{ $b->nama_barang }}</td>
-          <td>{{ $b->jumlah ?? '-' }}</td>
-          <td>{{ $b->kategori ?? '-' }}</td>
-          <td>{{ $b->merk ?? '-' }}</td>
-          <td>{{ $b->tahun_pengadaan ?? '-' }}</td>
-          <td>{{ $b->asal_pengadaan ?? '-' }}</td>
-          <td>{{ $b->posisi ?? '-' }}</td>
-          <td>{{ $b->persentase_kondisi ? $b->persentase_kondisi . '%' : '-' }}</td>
-          
-          <td>
-            @switch($b->kondisi)
-              @case('Sangat Baik') <span>{{ $b->kondisi }}</span> @break
-              @case('Baik') <span>{{ $b->kondisi }}</span> @break
-              @case('Kurang Baik') <span>{{ $b->kondisi }}</span> @break
-              @case('Rusak / Cacat') <span>{{ $b->kondisi }}</span> @break
-              @default <span>-</span>
-            @endswitch
-          </td>
-          <td>{{ $b->catatan ?? '-' }}</td>
-          <td class="foto">
-            @if($b->foto && file_exists(public_path('storage/' . $b->foto)))
-              <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('storage/' . $b->foto))) }}">
-            @else
-              -
+    <div class="cover-page">
+        <div class="cover-title">MASTER ASET</div>
+        <div class="cover-subtitle">
+            TVRI STASIUN KALIMANTAN SELATAN <br>
+            TAHUN {{ date('Y') }}
+        </div>
+
+        <div class="logo-container-cover">
+            @php $logoTvri = public_path('img/assets/logo_tvri_icon.png'); @endphp
+            @if(file_exists($logoTvri))
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents($logoTvri)) }}" class="logo-large">
             @endif
-          </td>
-        </tr>
-      @empty
-        <tr><td colspan="9">Tidak ada data barang untuk ruangan ini.</td></tr>
-      @endforelse
-    </tbody>
-  </table>
+        </div>
 
-  <div class="footer">
-    Dicetak pada {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }}
-  </div>
+        <div class="cover-footer">
+            LEMBAGA PENYIARAN PUBLIK<br>
+            TELEVISI REPUBLIK INDONESIA
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+    
+    <table class="header-table">
+        <tr>
+            <td class="header-left">
+                @if(file_exists($logoTvri))
+                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents($logoTvri)) }}" class="logo-img" alt="Logo TVRI">
+                @endif
+            </td>
+            <td class="header-right">
+                @php $logoEsimprod = public_path('img/assets/esimprod_logo.png'); @endphp
+                @if(file_exists($logoEsimprod))
+                    {{-- Menggunakan class logo-esimprod yang lebih kecil --}}
+                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents($logoEsimprod)) }}" class="logo-esimprod" alt="Logo Esimprod">
+                @endif
+            </td>
+        </tr>
+    </table>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th class="col-no">No</th>
+                <th class="col-kode">Kode Barang</th>
+                <th class="col-nup">NUP</th>
+                <th class="col-nama">Nama Barang</th>
+                <th class="col-merk">Merk</th>
+                <th class="col-kondisi">Kondisi</th>
+                <th class="col-tgl">Tanggal Perolehan</th>
+                <th class="col-nilai">Nilai Perolehan</th>
+                <th class="col-ruang">Lokasi Ruang</th>
+                <th class="col-ket">Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($data as $b)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $b->kode_barang }}</td>
+                    <td>{{ $b->nup }}</td>
+                    <td class="col-nama">{{ $b->nama_barang }}</td>
+                    <td>{{ $b->merk ?? '-' }}</td>
+                    <td>{{ $b->kondisi }}</td>
+                    <td>{{ $b->tanggal_perolehan ? \Carbon\Carbon::parse($b->tanggal_perolehan)->format('Y-m-d') : '-' }}</td>
+                    <td class="col-nilai">{{ number_format($b->nilai_perolehan, 0, ',', '.') }}</td>
+                    <td>{{ $b->ruangan }}</td>
+                    <td>{{ $b->catatan ?? '' }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="10" style="padding: 20px;">Tidak ada data barang BMN untuk ditampilkan.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 </body>
 </html>

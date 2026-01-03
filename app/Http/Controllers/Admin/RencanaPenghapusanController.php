@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PerawatanInventaris;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -76,5 +77,23 @@ class RencanaPenghapusanController extends Controller
         $rencana->delete();
 
         return back()->with('success', 'Barang berhasil dipindahkan ke data penghapusan.');
+    }
+
+    /**
+     * CETAK PDF
+     */
+    public function cetakPdf()
+    {
+        $data = PerawatanInventaris::with('barang')
+            ->where('jenis_perawatan', 'rencana_penghapusan')
+            ->latest()
+            ->get();
+
+        $pdf = Pdf::loadView('admin.rencana_penghapusan.pdf', compact('data'));
+
+        // Setup ukuran kertas F4 atau A4 Landscape
+        $pdf->setPaper('a4', 'landscape');
+
+        return $pdf->stream('laporan-rencana-penghapusan.pdf');
     }
 }

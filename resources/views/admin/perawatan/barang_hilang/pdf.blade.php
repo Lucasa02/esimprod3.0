@@ -3,59 +3,63 @@
 <head>
     <meta charset="utf-8">
     <title>Laporan Barang Hilang</title>
-
     <style>
-        body { font-family: sans-serif; font-size: 12px; }
-
-        /* Logo & Version */
-        .logo-box {
-            text-align: right;
-            font-size: 12px;
+        body { font-family: sans-serif; font-size: 12px; margin: 0; padding: 0; }
+        
+        /* Header Style */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border: none;
+        }
+        .header-table td {
+            border: none;
+            vertical-align: middle;
         }
 
-        table { 
+        /* Table Content Style */
+        .data-table { 
             width: 100%; 
             border-collapse: collapse; 
-            margin-top: 20px; 
+            margin-top: 10px; 
         }
-
-        th { 
-            background: #1b365d; 
+        .data-table th { 
+            background-color: #1b356d; /* Warna biru sesuai permintaan */
             color: white; 
+            text-transform: uppercase;
+            font-size: 11px;
         }
-
-        th, td { 
+        .data-table th, .data-table td { 
             border: 1px solid #000; 
-            padding: 6px; 
+            padding: 8px; 
             text-align: left; 
         }
+        .text-center { text-align: center; }
     </style>
 </head>
-
 <body>
 
-    <!-- HEADER -->
-    <table width="100%" style="margin-bottom: 20px;">
-    <tr>
-        <td style="vertical-align: middle;">
-            <h2 style="font-size:20px; margin:0; color:#1b365d; font-weight:bold;">
-                Laporan Barang Hilang
-            </h2>
-        </td>
+    <table class="header-table">
+        <tr>
+            <td width="20%">
+                <img src="{{ public_path('img/assets/logo_tvri_icon.png') }}" alt="TVRI" width="80">
+            </td>
+            <td width="60%" class="text-center">
+                <h2 style="margin:0; color:#000000; font-weight:bold;">LAPORAN BARANG HILANG</h2>
+            </td>
+            <td width="20%" style="text-align:right;">
+                <img src="{{ public_path('img/assets/esimprod_logo.png') }}" alt="Esimprod" width="100">
+            </td>
+        </tr>
+    </table>
 
-        <td style="text-align:right; vertical-align: middle;">
-            <img src="{{ public_path('img/assets/esimprod_logo.png') }}" 
-                 alt="Esimprod" width="100">
-            <div style="font-size:12px;">Version 2.2</div>
-        </td>
-    </tr>
-</table>
+    <hr style="border: 1px solid #1b356d;">
 
-    <!-- TABLE -->
-    <table>
+    <table class="data-table">
         <thead>
             <tr>
-                <th>No</th>
+                <th class="text-center">No</th>
                 <th>Nama Barang</th>
                 <th>Kode Barang</th>
                 <th>Nomor Seri</th>
@@ -63,16 +67,15 @@
                 <th>Jenis Barang</th>
             </tr>
         </thead>
-
         <tbody>
             @foreach($barang as $index => $b)
             <tr>
-                <td>{{ $index + 1 }}</td>
+                <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ $b->nama_barang }}</td>
                 <td>{{ $b->kode_barang }}</td>
                 <td>{{ $b->nomor_seri }}</td>
                 <td>{{ $b->merk }}</td>
-                <td>{{ $b->jenisBarang->jenis_barang }}</td>
+                <td>{{ $b->jenisBarang->jenis_barang ?? '-' }}</td>
             </tr>
             @endforeach
         </tbody>

@@ -155,7 +155,7 @@ Barang::create([
 
         $barang->update($validated);
 
-        return redirect()->route('studio2.index')->with('success', 'Data berhasil diperbarui!');
+        return redirect()->route('barang.bmn_index')->with('success', 'Data berhasil diperbarui!');
     }
 
     /**
@@ -166,7 +166,7 @@ Barang::create([
         $barang = Barang::findOrFail($id);
         if ($barang->foto) Storage::disk('public')->delete($barang->foto);
         $barang->delete();
-        return redirect()->route('studio2.index')->with('success', 'Data berhasil dihapus!');
+        return redirect()->route('barang.bmn_index')->with('success', 'Data berhasil dihapus!');
     }
 
     /**

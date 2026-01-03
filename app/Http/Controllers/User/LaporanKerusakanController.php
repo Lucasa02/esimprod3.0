@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\BmnBarang;
 use App\Models\LaporanKerusakan;
+use App\Models\BmnJenisKerusakan;
 use Illuminate\Http\Request;
 
 class LaporanKerusakanController extends Controller
@@ -13,7 +14,11 @@ class LaporanKerusakanController extends Controller
     {
         $barang = BmnBarang::findOrFail($id);
 
-        return view('user.lapor_kerusakan', compact('barang'));
+        // Pastikan variabel ini diambil dari database
+        $jenis_kerusakan = BmnJenisKerusakan::all();
+
+        // Sesuaikan path view dengan folder: user/inventaris/lapor_kerusakan.blade.php
+        return view('user.inventaris.lapor_kerusakan', compact('barang', 'jenis_kerusakan'));
     }
 
     public function store(Request $request)
@@ -21,11 +26,12 @@ class LaporanKerusakanController extends Controller
         $request->validate([
             'barang_id' => 'required',
             'jenis_kerusakan' => 'required',
-            'deskripsi' => 'nullable',
-            'foto' => 'nullable|image|max:4096'
+            'deskripsi' => 'required',
+            'foto' => 'nullable|image|max:4096' // Validasi untuk input bernama 'foto'
         ]);
 
         $foto = null;
+        // Sesuaikan name input dari Blade (kita akan ubah di Blade menjadi 'foto')
         if ($request->hasFile('foto')) {
             $foto = $request->file('foto')->store('laporan/kerusakan', 'public');
         }

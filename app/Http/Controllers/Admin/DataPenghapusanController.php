@@ -9,64 +9,31 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class DataPenghapusanController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = PerawatanInventaris::with('barang')
-            ->where('jenis_perawatan', 'penghapusan');
+        // Mengambil semua data penghapusan tanpa filter request
+        $data = PerawatanInventaris::with('barang')
+            ->where('jenis_perawatan', 'penghapusan')
+            ->latest()
+            ->get();
 
-        // Filter Nama Barang
-        if ($request->nama_barang) {
-            $query->whereHas('barang', function ($q) use ($request) {
-                $q->where('nama_barang', 'LIKE', "%" . $request->nama_barang . "%");
-            });
-        }
-
-        // Filter Kode Barang
-        if ($request->kode_barang) {
-            $query->whereHas('barang', function ($q) use ($request) {
-                $q->where('kode_barang', 'LIKE', "%" . $request->kode_barang . "%");
-            });
-        }
-
-        // Filter Tahun
-        if ($request->tahun) {
-            $query->whereYear('created_at', $request->tahun);
-        }
-
-        $data = $query->get();
         $title = "Data Penghapusan";
         return view('admin.data_penghapusan.index', compact('data', 'title'));
     }
 
     // ===============================
-    // CETAK PDF
+    // CETAK PDF (Preview Mode)
     // ===============================
-    public function cetakPdf(Request $request)
+    public function cetakPdf()
     {
-        $query = PerawatanInventaris::with('barang')
-            ->where('jenis_perawatan', 'penghapusan');
-
-        if ($request->nama_barang) {
-            $query->whereHas('barang', function ($q) use ($request) {
-                $q->where('nama_barang', 'LIKE', "%" . $request->nama_barang . "%");
-            });
-        }
-
-        if ($request->kode_barang) {
-            $query->whereHas('barang', function ($q) use ($request) {
-                $q->where('kode_barang', 'LIKE', "%" . $request->kode_barang . "%");
-            });
-        }
-
-        if ($request->tahun) {
-            $query->whereYear('created_at', $request->tahun);
-        }
-
-        $data = $query->get();
+        $data = PerawatanInventaris::with('barang')
+            ->where('jenis_perawatan', 'penghapusan')
+            ->get();
 
         $pdf = Pdf::loadView('admin.data_penghapusan.pdf', compact('data'))
             ->setPaper('A4', 'portrait');
 
-        return $pdf->download('data_penghapusan.pdf');
+        // Menggunakan stream() alih-alih download() agar terbuka di tab baru (preview)
+        return $pdf->stream('data_penghapusan.pdf');
     }
 }

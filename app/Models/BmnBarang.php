@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\PerawatanInventaris;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -26,7 +27,8 @@ class BmnBarang extends Model
         'foto',
         'qr_code',
         'ruangan',
-        'tahun_pengadaan',
+        'tanggal_perolehan', // Tambahkan ini
+        'nilai_perolehan',
         'asal_pengadaan',  
         'peruntukan',
         'posisi',
@@ -50,6 +52,11 @@ public function perawatanAktif()
                 ->where('status', '!=', 'selesai')
                 ->latest();
 }
-
+    // Pastikan ini di Model BmnBarang
+    public function perawatanInventaris()
+    {
+        // Jika menggunakan ID (Primary Key)
+        return $this->hasMany(PerawatanInventaris::class, 'barang_id', 'id');
+    }
 
 }

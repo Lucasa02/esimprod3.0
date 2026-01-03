@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Barang;
 use App\Models\BmnBarang;
+use App\Models\BmnRuangan;
 use App\Models\JenisBarang;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -18,85 +19,78 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class BarangController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     * UPDATED: Menggabungkan Master & BMN + Search Logic
+     * 1. Fungsi Index - Khusus Mengambil Data Master
      */
     public function index(Request $request)
     {
         $search = $request->input('search');
         $filter = $request->input('filter', 'nama_barang');
-        
-        // --- 1. Query MASTER ---
-        // Load relasi jenisBarang agar tidak N+1 Problem
+
+        // Query khusus Data Master (Model: Barang)
         $masterQuery = Barang::with('jenisBarang')
             ->whereIn('status', ['tersedia', 'perbaikan', 'ditemukan']);
-            
-        // --- 2. Query BMN ---
-        $bmnQuery = BmnBarang::query();
 
-        // --- 3. Terapkan Filter ---
         if ($search) {
             if ($filter == 'nama_barang') {
                 $masterQuery->where('nama_barang', 'like', '%' . $search . '%');
-                $bmnQuery->where('nama_barang', 'like', '%' . $search . '%');
-            } 
-            elseif ($filter == 'kode_barang') {
+            } elseif ($filter == 'kode_barang') {
                 $masterQuery->where('kode_barang', 'like', '%' . $search . '%');
-                $bmnQuery->where('kode_barang', 'like', '%' . $search . '%');
-            }
-            elseif ($filter == 'kategori_data') {
-                // Filter logika: Jika user ketik 'master', kosongkan BMN. Jika 'bmn', kosongkan Master.
-                if (stripos('master', $search) !== false) {
-                    $bmnQuery->where('id', 0); // Force empty BMN
-                } elseif (stripos('bmn', $search) !== false) {
-                    $masterQuery->where('id', 0); // Force empty Master
-                }
-            }
-            elseif ($filter == 'ruangan') {
-                // Master tidak punya ruangan, jadi kosongkan master
-                $masterQuery->where('id', 0);
-                $bmnQuery->where('ruangan', 'like', '%' . $search . '%');
-            }
-            // Tambahan: Filter Status/Kondisi jika diperlukan
-            elseif ($filter == 'status') {
-                 // Sederhana: cari di field status master atau kondisi BMN
-                 $masterQuery->where('status', 'like', '%' . $search . '%');
-                 $bmnQuery->where('kondisi', 'like', '%' . $search . '%');
+            } elseif ($filter == 'nomor_seri') {
+                $masterQuery->where('nomor_seri', 'like', '%' . $search . '%');
+            } elseif ($filter == 'jenis_barang') {
+                // Filter berdasarkan nama jenis_barang di tabel relasi
+                $masterQuery->whereHas('jenisBarang', function ($q) use ($search) {
+                    $q->where('jenis_barang', 'like', '%' . $search . '%');
+                });
             }
         }
 
-        // --- 4. Eksekusi Query ---
-        $masterResults = $masterQuery->orderBy('created_at', 'DESC')->get();
-        $bmnResults = $bmnQuery->orderBy('created_at', 'DESC')->get();
+        $barang = $masterQuery->orderBy('created_at', 'DESC')->paginate(10);
 
-        // --- 5. Gabungkan Hasil (Merge) ---
-        $merged = $masterResults->concat($bmnResults);
-        
-        // Sorting gabungan berdasarkan created_at terbaru
-        $merged = $merged->sortByDesc('created_at');
+        return view('admin.barang.index', [
+            'title' => 'Data Barang Master',
+            'barang' => $barang,
+        ]);
+    }
 
-        // --- 6. Manual Pagination Logic ---
-        $page = $request->input('page', 1);
-        $perPage = 10;
-        
-        // Slice koleksi sesuai halaman
-        $items = $merged->slice(($page - 1) * $perPage, $perPage)->values();
+    public function bmnIndex(Request $request)
+    {
+        $search = $request->input('search');
+        $filter = $request->input('filter', 'nama_barang');
+        // Tambahkan variabel untuk menangkap filter ruangan
+        $ruangan_filter = $request->input('ruangan_filter');
 
-        // Buat objek Paginator baru
-        $paginatedItems = new LengthAwarePaginator(
-            $items,
-            $merged->count(),
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
+        $list_ruangan = BmnRuangan::orderBy('nama_ruangan', 'asc')->get();
 
-        $data = [
-            'title' => 'Semua Barang',
-            'barang' => $paginatedItems,
-        ];
+        $bmnQuery = BmnBarang::query()
+            ->whereDoesntHave('perawatanInventaris', function ($q) {
+                // Cukup filter jenisnya saja, biarkan statusnya apa pun
+                $q->where('jenis_perawatan', 'penghapusan');
+            });
+        // Logika Filter Ruangan
+        if ($ruangan_filter) {
+            $bmnQuery->where('ruangan', $ruangan_filter);
+        }
 
-        return view('admin.barang.index', $data);
+        // Logika Pencarian yang sudah ada
+        if ($search) {
+            if ($filter == 'nama_barang') {
+                $bmnQuery->where('nama_barang', 'like', '%' . $search . '%');
+            } elseif ($filter == 'ruangan') {
+                $bmnQuery->where('ruangan', 'like', '%' . $search . '%');
+            } elseif ($filter == 'kode_barang') {
+                $bmnQuery->where('kode_barang', 'like', '%' . $search . '%');
+            }
+        }
+
+        $barang = $bmnQuery->orderBy('created_at', 'DESC')->paginate(10);
+
+        return view('admin.barang.index_bmn', [
+            'title' => 'Data Barang BMN',
+            'barang' => $barang,
+            'list_ruangan' => $list_ruangan,
+            'ruangan_filter' => $ruangan_filter, // Kirim status filter kembali ke view
+        ]);
     }
 
     /**
@@ -114,7 +108,6 @@ class BarangController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     * (LOGIKA ASLI DIPERTAHANKAN)
      */
     public function store(Request $request)
     {
@@ -136,7 +129,7 @@ class BarangController extends Controller
             'limit.numeric' => 'Limit harus berupa angka.',
             'foto.mimes' => 'File harus dalam format jpg, jpeg, png.',
         ]);
-        
+
         $kode_barang = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 12);
         $qrCode = QrCode::format('svg')->size(200)->generate($kode_barang);
         $qrCodeFileName = time() . '_qr.svg';
@@ -146,19 +139,15 @@ class BarangController extends Controller
             $file = $request->file('foto');
             $filename = time() . '.' . $file->getClientOriginalExtension();
 
-            // 🧠 Baca file dan ubah ke ukuran seragam 500x500 (Intervention Image V3)
             $manager = new ImageManager(new Driver());
             $image = $manager->read($file);
 
-            // Resize tanpa merusak rasio, lalu pasang di canvas 500x500 dengan background putih
             $image->scaleDown(500, 500);
             $canvas = $manager->create(500, 500)->fill('#ffffff');
             $canvas->place($image, 'center');
 
-            // Kompres gambar ke kualitas 80
             $encoded = $canvas->encodeByExtension($file->getClientOriginalExtension(), quality: 80);
 
-            // Simpan ke storage
             Storage::disk('public')->put('uploads/foto_barang/' . $filename, $encoded);
             $data['foto'] = $filename;
         } else {
@@ -213,7 +202,6 @@ class BarangController extends Controller
 
     /**
      * Update the specified resource in storage.
-     * (LOGIKA ASLI DIPERTAHANKAN)
      */
     public function update(Request $request, string $uuid)
     {
@@ -237,12 +225,11 @@ class BarangController extends Controller
 
         $barang = Barang::where('uuid', $uuid)->firstOrFail();
         $filename = $barang->foto;
-        
+
         if ($request->hasFile('foto')) {
             $file = $request->file('foto');
             $filename = time() . '.' . $file->getClientOriginalExtension();
 
-            // 🧠 Image Processing V3
             $manager = new ImageManager(new Driver());
             $image = $manager->read($file);
 
@@ -253,12 +240,9 @@ class BarangController extends Controller
             $encoded = $canvas->encodeByExtension($file->getClientOriginalExtension(), quality: 80);
 
             Storage::disk('public')->put('uploads/foto_barang/' . $filename, $encoded);
-            $data['foto'] = $filename;
-        } else {
-            $data['foto'] = 'default.jpg';
         }
 
-        Barang::where('uuid', $uuid)->firstOrFail()->update([
+        $barang->update([
             'nama_barang' => $request->nama_barang,
             'nomor_seri' => $request->nomor_seri,
             'merk' => $request->merk,
@@ -277,89 +261,97 @@ class BarangController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     * (LOGIKA ASLI DIPERTAHANKAN)
      */
     public function destroy(Request $request, string $uuid)
     {
         $barang = Barang::where('uuid', $uuid)->first();
         if ($barang) {
-
             if ($barang->qr_code) {
                 Storage::disk('public')->delete('uploads/qr_codes_barang/' . $barang->qr_code);
             }
-
             if ($barang->foto && $barang->foto !== 'default.jpg') {
                 Storage::disk('public')->delete('uploads/foto_barang/' . $barang->foto);
             }
-
             $barang->delete();
             notify()->success('Barang Berhasil Dihapus');
             return redirect()->route('barang.index', ['page' => $request->page]);
         }
     }
-    
-    // --- FITUR CETAK DATA (PDF) - DIPERBARUI ---
+
+    /**
+     * Fitur Cetak Data (PDF)
+     */
+    /**
+     * Fitur Cetak Data (PDF)
+     */
     public function printBarang(Request $request)
     {
         ini_set('memory_limit', '-1');
         set_time_limit(0);
-
-        $kategori = $request->input('kategori', 'all'); // master, bmn, all
-        $ruangan = $request->input('ruangan', 'all');   // all, MCR, Studio 1, dll
-
-        $collection = collect();
-
-        // 1. Ambil Data Master
-        if ($kategori == 'all' || $kategori == 'master') {
-            $master = Barang::with('jenisBarang')->orderBy('nama_barang', 'ASC')->get();
-            $collection = $collection->concat($master);
-        }
-
-        // 2. Ambil Data BMN
-        if ($kategori == 'all' || $kategori == 'bmn') {
-            $bmnQuery = BmnBarang::query();
-            
-            // Filter ruangan hanya jika kategori BMN dipilih secara spesifik
-            if ($kategori == 'bmn' && $ruangan != 'all') {
-                $bmnQuery->where('ruangan', 'like', $ruangan . '%');
-            }
-
-            $bmn = $bmnQuery->orderBy('nama_barang', 'ASC')->get();
-            $collection = $collection->concat($bmn);
-        }
-
-        if ($collection->isEmpty()) {
-            notify()->error('Data barang tidak ditemukan untuk kriteria cetak ini.');
-            return redirect()->back();
-        }
-
-        $data = [
-            'barang' => $collection,
-            'filter_info' => strtoupper($kategori) . ($kategori == 'bmn' ? ' - ' . strtoupper($ruangan) : ''),
-        ];
-
-        $pdf = Pdf::loadView('admin.barang.barang_pdf', $data)
-            ->setPaper('a4', 'landscape');
-
-        return $pdf->stream('Laporan-Barang-' . time() . '.pdf');
-    }
-
-    // --- FITUR CETAK QR (PDF) - DIPERBARUI ---
-    public function printQrCode(Request $request)
-    {
-        ini_set('memory_limit', '-1');
 
         $kategori = $request->input('kategori', 'all');
         $ruangan = $request->input('ruangan', 'all');
 
         $collection = collect();
 
-        // 1. Master
+        // Ambil Data Master jika kategori 'all' atau 'master'
+        if ($kategori == 'all' || $kategori == 'master') {
+            $master = Barang::with('jenisBarang')->orderBy('nama_barang', 'ASC')->get();
+            $collection = $collection->concat($master);
+        }
+
+        // Ambil Data BMN jika kategori 'all' atau 'bmn'
+        if ($kategori == 'all' || $kategori == 'bmn') {
+            $bmnQuery = BmnBarang::query();
+            if ($ruangan != 'all') {
+                $bmnQuery->where('ruangan', 'like', $ruangan . '%');
+            }
+            $bmn = $bmnQuery->orderBy('nama_barang', 'ASC')->get();
+            $collection = $collection->concat($bmn);
+        }
+
+        if ($collection->isEmpty()) {
+            notify()->error('Data barang tidak ditemukan.');
+            return redirect()->back();
+        }
+
+        // LOGIKA PEMILIHAN VIEW BERDASARKAN KATEGORI
+        if ($kategori == 'bmn') {
+            // Jika BMN, gunakan print_filtered.blade.php (Pastikan key adalah 'data')
+            $data = [
+                'data'    => $collection,
+                'ruangan' => $ruangan,
+                'title'   => 'Laporan Data Barang BMN'
+            ];
+            $pdf = Pdf::loadView('admin.bmn.print_filtered', $data)->setPaper('a4', 'landscape');
+        } else {
+            // Jika Master (atau all), gunakan barang_pdf.blade.php (Pastikan key adalah 'barang')
+            $data = [
+                'barang'      => $collection,
+                'filter_info' => strtoupper($kategori),
+                'title'       => 'Laporan Data Barang'
+            ];
+            $pdf = Pdf::loadView('admin.barang.barang_pdf', $data)->setPaper('a4', 'landscape');
+        }
+
+        return $pdf->stream('Laporan-Barang-' . time() . '.pdf');
+    }
+
+    /**
+     * Fitur Cetak QR (PDF)
+     */
+    public function printQrCode(Request $request)
+    {
+        ini_set('memory_limit', '-1');
+        $kategori = $request->input('kategori', 'all');
+        $ruangan = $request->input('ruangan', 'all');
+
+        $collection = collect();
+
         if ($kategori == 'all' || $kategori == 'master') {
             $collection = $collection->concat(Barang::get());
         }
 
-        // 2. BMN
         if ($kategori == 'all' || $kategori == 'bmn') {
             $query = BmnBarang::query();
             if ($kategori == 'bmn' && $ruangan != 'all') {
@@ -374,16 +366,16 @@ class BarangController extends Controller
         }
 
         $data['barang'] = $collection;
-
-        $pdf = Pdf::loadView('admin.barang.qrcode_pdf', $data)->setPaper('a4', 'potrait');
+        $pdf = Pdf::loadView('admin.barang.qrcode_pdf', $data)->setPaper('a4', 'portrait');
         return $pdf->stream('QRCode-Barang-' . time() . '.pdf');
     }
 
-    // --- HELPER METHOD ---
+    /**
+     * Helper Method untuk Jenis Barang
+     */
     public function jenisBarang(JenisBarang $jenisBarang)
     {
         $barang = $jenisBarang->barang()->with('jenisBarang')->paginate(5);
-
         $data = [
             'title' => 'Jenis Barang : ' . $jenisBarang->jenis_barang,
             'barang' => $barang,
@@ -393,48 +385,30 @@ class BarangController extends Controller
     }
 
     /**
-     * Cetak QR Code khusus untuk Rak (MCR)
+     * Fitur Cetak QR Khusus Label Ruangan (Pintu)
      */
-    public function printQrRak(Request $request)
+    public function printQrRuangan(Request $request)
     {
-        // Ambil semua ruangan unik yang mengandung kata 'MCR'
-        $racks = BmnBarang::where('ruangan', 'like', 'MCR%')
-            ->select('ruangan')
-            ->distinct()
-            ->get();
+        $ruanganNama = $request->input('ruangan');
 
-        if ($racks->isEmpty()) {
-            notify()->error('Tidak ada data Rak MCR ditemukan.');
+        // Logika penggabungan: jika 'all', ambil semua. Jika spesifik, filter by name.
+        if ($ruanganNama == 'all') {
+            $ruangans = BmnRuangan::orderBy('nama_ruangan', 'asc')->get();
+        } else {
+            $ruangans = BmnRuangan::where('nama_ruangan', $ruanganNama)->get();
+        }
+
+        if ($ruangans->isEmpty()) {
+            notify()->error('Data ruangan tidak ditemukan.');
             return redirect()->back();
         }
 
         $data = [
-            'racks' => $racks,
-            'title' => 'QR Code Rak MCR'
+            'ruangans' => $ruangans,
+            'title'    => 'QR Code Ruangan BMN'
         ];
 
-        $pdf = Pdf::loadView('admin.barang.qrcode_rak_pdf', $data)->setPaper('a4', 'portrait');
-        return $pdf->stream('QRCode-Rak-MCR.pdf');
-    }
-
-    /**
-     * Tampilan saat QR Rak di-scan
-     */
-    public function scanRak($nama_rak)
-    {
-        // Cari semua barang yang berada di ruangan/rak tersebut
-        // Kita gunakan decode karena URL mungkin mengandung spasi (%20)
-        $nama_rak = urldecode($nama_rak);
-
-        $barang = BmnBarang::where('ruangan', $nama_rak)->get();
-
-        if ($barang->isEmpty()) {
-            return "Rak tidak ditemukan atau kosong.";
-        }
-
-        return view('user.inventaris.hasil_scan_rak', [
-            'barang' => $barang,
-            'nama_rak' => $nama_rak
-        ]);
+        $pdf = Pdf::loadView('admin.barang.qrcode_ruangan_pdf', $data)->setPaper('a4', 'portrait');
+        return $pdf->stream('QRCode-Ruangan-' . time() . '.pdf');
     }
 }

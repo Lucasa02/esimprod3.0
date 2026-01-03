@@ -1,156 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Bulanan Penggunaan</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Bulanan Penggunaan</title>
 
-  <style>
-    * { font-family: "DejaVu Sans", sans-serif; box-sizing: border-box; }
-    body { margin: 15px 25px; font-size: 12px; }
+    <style>
+        /* Setup Font & General */
+        * { font-family: "Helvetica", "Arial", sans-serif; box-sizing: border-box; }
+        body { margin: 10px; font-size: 11px; color: #333; line-height: 1.4; }
 
-    h2, h4 { margin: 0; }
-    .header-table { width: 100%; margin-bottom: 15px; }
-    .header-left { font-size: 20px; font-weight: bold; }
-    .header-right { text-align: right; }
+        /* Header Styling */
+        .header-container { width: 100%; border-bottom: 2px solid #1b365d; padding-bottom: 10px; margin-bottom: 20px; }
+        .header-table { width: 100%; border-collapse: collapse; border: none; }
+        .header-table td { border: none; vertical-align: middle; padding: 0; }
+        
+        .header-title { text-align: center; }
+        .header-title h2 { margin: 0; color: #1b365d; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
+        .periode { font-size: 11px; margin-top: 5px; color: #666; }
 
-    .periode { font-size: 13px; margin-top: 5px; color: #333; }
+        /* Table Styling */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        
+        /* Main Table Header */
+        .main-table th {
+            background-color: #1b365d;
+            color: #ffffff;
+            font-size: 10px;
+            padding: 10px 5px;
+            border: 1px solid #1b365d;
+            text-align: center;
+            text-transform: uppercase;
+        }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th {
-      background-color: #2563eb;
-      color: #fff;
-      font-size: 11.5px;
-      padding: 7px;
-      border: 1px solid #ccc;
-      text-align: center;
-      vertical-align: middle;
-    }
-    td {
-      border: 1px solid #ccc;
-      padding: 6px 8px;
-      font-size: 11.5px;
-      vertical-align: top;
-    }
-    tr:nth-child(even) { background-color: #f8fafc; }
+        .main-table td {
+            border: 1px solid #dee2e6;
+            padding: 8px 6px;
+            word-wrap: break-word;
+            vertical-align: middle;
+        }
 
-    .sub-table {
-      width: 98%;
-      margin: 6px auto;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    .sub-table th {
-      background-color: #e0e7ff;
-      color: #000;
-      font-size: 11px;
-      padding: 6px;
-    }
-    .sub-table td {
-      font-size: 10.5px;
-      padding: 5px 6px;
-    }
+        .main-table tr:nth-child(even) { background-color: #fcfcfc; }
 
-    .footer {
-      width: 100%;
-      text-align: right;
-      font-size: 10.5px;
-      color: #555;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 8px 20px;
-      border-top: 1px solid #ccc;
-    }
+        /* Sub-table (Detail Barang) */
+        .sub-table-container { background-color: #f8fafc; padding: 10px !important; }
+        .sub-table {
+            width: 95%;
+            margin: 0 auto;
+            border: 1px solid #cbd5e1;
+            background-color: #ffffff;
+        }
+        .sub-table th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-size: 9px;
+            padding: 5px;
+            border: 1px solid #cbd5e1;
+        }
+        .sub-table td {
+            font-size: 9px;
+            padding: 4px 6px;
+            border: 1px solid #cbd5e1;
+        }
 
-    @page { size: A4 landscape; margin: 15mm 20mm 18mm 20mm; }
-  </style>
+        .text-center { text-align: center; }
+        .badge { font-weight: bold; color: #1b365d; }
+
+        .footer {
+            width: 100%;
+            text-align: right;
+            font-size: 9px;
+            color: #94a3b8;
+            position: fixed;
+            bottom: -10px;
+            left: 0;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+        }
+
+        @page { size: A4 landscape; margin: 15mm 15mm; }
+    </style>
 </head>
 
 <body>
-  {{-- HEADER --}}
-  <table class="header-table">
-    <tr>
-      <td style="width: 60%;">
-        <div class="header-left">Laporan Bulanan Penggunaan</div>
-        <div class="periode">Periode: <strong>{{ $periode }}</strong></div>
-      </td>
-      <td class="header-right">
-        <img src="{{ public_path('img/assets/esimprod_logo.png') }}" alt="Esimprod" width="85">
-        <div style="font-size: 11px;">Version 2.2</div>
-      </td>
-    </tr>
-  </table>
+    {{-- HEADER DENGAN LOGO YANG DISESUAIKAN --}}
+    <div class="header-container">
+        <table class="header-table">
+            <tr>
+                {{-- Logo TVRI Tetap --}}
+                <td style="width: 20%; text-align: left;">
+                    <img src="{{ public_path('img/assets/logo_tvri_icon.png') }}" alt="TVRI" height="45">
+                </td>
+                
+                {{-- Judul Tengah --}}
+                <td style="width: 60%;" class="header-title">
+                    <h2>Laporan Bulanan Penggunaan</h2>
+                    <div class="periode">Periode: <strong>{{ $periode }}</strong></div>
+                </td>
+                
+                {{-- Logo Esimprod Dikecilkan --}}
+                <td style="width: 20%; text-align: right;">
+                    <img src="{{ public_path('img/assets/esimprod_logo.png') }}" alt="Esimprod" height="32">
+                    <div style="font-size: 7px; color: #94a3b8; margin-top: 2px;"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
 
-  {{-- TABEL UTAMA --}}
-  <table>
-    <thead>
-      <tr>
-        <th style="width: 3%;">No</th>
-        <th style="width: 10%;">Kode Penggunaan</th>
-        <th style="width: 10%;">Nomor Penggunaan</th>
-        <th style="width: 13%;">Pengguna</th>
-        <th style="width: 12%;">Peruntukan</th>
-        <th style="width: 10%;">Tgl Pengguna</th>
-        <th style="width: 10%;">Tgl Kembali</th>
-        <th style="width: 10%;">Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      @forelse ($peminjamanBulanan as $key => $p)
-        <tr>
-          <td style="text-align: center;">{{ $key + 1 }}</td>
-          <td>{{ $p->kode_peminjaman }}</td>
-          <td>{{ $p->nomor_peminjaman }}</td>
-          <td>{{ $p->peminjam }}</td>
-          <td>{{ $p->peruntukan->peruntukan ?? '-' }}</td>
-          <td style="text-align: center;">{{ \Carbon\Carbon::parse($p->tanggal_peminjaman)->format('d/m/Y') }}</td>
-          <td style="text-align: center;">{{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d/m/Y') }}</td>
-          <td style="text-align: center;">{{ $p->status }}</td>
-        </tr>
+    {{-- TABEL UTAMA --}}
+    <table class="main-table">
+        <thead>
+            <tr>
+                <th style="width: 30px;">No</th>
+                <th style="width: 85px;">Kode</th>
+                <th style="width: 100px;">No. Penggunaan</th>
+                <th>Pengguna</th>
+                <th>Peruntukan</th>
+                <th style="width: 80px;">Tgl Pinjam</th>
+                <th style="width: 80px;">Tgl Kembali</th>
+                <th style="width: 75px;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($peminjamanBulanan as $key => $p)
+                <tr>
+                    <td class="text-center">{{ $key + 1 }}</td>
+                    <td class="text-center">{{ $p->kode_peminjaman }}</td>
+                    <td>{{ $p->nomor_peminjaman }}</td>
+                    <td style="font-weight: bold;">{{ $p->peminjam }}</td>
+                    <td>{{ $p->peruntukan->peruntukan ?? '-' }}</td>
+                    <td class="text-center">{{ \Carbon\Carbon::parse($p->tanggal_peminjaman)->format('d/m/Y') }}</td>
+                    <td class="text-center">{{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d/m/Y') }}</td>
+                    <td class="text-center"><span class="badge">{{ strtoupper($p->status) }}</span></td>
+                </tr>
 
-        {{-- TABEL DETAIL BARANG --}}
-        @if ($p->detailPeminjaman->count() > 0)
-          <tr>
-            <td colspan="8" style="padding: 0;">
-              <table class="sub-table">
-                <thead>
-                  <tr>
-                    <th style="width: 5%;">No</th>
-                    <th style="width: 15%;">Kode Barang</th>
-                    <th style="width: 35%;">Nama Barang</th>
-                    <th style="width: 20%;">Nomor Seri</th>
-                    <th style="width: 20%;">Jenis Barang</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @foreach ($p->detailPeminjaman as $i => $d)
+                @if ($p->detailPeminjaman->count() > 0)
                     <tr>
-                      <td style="text-align: center;">{{ $i + 1 }}</td>
-                      <td>{{ $d->kode_barang }}</td>
-                      <td>{{ $d->barang->nama_barang ?? 'Tidak Diketahui' }}</td>
-                      <td>{{ $d->barang->nomor_seri ?? '-' }}</td>
-                      <td>{{ $d->barang->jenisBarang->jenis_barang ?? '-' }}</td>
+                        <td colspan="8" class="sub-table-container">
+                            <table class="sub-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 30px;">No</th>
+                                        <th style="width: 100px;">Kode Barang</th>
+                                        <th>Nama Barang</th>
+                                        <th style="width: 120px;">Nomor Seri</th>
+                                        <th style="width: 120px;">Jenis</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($p->detailPeminjaman as $i => $d)
+                                        <tr>
+                                            <td class="text-center">{{ $i + 1 }}</td>
+                                            <td class="text-center">{{ $d->kode_barang }}</td>
+                                            <td>{{ $d->barang->nama_barang ?? 'Tidak Diketahui' }}</td>
+                                            <td>{{ $d->barang->nomor_seri ?? '-' }}</td>
+                                            <td>{{ $d->barang->jenisBarang->jenis_barang ?? '-' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </td>
                     </tr>
-                  @endforeach
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        @endif
+                @endif
+            @empty
+                <tr>
+                    <td colspan="8" class="text-center" style="padding: 20px;">Tidak ada data penggunaan pada periode ini</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 
-      @empty
-        <tr>
-          <td colspan="8" style="text-align: center;">Tidak ada data penggunaan pada periode ini</td>
-        </tr>
-      @endforelse
-    </tbody>
-  </table>
-
-  {{-- FOOTER --}}
-  <div class="footer">
-    Dicetak pada {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }}
-  </div>
+    <div class="footer">
+        Dicetak otomatis oleh Sistem ESIMPROD pada {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }}
+    </div>
 </body>
 </html>

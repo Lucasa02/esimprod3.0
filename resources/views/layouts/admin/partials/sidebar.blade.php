@@ -1,12 +1,19 @@
+<style>
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
 <aside id="logo-sidebar"
   class="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform -translate-x-full bg-tvri_base_color sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700 shadow-xl"
   aria-label="Sidebar">
 
-  {{-- Tambahkan 'overflow-y-auto' di sini agar sidebar bisa di-scroll --}}
-  <div class="h-full px-3 pb-4 overflow-y-auto bg-tvri_base_color dark:bg-gray-800">
+  <div class="h-full px-3 pb-4 overflow-y-auto no-scrollbar bg-tvri_base_color dark:bg-gray-800">
     <ul class="space-y-2 font-medium font-sans">
 
-      {{-- Definisikan class Active dan Inactive agar kodingan lebih rapi --}}
       @php
           $activeClass = 'bg-gray-100 text-tvri_base_color';
           $inactiveClass = 'text-white hover:bg-gray-100 hover:text-tvri_base_color';
@@ -35,15 +42,14 @@
           <i class="fa-solid fa-database"></i>
           <span class="flex-1 ms-3 text-left whitespace-nowrap">Data Master</span>
           <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="m1 1 4 4 4-4" />
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
           </svg>
         </button>
 
-        <ul id="dropdown-example" class="{{ request()->routeIs('barang.*', 'jenis-barang.*', 'peruntukan.*', 'jabatan.*') ? 'block' : 'hidden' }} py-2">
+        <ul id="dropdown-example" class="{{ request()->routeIs('barang.index', 'barang.create', 'barang.edit', 'barang.show', 'jenis-barang.*', 'peruntukan.*', 'jabatan.*') ? 'block' : 'hidden' }} py-2">
           <li>
             <a href="{{ route('barang.index') }}"
-              class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('barang.*') ? $activeClass : $inactiveClass }}">
+              class="flex items-center p-1 pl-9 rounded-lg {{ (request()->routeIs('barang.*') && !request()->routeIs('barang.bmn_index')) ? $activeClass : $inactiveClass }}">
               <i class="fa-solid fa-box text-xs opacity-70 me-2"></i>
               Barang
             </a>
@@ -94,93 +100,138 @@
         </a>
       </li>
 
-      {{-- === PERAWATAN === --}}
-<li>
-    <button type="button"
-        class="flex items-center w-full p-2 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color transition duration-75 group"
-        aria-controls="dropdown-perawatan" 
-        data-collapse-toggle="dropdown-perawatan">
-        <i class="fa-solid fa-screwdriver-wrench"></i>
-        <span class="flex-1 ms-3 text-left whitespace-nowrap">Data Perawatan</span>
-        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+      {{-- === PERAWATAN UMUM === --}}
+      <li>
+        <button type="button"
+            class="flex items-center w-full p-2 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color transition duration-75 group"
+            aria-controls="dropdown-perawatan" 
+            data-collapse-toggle="dropdown-perawatan">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+            <span class="flex-1 ms-3 text-left whitespace-nowrap">Data Perawatan</span>
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+            </svg>
+        </button>
+
+        <ul id="dropdown-perawatan" class="{{ request()->routeIs('perawatan.limit.habis.*', 'perawatan.barang.hilang.*', 'perawatan.barang.rusak.*') ? 'block' : 'hidden' }} py-2 space-y-1">
+            <li>
+                <a href="{{ route('perawatan.limit.habis.index') }}"
+                    class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('perawatan.limit.habis.*') ? $activeClass : $inactiveClass }}">
+                    <i class="fa-solid fa-battery-empty text-xs opacity-70 me-2"></i>
+                    Limit Habis
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('perawatan.barang.hilang.index') }}"
+                    class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('perawatan.barang.hilang.*') ? $activeClass : $inactiveClass }}">
+                    <i class="fa-solid fa-circle-xmark text-xs opacity-70 me-2"></i>
+                    Barang Hilang
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('perawatan.barang.rusak.index') }}"
+                    class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('perawatan.barang.rusak.*') ? $activeClass : $inactiveClass }}">
+                    <i class="fa-solid fa-screwdriver text-xs opacity-70 me-2"></i>
+                    Barang Rusak
+                </a>
+            </li>
+        </ul>
+      </li>
+
+      {{-- === BMN === --}}
+      <div class="flex items-center my-2">
+        <small class="mx-2 text-white opacity-65">BMN</small>
+        <hr class="h-px flex-grow bg-gray-200 border-0 opacity-20">
+      </div>
+
+      {{-- Data Bmn Master --}}
+      <li>
+        <button type="button"
+          class="flex items-center w-full p-2 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color"
+          aria-controls="dropdown-bmn-master" data-collapse-toggle="dropdown-bmn-master">
+          <i class="fa-solid fa-boxes-stacked"></i> 
+          <span class="flex-1 ms-3 text-left whitespace-nowrap">Data BMN</span>
+          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
-        </svg>
-    </button>
+          </svg>
+        </button>
 
-    {{-- Dropdown Utama: Data Perawatan --}}
-    <ul id="dropdown-perawatan" class="{{ request()->routeIs('perawatan.*', 'perawatan_inventaris.*', 'rencana_penghapusan.*', 'admin.laporan-kerusakan.*', 'data_penghapusan.*') ? 'block' : 'hidden' }} py-2 space-y-1">
-        
-        <li>
-            <a href="{{ route('perawatan.limit.habis.index') }}"
-                class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('perawatan.limit.habis.*') ? $activeClass : $inactiveClass }}">
-                <i class="fa-solid fa-battery-empty text-xs opacity-70 me-2"></i>
-                Limit Habis
+        <ul id="dropdown-bmn-master" class="{{ request()->routeIs('barang.bmn_index', 'bmn.ruangan.*', 'bmn.kategori.*', 'bmn.jenis_kerusakan.*') ? 'block' : 'hidden' }} py-2">
+          <li>
+            <a href="{{ route('barang.bmn_index') }}"
+              class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('barang.bmn_index') ? $activeClass : $inactiveClass }}">
+              <i class="fa-solid fa-clipboard-list text-xs opacity-70 me-2"></i>
+              Barang
             </a>
-        </li>
-        <li>
-            <a href="{{ route('perawatan.barang.hilang.index') }}"
-                class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('perawatan.barang.hilang.*') ? $activeClass : $inactiveClass }}">
-                <i class="fa-solid fa-circle-xmark text-xs opacity-70 me-2"></i>
-                Barang Hilang
+          </li>
+          <li>
+            <a href="{{ route('bmn.ruangan.index') }}"
+              class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('bmn.ruangan.*') ? $activeClass : $inactiveClass }}">
+              <i class="fa-solid fa-door-open text-xs opacity-70 me-2"></i>
+              Ruangan
             </a>
-        </li>
-        <li>
-            <a href="{{ route('perawatan.barang.rusak.index') }}"
-                class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('perawatan.barang.rusak.*') ? $activeClass : $inactiveClass }}">
-                <i class="fa-solid fa-screwdriver text-xs opacity-70 me-2"></i>
-                Barang Rusak
+          </li>
+          <li>
+            <a href="{{ route('bmn.kategori.index') }}"
+              class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('bmn.kategori.*') ? $activeClass : $inactiveClass }}">
+              <i class="fa-solid fa-layer-group text-xs opacity-70 me-2"></i>
+              Kategori
             </a>
-        </li>
+          </li>
+          <li>
+            <a href="{{ route('bmn.jenis_kerusakan.index') }}"
+                class="flex items-center p-1 pl-9 rounded-lg {{ request()->routeIs('bmn.jenis_kerusakan.*') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-triangle-exclamation text-xs opacity-70 me-2"></i>
+                Jenis Kerusakan
+            </a>
+          </li>
+        </ul>
+      </li>
 
-        <hr class="my-2 border-gray-600 opacity-30 mx-4"> 
+      {{-- Perawatan Bmn (Pindahan dari Data Perawatan) --}}
+      <li>
+        <button type="button"
+            class="flex items-center w-full p-2 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color transition duration-75 group"
+            aria-controls="dropdown-perawatan-bmn" 
+            data-collapse-toggle="dropdown-perawatan-bmn">
+            <i class="fa-solid fa-hand-holding-medical"></i> {{-- Icon disesuaikan --}}
+            <span class="flex-1 ms-3 text-left whitespace-nowrap">Perawatan BMN</span>
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+            </svg>
+        </button>
 
-        {{-- SUB-DROPDOWN: BMN --}}
-        <li>
-            <button type="button"
-                class="flex items-center w-full p-1 pl-9 text-white rounded-lg hover:bg-gray-100 hover:text-tvri_base_color transition duration-75 group"
-                aria-controls="dropdown-bmn" 
-                data-collapse-toggle="dropdown-bmn">
-                <i class="fa-solid fa-box-archive text-xs opacity-70 me-2"></i>
-                <span class="flex-1 text-left whitespace-nowrap">BMN</span>
-                <svg class="w-3 h-3 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
-                </svg>
-            </button>
-            
-            {{-- Isi Sub-Dropdown BMN --}}
-            <ul id="dropdown-bmn" class="{{ request()->routeIs('perawatan_inventaris.*', 'rencana_penghapusan.*', 'admin.laporan-kerusakan.*', 'data_penghapusan.*') ? 'block' : 'hidden' }} py-2 space-y-1">
-                <li>
-                    <a href="{{ route('perawatan_inventaris.index') }}"
-                        class="flex items-center w-full p-1 pl-9 rounded-lg {{ request()->routeIs('perawatan_inventaris.*') ? $activeClass : $inactiveClass }}">
-                        <i class="fa-solid fa-toolbox text-xs opacity-70 me-2"></i>
-                        Perawatan
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('rencana_penghapusan.index', ['status' => 'pending']) }}"
-                       class="flex items-center w-full p-1 pl-9 rounded-lg {{ request()->routeIs('rencana_penghapusan.*') ? $activeClass : $inactiveClass }}">
-                        <i class="fa-solid fa-trash-arrow-up text-xs opacity-70 me-2"></i>
-                        Rencana Penghapusan
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('data_penghapusan.index') }}"
-                       class="flex items-center w-full p-1 pl-9 rounded-lg {{ request()->routeIs('data_penghapusan.*') ? $activeClass : $inactiveClass }}">
-                        <i class="fa-solid fa-trash-can text-xs opacity-70 me-2"></i>
-                        Data Penghapusan
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.laporan-kerusakan.index') }}"
-                       class="flex items-center w-full p-1 pl-9 rounded-lg {{ request()->routeIs('admin.laporan-kerusakan.*') ? $activeClass : $inactiveClass }}">
-                        <i class="fa-solid fa-triangle-exclamation text-xs opacity-70 me-2"></i>
-                        Laporan Kerusakan
-                    </a>
-                </li>
-            </ul>
-        </li>
-    </ul>
-</li>
+        <ul id="dropdown-perawatan-bmn" class="{{ request()->routeIs('perawatan_inventaris.*', 'rencana_penghapusan.*', 'admin.laporan-kerusakan.*', 'data_penghapusan.*') ? 'block' : 'hidden' }} py-2 space-y-1">
+            <li>
+                <a href="{{ route('perawatan_inventaris.index') }}"
+                    class="flex items-center w-full p-1 pl-9 rounded-lg {{ request()->routeIs('perawatan_inventaris.*') ? $activeClass : $inactiveClass }}">
+                    <i class="fa-solid fa-toolbox text-xs opacity-70 me-2"></i>
+                    Perawatan
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('rencana_penghapusan.index', ['status' => 'pending']) }}"
+                   class="flex items-center w-full p-1 pl-9 rounded-lg {{ request()->routeIs('rencana_penghapusan.*') ? $activeClass : $inactiveClass }}">
+                    <i class="fa-solid fa-trash-arrow-up text-xs opacity-70 me-2"></i>
+                    Rencana Penghapusan
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('data_penghapusan.index') }}"
+                   class="flex items-center w-full p-1 pl-9 rounded-lg {{ request()->routeIs('data_penghapusan.*') ? $activeClass : $inactiveClass }}">
+                    <i class="fa-solid fa-trash-can text-xs opacity-70 me-2"></i>
+                    Data Penghapusan
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.laporan-kerusakan.index') }}"
+                   class="flex items-center w-full p-1 pl-9 rounded-lg {{ request()->routeIs('admin.laporan-kerusakan.*') ? $activeClass : $inactiveClass }}">
+                    <i class="fa-solid fa-triangle-exclamation text-xs opacity-70 me-2"></i>
+                    Laporan Kerusakan
+                </a>
+            </li>
+        </ul>
+      </li>
 
       {{-- === USER / TAMBAHAN === --}}
       <div class="flex items-center my-2">

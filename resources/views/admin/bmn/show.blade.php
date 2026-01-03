@@ -6,6 +6,7 @@
     <main class="flex-1 p-4 sm:p-6 lg:p-8">
       <div class="max-w-7xl mx-auto">
 
+        {{-- Breadcrumbs --}}
         <div class="flex flex-wrap gap-2 mb-6">
           <a href="{{ route('bmn.index', $ruangan) }}" class="text-gray-500 dark:text-[#9dabb9] text-sm font-medium hover:text-primary dark:hover:text-white">Home</a>
           <span class="text-gray-500 dark:text-[#9dabb9] text-sm font-medium">/</span>
@@ -16,6 +17,7 @@
           <span class="text-gray-800 dark:text-white text-sm font-medium">{{ $barang->nama_barang }}</span>
         </div>
 
+        {{-- Header & Actions --}}
         <div class="flex flex-wrap justify-between items-start gap-4 mb-8">
           <div class="flex min-w-72 flex-col gap-3">
             <p class="text-gray-900 dark:text-white text-3xl lg:text-4xl font-black leading-tight tracking-[-0.033em]">
@@ -30,7 +32,7 @@
             <a href="{{ route('bmn.edit', [$ruangan, $barang->id]) }}"
               class="flex min-w-[84px] items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:bg-opacity-90 transition-colors">
               <span class="material-symbols-outlined text-base">edit</span>
-              <span>Edit Item</span>
+              <span>Edit</span>
             </a>
 
             <a href="{{ asset('storage/' . $barang->qr_code) }}" target="_blank"
@@ -58,99 +60,107 @@
                     <span>Perawatan</span>
                 </button>
             </form>
-
-            @if(!empty($perawatan))
-            <form action="{{ route('perawatan_inventaris.hapuskan', $perawatan->id) }}" method="POST" onsubmit="return confirm('Pindahkan ke rencana penghapusan?')">
-                @csrf
-                <button type="submit"
-                    class="flex min-w-[84px] items-center justify-center gap-2 rounded-lg h-10 px-4 bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-colors">
-                    <span class="material-symbols-outlined text-base">delete_forever</span>
-                    <span>Penghapusan</span>
-                </button>
-            </form>
-            @endif
           </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
+          {{-- Kolom Kiri: Detail Informasi --}}
           <div class="lg:col-span-2 space-y-8">
-            <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800">
-              <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4">Deskripsi / Catatan</h3>
+            
+            {{-- Deskripsi --}}
+            <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+              <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">notes</span> Deskripsi / Catatan
+              </h3>
               <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
                 {{ $barang->catatan ?? 'Tidak ada deskripsi tambahan.' }}
               </p>
             </div>
 
-            <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800">
-              <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-6">Detail Barang</h3>
+            {{-- Detail Informasi Dasar --}}
+            <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+              <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">info</span> Detail Barang & Spesifikasi
+              </h3>
+              
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
                 
-                {{-- HIGHLIGHT LOKASI RUANGAN --}}
-              <div class="col-span-1 sm:col-span-2 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 mb-2">
-                  <p class="text-xs font-bold text-blue-600 dark:text-blue-300 mb-1 uppercase tracking-wider flex items-center">
-                      <span class="material-symbols-outlined text-[18px] mr-1">location_on</span> Lokasi & Detail Rak
-                  </p>
-                  <p class="text-2xl font-black text-gray-800 dark:text-white">
-                      {{ $barang->ruangan }}
-                  </p>
-                  @if(Str::contains($barang->ruangan, 'MCR'))
-                  @elseif(Str::contains($barang->ruangan, 'Studio'))
-                      <span class="text-sm text-blue-500 font-medium italic">Penyimpanan: Studio Production Area</span>
-                  @endif
-              </div>
+                {{-- Lokasi Utama --}}
+                <div class="col-span-1 sm:col-span-2 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+                    <p class="text-xs font-bold text-blue-600 dark:text-blue-300 mb-1 uppercase tracking-wider">Lokasi Ruangan</p>
+                    <p class="text-2xl font-black text-gray-800 dark:text-white">{{ $barang->ruangan }}</p>
+                </div>
 
+                {{-- Baris 1: Identitas --}}
                 <div>
-                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kondisi</p>
-                  <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium {{ $barang->kondisi == 'Baik' || $barang->kondisi == 'Sangat Baik' ? 'bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-500/20 text-red-800 dark:text-red-300' }}">
-                    {{ $barang->kondisi }}
-                  </span>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kode Barang / BMN</p>
+                  <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ $barang->kode_barang }}</p>
                 </div>
                 <div>
-                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kode Barang</p>
-                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->kode_barang }}</p>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">NUP (Nomor Urut Pendaftaran)</p>
+                  <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ $barang->nup ?? '-' }}</p>
                 </div>
+
+                {{-- Baris 2: Merk & S/N --}}
                 <div>
-                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">NUP</p>
-                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->nup ?? '-' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Merk</p>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Merk / Brand</p>
                   <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->merk ?? '-' }}</p>
                 </div>
                 <div>
-                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Asal Pengadaan</p>
-                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ ucfirst($barang->asal_pengadaan) }}</p>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Nomor Seri (S/N)</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->nomor_seri ?? '-' }}</p>
+                </div>
+
+                {{-- Baris 3: Kondisi & Jumlah --}}
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kondisi Fisik</p>
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium {{ $barang->persentase_kondisi >= 70 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ $barang->kondisi }} ({{ $barang->persentase_kondisi }}%)
+                    </span>
+                  </div>
                 </div>
                 <div>
-                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Tahun Pengadaan</p>
-                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->tahun_pengadaan ?? '-' }}</p>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Jumlah Unit</p>
+                  <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ $barang->jumlah }} Unit</p>
+                </div>
+
+                {{-- Baris 4: Pengadaan --}}
+                <div>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Tanggal Perolehan</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    {{ $barang->tanggal_perolehan ? \Carbon\Carbon::parse($barang->tanggal_perolehan)->format('d F Y') : '-' }}
+                  </p>
                 </div>
                 <div>
-                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Peruntukan</p>
-                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ ucfirst($barang->peruntukan) }}</p>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Nilai Perolehan</p>
+                  <p class="text-sm font-bold text-primary">
+                    Rp {{ number_format($barang->nilai_perolehan, 0, ',', '.') }}
+                  </p>
                 </div>
+
+                {{-- Baris 5: Kategori & Asal --}}
                 <div>
                   <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Kategori</p>
                   <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->kategori }}</p>
                 </div>
                 <div>
-                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Jumlah</p>
-                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->jumlah }} Unit</p>
+                  <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Asal Pengadaan / Peruntukan</p>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $barang->asal_pengadaan ?? '-' }}</p>
                 </div>
-                
-                {{-- Foto Posisi Barang (Full Width di Mobile, 1 col di desktop grid) --}}
+
+                {{-- Foto Posisi Barang (Wide) --}}
                 <div class="sm:col-span-2 mt-4">
-                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Foto Posisi Barang</p>
-                    <div class="w-full h-64 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase">Foto Posisi Terpasang / Lokasi Penyimpanan</p>
+                    <div class="w-full h-72 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 shadow-inner">
                         @if ($barang->posisi)
                             <img src="{{ asset('storage/' . $barang->posisi) }}" 
-                                alt="Foto Posisi {{ $barang->nama_barang }}" 
-                                class="object-contain w-full h-full hover:scale-105 transition-transform duration-300">
+                                class="object-contain w-full h-full hover:scale-105 transition-transform duration-500">
                         @else
                             <div class="flex flex-col items-center text-gray-400">
-                                <span class="material-symbols-outlined text-4xl mb-1">image_not_supported</span>
-                                <span class="text-sm">Tidak ada foto posisi</span>
+                                <span class="material-symbols-outlined text-5xl mb-2">map</span>
+                                <span class="text-sm font-medium">Foto posisi belum diunggah</span>
                             </div>
                         @endif
                     </div>
@@ -160,59 +170,59 @@
             </div>
           </div>
 
-          <div class="lg:col-span-1 space-y-8">
-              <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-col items-center">
-                  <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4">Foto Barang</h3>
-                  <div class="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700">
+          {{-- Kolom Kanan: Media & Status --}}
+          <div class="lg:col-span-1 space-y-6">
+              
+              {{-- Foto Fisik --}}
+              <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-col items-center shadow-sm">
+                  <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4">Foto Fisik Barang</h3>
+                  <div class="w-full aspect-square rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 flex items-center justify-center border border-gray-200 dark:border-gray-700">
                       @if ($barang->foto)
                           <img src="{{ asset('storage/' . $barang->foto) }}" 
                               alt="{{ $barang->nama_barang }}" 
-                              class="object-contain w-full h-full hover:scale-105 transition-transform duration-300">
+                              class="object-contain w-full h-full hover:scale-110 transition-transform duration-500">
                       @else
                           <div class="flex flex-col items-center text-gray-400">
-                                <span class="material-symbols-outlined text-4xl mb-1">image_not_supported</span>
-                                <span class="text-sm">Tidak ada foto</span>
+                                <span class="material-symbols-outlined text-5xl mb-2">image_not_supported</span>
+                                <span class="text-sm font-medium">Tidak ada foto fisik</span>
                           </div>
                       @endif
                   </div>
               </div>
 
-              <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-col items-center">
-                  <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4">QR Code</h3>
-                  <div class="w-full aspect-square rounded-lg bg-white border border-gray-200 flex items-center justify-center p-4">
+              {{-- QR Code --}}
+              <div class="bg-white dark:bg-[#1a232c] p-6 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-col items-center shadow-sm">
+                  <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-4">Identitas Digital (QR)</h3>
+                  <div class="w-48 h-48 bg-white border p-2 rounded-lg shadow-inner flex items-center justify-center">
                       <img src="{{ asset('storage/' . $barang->qr_code) }}" 
-                           alt="QR Code {{ $barang->kode_barang }}" 
-                           class="object-contain w-full h-full">
+                           class="w-full h-full">
                   </div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-4 flex items-center">
-                    <span class="material-symbols-outlined text-sm mr-1">qr_code_scanner</span>
-                    Scan untuk lihat detail
+                  <p class="text-[10px] text-gray-400 mt-4 text-center uppercase tracking-widest font-bold">
+                    Scan untuk akses cepat sistem inventaris
                   </p>
               </div>
 
+              {{-- Status Perawatan Aktif --}}
               @if(!empty($perawatan))
-              <div class="bg-white dark:bg-[#1a232c] p-5 rounded-xl border border-l-4 border-l-yellow-500 border-gray-200 dark:border-gray-800 shadow-sm">
+              <div class="bg-white dark:bg-[#1a232c] p-5 rounded-xl border-l-4 border-l-yellow-500 border border-gray-200 dark:border-gray-800 shadow-md animate-pulse">
                 <div class="flex items-center gap-2 mb-3">
-                    <span class="material-symbols-outlined text-yellow-500">warning</span>
-                    <h4 class="text-base font-bold text-gray-900 dark:text-white">Sedang Dalam Perawatan</h4>
+                    <span class="material-symbols-outlined text-yellow-500">engineering</span>
+                    <h4 class="text-base font-bold text-gray-900 dark:text-white">Sedang Maintenance</h4>
                 </div>
-                <div class="space-y-2">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-500 dark:text-gray-400">Status:</span>
-                        <span class="font-medium bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs">{{ ucfirst($perawatan->status) }}</span>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Status:</span>
+                        <span class="font-bold text-yellow-600">{{ ucfirst($perawatan->status) }}</span>
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-500 dark:text-gray-400">Tanggal:</span>
-                        <span class="font-medium text-gray-800 dark:text-gray-200">{{ optional(\Carbon\Carbon::parse($perawatan->tanggal_perawatan))->format('d M Y') ?? '-' }}</span>
-                    </div>
-                    <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Catatan:</p>
-                        <p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">{{ $perawatan->deskripsi ?? '-' }}</p>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Mulai:</span>
+                        <span class="font-medium text-gray-800 dark:text-gray-200">{{ \Carbon\Carbon::parse($perawatan->tanggal_perawatan)->format('d M Y') }}</span>
                     </div>
                 </div>
               </div>
               @endif
           </div>
+
         </div>
       </div>
     </main>

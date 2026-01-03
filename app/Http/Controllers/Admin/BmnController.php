@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BmnBarang;
+use App\Models\BmnRuangan;
+use App\Models\BmnKategori;
+use App\Models\BmnJenisKerusakan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -13,7 +16,6 @@ use Carbon\Carbon;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use App\Models\PerawatanInventaris;
-
 class BmnController extends Controller
 {
     private function tentukanKondisi($persentase)
@@ -38,54 +40,218 @@ class BmnController extends Controller
         return sprintf("%s-%s-%04d", $prefix, $year, $next);
     }
 
-   public function index(Request $request, $ruangan)
+    public function ruanganIndex()
+    {
+        $ruangan = BmnRuangan::orderBy('nama_ruangan', 'asc')->paginate(10);
+        $title = 'Ruangan BMN';
+        return view('admin.bmn.ruangan.index', compact('ruangan', 'title'));
+    }
+
+    public function ruanganStore(Request $request)
+    {
+        $validated = $request->validate([
+            'nama_ruangan' => 'required|unique:bmn_ruangans,nama_ruangan',
+        ]);
+
+        $validated['uuid'] = Str::uuid();
+        BmnRuangan::create($validated);
+
+        return redirect()->back()->with('success', 'Ruangan berhasil ditambahkan.');
+    }
+
+    public function ruanganEdit($uuid)
+    {
+        $ruangan = BmnRuangan::where('uuid', $uuid)->firstOrFail();
+        return response()->json($ruangan);
+    }
+
+    public function ruanganUpdate(Request $request, $uuid)
+    {
+        $ruangan = BmnRuangan::where('uuid', $uuid)->firstOrFail();
+
+        $request->validate([
+            'nama_ruangan' => 'required|unique:bmn_ruangans,nama_ruangan,' . $ruangan->id,
+        ]);
+
+        $ruangan->update(['nama_ruangan' => $request->nama_ruangan]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function ruanganDestroy($uuid)
+    {
+        BmnRuangan::where('uuid', $uuid)->delete();
+        return redirect()->back()->with('success', 'Ruangan berhasil dihapus.');
+    }
+
+    public function ruanganSearch(Request $request)
+    {
+        $keyword = $request->search;
+        $ruangan = BmnRuangan::where('nama_ruangan', 'like', "%{$keyword}%")
+            ->paginate(10);
+        $title = 'Hasil Pencarian Ruangan';
+        return view('admin.bmn.ruangan.index', compact('ruangan', 'title'));
+    }
+
+    public function kategoriIndex()
+    {
+        $kategori = BmnKategori::orderBy('nama_kategori', 'asc')->paginate(10);
+        $title = 'Kategori BMN';
+        return view('admin.bmn.kategori.index', compact('kategori', 'title'));
+    }
+
+    public function kategoriStore(Request $request)
+    {
+        $validated = $request->validate([
+            'nama_kategori' => 'required|unique:bmn_kategoris,nama_kategori',
+        ]);
+
+        $validated['uuid'] = Str::uuid();
+        BmnKategori::create($validated);
+
+        return redirect()->back()->with('success', 'Kategori berhasil ditambahkan.');
+    }
+
+    public function kategoriEdit($uuid)
+    {
+        $kategori = BmnKategori::where('uuid', $uuid)->firstOrFail();
+        return response()->json($kategori);
+    }
+
+    public function kategoriUpdate(Request $request, $uuid)
+    {
+        $kategori = BmnKategori::where('uuid', $uuid)->firstOrFail();
+
+        $request->validate([
+            'nama_kategori' => 'required|unique:bmn_kategoris,nama_kategori,' . $kategori->id,
+        ]);
+
+        $kategori->update(['nama_kategori' => $request->nama_kategori]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function kategoriDestroy($uuid)
+    {
+        BmnKategori::where('uuid', $uuid)->delete();
+        return redirect()->back()->with('success', 'Kategori berhasil dihapus.');
+    }
+
+    public function kategoriSearch(Request $request)
+    {
+        $keyword = $request->search;
+        $kategori = BmnKategori::where('nama_kategori', 'like', "%{$keyword}%")
+            ->paginate(10);
+        $title = 'Hasil Pencarian Kategori';
+        return view('admin.bmn.kategori.index', compact('kategori', 'title'));
+    }
+
+    public function jenisKerusakanIndex()
+    {
+        $jenis_kerusakan = BmnJenisKerusakan::orderBy('nama_jenis_kerusakan', 'asc')->paginate(10);
+        $title = 'Jenis Kerusakan BMN';
+        return view('admin.bmn.jenis_kerusakan.index', compact('jenis_kerusakan', 'title'));
+    }
+
+    public function jenisKerusakanStore(Request $request)
+    {
+        $request->validate([
+            'nama_jenis_kerusakan' => 'required|unique:bmn_jenis_kerusakans,nama_jenis_kerusakan',
+        ]);
+
+        BmnJenisKerusakan::create([
+            'nama_jenis_kerusakan' => $request->nama_jenis_kerusakan
+        ]);
+
+        return redirect()->back()->with('success', 'Jenis kerusakan berhasil ditambahkan.');
+    }
+
+    public function jenisKerusakanEdit($uuid)
+    {
+        $data = BmnJenisKerusakan::where('uuid', $uuid)->firstOrFail();
+        return response()->json($data);
+    }
+
+    public function jenisKerusakanUpdate(Request $request, $uuid)
+    {
+        $data = BmnJenisKerusakan::where('uuid', $uuid)->firstOrFail();
+        $request->validate([
+            'nama_jenis_kerusakan' => 'required|unique:bmn_jenis_kerusakans,nama_jenis_kerusakan,' . $data->id,
+        ]);
+
+        $data->update(['nama_jenis_kerusakan' => $request->nama_jenis_kerusakan]);
+        return response()->json(['success' => true]);
+    }
+
+    public function jenisKerusakanDestroy($uuid)
+    {
+        BmnJenisKerusakan::where('uuid', $uuid)->delete();
+        return redirect()->back()->with('success', 'Data berhasil dihapus.');
+    }
+
+    public function jenisKerusakanSearch(Request $request)
+    {
+        $keyword = $request->search;
+        $jenis_kerusakan = BmnJenisKerusakan::where('nama_jenis_kerusakan', 'like', "%{$keyword}%")
+            ->paginate(10);
+        $title = 'Hasil Pencarian Jenis Kerusakan';
+        return view('admin.bmn.jenis_kerusakan.index', compact('jenis_kerusakan', 'title'));
+    }
+
+    public function index(Request $request, $ruangan)
     {
         $keyword = $request->input('q') ?? $request->input('search');
 
+        // Ambil data ruangan untuk dropdown di modal cetak
+        $list_ruangan = BmnRuangan::orderBy('nama_ruangan', 'asc')->get();
+
         $data = BmnBarang::with([
-            'perawatan' => function($q){
+            'perawatan' => function ($q) {
                 $q->whereIn('status', ['pending', 'proses'])
-                  ->orderBy('tanggal_perawatan', 'desc');
+                    ->orderBy('tanggal_perawatan', 'desc');
             },
             'perawatanAktif'
         ])
-        // UBAHAN 1: Gunakan LIKE agar 'Studio' bisa menangkap 'Studio 1', 'Studio 2', dst.
-        ->where('ruangan', 'LIKE', ucfirst($ruangan) . '%') 
-        ->when($keyword, function ($query) use ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('nama_barang', 'like', "%{$keyword}%")
-                    ->orWhere('kode_barang', 'like', "%{$keyword}%")
-                    ->orWhere('nup', 'like', "%{$keyword}%")
-                    ->orWhere('kategori', 'like', "%{$keyword}%")
-                    ->orWhere('merk', 'like', "%{$keyword}%")
-                    ->orWhere('asal_pengadaan', 'like', "%{$keyword}%")
-                    ->orWhere('peruntukan', 'like', "%{$keyword}%")
-                    ->orWhere('kondisi', 'like', "%{$keyword}%");
-            });
-        })
-        ->orderBy('nama_barang')
-        ->paginate(20);
+            ->where('ruangan', 'LIKE', ucfirst($ruangan) . '%')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('nama_barang', 'like', "%{$keyword}%")
+                        ->orWhere('kode_barang', 'like', "%{$keyword}%")
+                        ->orWhere('nup', 'like', "%{$keyword}%")
+                        ->orWhere('kategori', 'like', "%{$keyword}%")
+                        ->orWhere('merk', 'like', "%{$keyword}%")
+                        ->orWhere('asal_pengadaan', 'like', "%{$keyword}%")
+                        ->orWhere('peruntukan', 'like', "%{$keyword}%")
+                        ->orWhere('kondisi', 'like', "%{$keyword}%");
+                });
+            })
+            ->orderBy('nama_barang')
+            ->paginate(20);
 
         $title = 'Data BMN - ' . ucfirst($ruangan);
 
-        return view('admin.bmn.index', compact('data', 'ruangan', 'title', 'keyword'));
+        // Tambahkan 'list_ruangan' ke compact
+        return view('admin.bmn.index', compact('data', 'ruangan', 'title', 'keyword', 'list_ruangan'));
     }
 
     public function create($ruangan)
     {
-        // PERUBAHAN DISINI: Logika Judul
+        // Mengambil semua data ruangan dan kategori dari database
+        $ruangans = BmnRuangan::orderBy('nama_ruangan', 'asc')->get();
+        $kategoris = BmnKategori::orderBy('nama_kategori', 'asc')->get();
+
         if ($ruangan == 'general') {
-            $title = 'Tambah Barang BMN'; // Judul sesuai permintaan
+            $title = 'Tambah Barang BMN';
         } else {
             $title = 'Tambah Barang - ' . ucfirst($ruangan);
         }
 
-        return view('admin.bmn.create', compact('ruangan', 'title'));
+        // Kirim data ke view
+        return view('admin.bmn.create', compact('ruangan', 'title', 'ruangans', 'kategoris'));
     }
 
     public function store(Request $request, $ruangan)
     {
-        // 1. Definisikan rule validasi dasar
         $rules = [
             'nama_barang'        => 'required',
             'nup'                => 'required|string|max:255|unique:bmn_barangs',
@@ -95,48 +261,30 @@ class BmnController extends Controller
             'nomor_seri'         => 'nullable',
             'jumlah'             => 'required|integer|min:1',
             'persentase_kondisi' => 'required|numeric|min:0|max:100',
-            'tahun_pengadaan'    => 'nullable|digits:4',
+            'tanggal_perolehan'  => 'nullable|date', // Diubah dari tahun_pengadaan (digits:4)
+            'nilai_perolehan'    => 'nullable|numeric|min:0', // Field baru
             'asal_pengadaan'     => 'nullable',
-            'peruntukan'         => 'nullable',
             'catatan'            => 'nullable',
             'foto'               => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'posisi'             => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
 
-        // Tambahkan validasi ruangan jika 'general'
         if ($ruangan == 'general') {
-            $rules['ruangan_pilihan'] = 'required|in:Mcr,Studio';
+            $rules['ruangan_pilihan'] = 'required|exists:bmn_ruangans,nama_ruangan';
         }
 
-        // --- EKSEKUSI VALIDASI TERLEBIH DAHULU (Agar $validated tersedia) ---
-        $validated = $request->validate($rules, [
-            'ruangan_pilihan.required' => 'Lokasi ruangan wajib dipilih.',
-        ]);
+        $validated = $request->validate($rules);
 
-        // 2. Logic Penentuan Lokasi Detail
+        // LOGIKA LOKASI DISERDAHANAKAN
         if ($ruangan == 'general') {
-            if ($validated['ruangan_pilihan'] == 'Studio') {
-                $request->validate(['detail_lokasi' => 'required|string']);
-                $finalRuangan = $request->detail_lokasi;
-            } elseif ($validated['ruangan_pilihan'] == 'Mcr') {
-                // Logika Rak: Jika pilih 'Lainnya', ambil dari input 'custom_rak'
-                if ($request->rak_pilihan === 'Lainnya') {
-                    $namaRak = $request->custom_rak ?? 'Server/Lainnya';
-                } else {
-                    $namaRak = $request->rak_pilihan;
-                }
-
-                $finalRuangan = $namaRak ? "MCR - " . $namaRak : "MCR";
-            } else {
-                $finalRuangan = $validated['ruangan_pilihan'];
-            }
+            $finalRuangan = $validated['ruangan_pilihan'];
         } else {
             $finalRuangan = ucfirst($ruangan);
         }
 
         $validated['kode_barang'] = $validated['kode_barang'] ?? $this->generateUniqueKode();
         $validated['uuid']        = Str::uuid();
-        $validated['ruangan']     = $finalRuangan; // Ruangan tersimpan spesifik
+        $validated['ruangan']     = $finalRuangan;
         $validated['kondisi']     = $this->tentukanKondisi($validated['persentase_kondisi']);
 
         $manager = new ImageManager(new Driver());
@@ -174,7 +322,7 @@ class BmnController extends Controller
         // Redirect: Jika Studio 1, kita ambil kata pertamanya saja untuk redirect ke index umum "studio"
         $redirectRuangan = Str::startsWith($finalRuangan, 'Studio') ? 'studio' : strtolower($finalRuangan);
 
-        return redirect()->route('barang.index')
+        return redirect()->route('barang.bmn_index')
             ->with('success', 'Barang berhasil ditambahkan ke ' . $finalRuangan);
     }
 
@@ -192,23 +340,27 @@ class BmnController extends Controller
     // Ambil perawatan aktif (jika ada) — gunakan koleksi dari relasi yang sudah eager-loaded
     $perawatan = $barang->perawatan->first(); // null jika tidak ada
 
-
     return view('admin.bmn.show', compact('barang', 'ruangan', 'title','perawatan'));
     }
 
     public function edit($ruangan, $id)
     {
         $barang = BmnBarang::findOrFail($id);
-        $title = 'Edit Barang - ' . ucfirst($ruangan);
-        return view('admin.bmn.edit', compact('barang', 'ruangan', 'title'));
-    }
 
+        // Tambahkan pengambilan data ini agar dropdown berfungsi
+        $ruangans = BmnRuangan::orderBy('nama_ruangan', 'asc')->get();
+        $kategoris = BmnKategori::orderBy('nama_kategori', 'asc')->get();
+
+        $title = 'Edit Barang - ' . ucfirst($ruangan);
+
+        // Kirimkan data tambahan ke view
+        return view('admin.bmn.edit', compact('barang', 'ruangan', 'title', 'ruangans', 'kategoris'));
+    }
 
     public function update(Request $request, $ruangan, $id)
     {
         $barang = BmnBarang::findOrFail($id);
 
-        // 1. Validasi (Sama dengan store tapi abaikan unique untuk ID ini)
         $validated = $request->validate([
             'nama_barang'        => 'required',
             'nup'                => 'required|string|max:255|unique:bmn_barangs,nup,' . $barang->id,
@@ -216,27 +368,16 @@ class BmnController extends Controller
             'kategori'           => 'required',
             'jumlah'             => 'required|integer|min:1',
             'persentase_kondisi' => 'required|numeric|min:0|max:100',
-            'ruangan_pilihan'    => 'required|in:Mcr,Studio', // Tambahkan ini
+            'tanggal_perolehan'  => 'nullable|date', // Tambahkan ini
+            'nilai_perolehan'    => 'nullable|numeric|min:0', // Tambahkan ini
+            'ruangan_pilihan'    => 'required',
             'foto'               => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'posisi'             => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // 2. Logic Penentuan Lokasi Detail (SAMA DENGAN STORE)
-        if ($request->ruangan_pilihan == 'Studio') {
-            $finalRuangan = $request->detail_lokasi;
-        } elseif ($request->ruangan_pilihan == 'Mcr') {
-            $namaRak = ($request->rak_pilihan === 'Lainnya') ? ($request->custom_rak ?? 'Lainnya') : $request->rak_pilihan;
-            $finalRuangan = "MCR - " . $namaRak;
-        } else {
-            $finalRuangan = $request->ruangan_pilihan;
-        }
-
-        $validated['ruangan'] = $finalRuangan;
+        // LANGSUNG AMBIL DARI PILIHAN
+        $validated['ruangan'] = $request->ruangan_pilihan;
         $validated['kondisi'] = $this->tentukanKondisi($validated['persentase_kondisi']);
-        $validated['merk'] = $request->merk;
-        $validated['nomor_seri'] = $request->nomor_seri;
-        $validated['tahun_pengadaan'] = $request->tahun_pengadaan;
-        $validated['catatan'] = $request->catatan;
 
         $manager = new ImageManager(new Driver());
 
@@ -287,7 +428,7 @@ class BmnController extends Controller
 
         $barang->update($validated);
 
-        return redirect()->route('barang.index')
+        return redirect()->route('barang.bmn_index')
             ->with('success', 'Data barang BMN berhasil diperbarui.');
     }
 
@@ -306,11 +447,9 @@ class BmnController extends Controller
     Storage::disk('public')->delete($barang->qr_code);
     }
 
-
     $barang->delete();
 
-
-    return redirect()->route('bmn.index', $ruangan)
+    return redirect()->route('barang.bmn_index', $ruangan)
     ->with('success', 'Barang berhasil dihapus.');
     }
 
@@ -382,7 +521,6 @@ class BmnController extends Controller
         return $pdf->stream('Laporan_BMN_Filtered_' . ucfirst($ruangan) . '.pdf');
     }
 
-
     /** 🔥 Download QR ALL Barang */
 public function downloadQRAll()
 {
@@ -400,5 +538,4 @@ public function downloadQRAll()
         ->header('Content-Type', 'image/png')
         ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
 }
-
 }

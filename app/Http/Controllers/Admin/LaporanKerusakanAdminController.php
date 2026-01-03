@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\LaporanKerusakan;
 use App\Models\PerawatanInventaris;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class LaporanKerusakanAdminController extends Controller
@@ -52,5 +53,15 @@ class LaporanKerusakanAdminController extends Controller
 
         return redirect()->back()->with('success', 'Laporan ditolak.');
     }
-}
 
+    public function exportPDF()
+    {
+        // Mengambil data yang sedang tampil (pending)
+        $laporan = LaporanKerusakan::where('status', 'pending')->orderBy('created_at', 'desc')->get();
+
+        $pdf = Pdf::loadView('admin.laporan_kerusakan.pdf_rekap', compact('laporan'));
+
+        // Ubah download menjadi stream agar terbuka di browser
+        return $pdf->stream('rekap-laporan-kerusakan-' . date('Y-m-d') . '.pdf');
+    }
+}

@@ -14,12 +14,20 @@ class PerawatanInventarisController extends Controller
     // ==============================
     // LIST PERAWATAN
     // ==============================
-    public function index()
+    public function index(Request $request) // Tambahkan Request $request untuk menangani filter jika diperlukan
     {
-        $data = PerawatanInventaris::with('barang')
-            ->where('jenis_perawatan', 'perbaikan')   // hanya perbaikan
-            ->latest()
-            ->get();
+        $query = PerawatanInventaris::with('barang')
+            ->where('jenis_perawatan', 'perbaikan')
+            ->where('status', '!=', 'selesai'); // <-- TAMBAHKAN BARIS INI agar yang selesai tidak muncul
+
+        // (Opsional) Jika Anda ingin filter di view tetap berfungsi untuk 'search'
+        if ($request->has('search') && $request->search != '') {
+            $query->whereHas('barang', function ($q) use ($request) {
+                $q->where('nama_barang', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $data = $query->latest()->get();
 
         $title = "Perawatan Inventaris";
         return view('admin.perawatan_inventaris.index', compact('data', 'title'));
