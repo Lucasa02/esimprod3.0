@@ -41,7 +41,7 @@
                 <img src="{{ public_path('img/assets/logo_tvri_icon.png') }}" style="height: 40px; width: auto;">
             </td>
             <td class="title-center">
-                <h2>Laporan Rekap Kerusakan</h2>
+                <h2>Laporan Kerusakan</h2>
                 <small>Dicetak pada: {{ date('d/m/Y') }}</small>
             </td>
             <td class="logo-right">

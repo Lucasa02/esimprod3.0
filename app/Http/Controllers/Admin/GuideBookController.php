@@ -14,7 +14,7 @@ class GuideBookController extends Controller
 	{
 		$data = [
 			'title' => 'Buku Panduan',
-			'guideBook' => GuideBook::get()
+			'guideBook' => GuideBook::latest()->get() // Ditambahkan latest() agar urutan terbaru di atas
 		];
 
 		return view('admin.guidebook.index', $data);
@@ -31,20 +31,23 @@ class GuideBookController extends Controller
 			'file.max' => 'Ukuran file maksimal adalah 2MB.',
 		]);
 
+		// Logic: Matikan status 'used' pada file lama sebelum mengupload yang baru
+		GuideBook::where('status', 'used')->update(['status' => 'unused']);
+
 		if ($request->hasFile('file')) {
 			$file = $request->file('file');
 			$filename = time() . '.' . $file->getClientOriginalExtension();
 			$file->storeAs('uploads/guidebook', $filename, 'public');
-			$data['file'] = $filename;
+
+			GuideBook::create([
+				'uuid' => (string) Str::uuid(),
+				'file' => $filename,
+				'status' => 'used' // Otomatis aktif setelah upload
+			]);
+
+			notify()->success('Guidebook berhasil diupload dan diaktifkan!');
 		}
 
-		GuideBook::create([
-			'uuid' => Str::uuid(),
-			'file' => $data['file'],
-			'status' => 'unused'
-		]);
-
-		notify()->success('Guidebook berhasil diupload !');
 		return redirect()->back();
 	}
 
@@ -56,20 +59,22 @@ class GuideBookController extends Controller
 				'status' => 'unused'
 			]);
 
-		notify()->warning('Guidebook tidak digunakan !');
+		notify()->warning('Guidebook dinonaktifkan!');
 		return redirect()->back();
 	}
 
-
-		public function used(string $uuid)
+	public function used(string $uuid)
 	{
+		// Logic: Pastikan hanya ada satu file yang berstatus 'used'
+		GuideBook::where('status', 'used')->update(['status' => 'unused']);
+
 		GuideBook::where('uuid', $uuid)
 			->firstOrFail()
 			->update([
 				'status' => 'used'
 			]);
 
-		notify()->success('Guidebook digunakan !');
+		notify()->success('Guidebook berhasil diaktifkan!');
 		return redirect()->back();
 	}
 
@@ -77,14 +82,15 @@ class GuideBookController extends Controller
 	{
 		$book = GuideBook::where('uuid', $uuid)->firstOrFail();
 
-		// Hapus file dari storage
-		Storage::disk('public')->delete('uploads/guidebook/' . $book->file);
+		// Hapus file dari storage fisik
+		if (Storage::disk('public')->exists('uploads/guidebook/' . $book->file)) {
+			Storage::disk('public')->delete('uploads/guidebook/' . $book->file);
+		}
 
 		// Hapus data dari database
 		$book->delete();
 
-		notify()->success('Guidebook berhasil dihapus !');
+		notify()->success('Guidebook berhasil dihapus!');
 		return redirect()->back();
 	}
-
 }

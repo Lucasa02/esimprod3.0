@@ -78,7 +78,7 @@
 
                     <form action="{{ route('admin.laporan-kerusakan.setujui', $laporan->uuid) }}" method="POST">
                         @csrf
-                        <button class="px-8 py-2.5 text-sm font-bold text-black bg-gradient-to-r from-slate-800 to-slate-900 rounded-full shadow-lg shadow-slate-300 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-emerald-300 hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 ease-out focus:ring-4 focus:ring-slate-200">
+                        <button class="px-8 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-slate-800 to-slate-900 rounded-full shadow-lg shadow-slate-300 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-emerald-300 hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 ease-out focus:ring-4 focus:ring-slate-200">
                             <span class="flex items-center gap-2">
                                 Setujui & Proses
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
