@@ -206,7 +206,7 @@
         </div>
         <div class="p-4">
           <p class="text-gray-700 dark:text-gray-300 mb-4 text-center">Silahkan pilih tindakan:</p>
-          <a href="#" onclick="openScanner()" class="block w-full text-center text-white bg-blue-900 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-base px-5 py-3 transform transition active:scale-95">Scan Barang</a>
+          <a href="#" onclick="openScanner()" class="block w-full text-center text-white bg-blue-900 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-base px-5 py-3 transform transition active:scale-95">Scan</a>
         </div>
       </div>
     </div>
