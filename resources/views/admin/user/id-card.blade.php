@@ -25,28 +25,22 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #d1d5db;
-            /* Background abu-abu seperti contoh */
             margin: 0;
             padding: 50px 0;
             text-align: center;
         }
 
-        /* Container pembungkus agar kartu berdampingan  */
         .card-wrapper {
             display: block;
             width: 100%;
             white-space: nowrap;
-            /* Mencegah kartu turun ke bawah */
         }
 
-        /* Base Styling untuk kedua sisi kartu */
         .card-base {
             width: 400px;
             height: 600px;
             display: inline-block;
-            /* Membuat kartu berjejer ke samping */
             margin: 0 15px;
-            /* Jarak antar kartu */
             position: relative;
             overflow: hidden;
             border-radius: 25px;
@@ -56,7 +50,6 @@
             vertical-align: top;
             background-color: #fff;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            /* Shadow halus agar terlihat elegan */
         }
 
         .id-card-front {
@@ -70,48 +63,66 @@
         /* Konten Bagian Depan */
         .content-wrapper {
             position: absolute;
-            top: 160px;
+            top: 185px;
+            /* Disesuaikan agar pas di bawah teks ACCESS CARD */
             left: 0;
             width: 100%;
             text-align: center;
         }
 
+        /* Foto Kotak (Tanpa Lengkungan) Rasio 3:4 */
         .photo-img {
-            width: 200px;
-            height: 200px;
+            width: 175px;
+            height: 233px;
             object-fit: cover;
             display: inline-block;
             background-color: #ddd;
+            border-radius: 0;
+            /* Menghapus kelengkungan agar kotak tajam */
+            border: 1px solid #ccc;
+            /* Border tipis agar foto tidak 'mati' di background putih */
         }
 
         .details {
-            padding: 0 15px;
-            margin-top: 20px;
+            padding: 0 20px;
+            margin-top: 10px;
+            /* Jarak foto ke teks */
             white-space: normal;
-            /* Mengembalikan wrap teks normal untuk nama */
         }
 
+        /* Menghilangkan margin dan merapatkan line-height agar teks 'mepet' */
         .user-name {
             font-family: 'Poppins', sans-serif;
             font-weight: bold;
             font-size: 26px;
             text-transform: capitalize;
-            margin: 0 0 2px 0;
-            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 0.9;
+            color: #1a1a1a;
         }
 
         .user-nip {
             font-family: 'Poppins-Regular', sans-serif;
             font-size: 15px;
-            color: #333;
-            margin: 0 0 5px 0;
+            color: #374151;
+            margin: -2px 0;
+            /* Menghilangkan jarak atas-bawah */
+            padding: 0;
+            line-height: 1;
+            /* Sangat rapat */
         }
 
         .user-jabatan {
             font-family: 'Poppins', sans-serif;
             font-weight: bold;
-            font-size: 18px;
-            color: #333;
+            font-size: 17px;
+            color: #111827;
+            margin: 0;
+            /* Menghilangkan jarak atas-bawah */
+            padding: 0;
+            line-height: 1;
+            text-transform: capitalize;
         }
 
         /* Konten Bagian Belakang (QR) */
@@ -144,7 +155,7 @@
                 </div>
                 <div class="details">
                     <div class="user-name">{{ $user->nama_lengkap }}</div>
-                    <div class="user-nip">NIP {{ $user->nip }}</div>
+                    <div class="user-nip">NIP. {{ $user->nip }}</div>
                     <div class="user-jabatan">{{ $user->jabatan->jabatan }}</div>
                 </div>
             </div>
