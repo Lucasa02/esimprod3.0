@@ -47,4 +47,3 @@ class LaporanKerusakanController extends Controller
         return redirect()->back()->with('success', 'Laporan telah dikirim, menunggu verifikasi admin.');
     }
 }
-

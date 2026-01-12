@@ -53,7 +53,7 @@
                             'members' => [
                                 ['name' => 'I Gede Mustito (V 1.0)', 'email' => ''],
                                 ['name' => 'Hari Setiya (V 2.0 )', 'email' => ''],
-                                ['name' => 'I Ketut Sutakariana (V 2.1 & V 2.2 )', 'email' => ''],
+                                ['name' => 'I Ketut Sutakariana (V 2.1 & V 3.0 )', 'email' => ''],
                             ],
                         ],
                         [
@@ -76,7 +76,7 @@
                             'members' => [
                                 ['name' => 'Saguh Wiyono (V 1.0)', 'email' => ''],
                                 ['name' => 'Akmal Rahim (V 2.0)', 'email' => ''],
-                                ['name' => 'Rizqi Akbar ( V 2.1 & V 2.2)', 'email' => ''],
+                                ['name' => 'Rizqi Akbar ( V 2.1 & V 3.0)', 'email' => ''],
                             ],
                         ],
                         [
@@ -85,7 +85,7 @@
                                 ['name' => 'Saguh Wiyono ( V 1.0)', 'email' => ''],
                                 ['name' => 'Akmal Rahim ( V 2.0)', 'email' => ''],
                                 ['name' => 'Rizqi Akbar ( V 2.1)', 'email' => ''],
-                                ['name' => 'M. Galih Katon Bagaskara ( V 2.2)', 'email' => 'muhammadbgss02@gmail.com'],
+                                ['name' => 'M. Galih Katon Bagaskara ( V 3.0)', 'email' => 'muhammadbgss02@gmail.com'],
                             ],
                         ],
                         [
@@ -94,7 +94,7 @@
                                 ['name' => 'M. Maireza ( V 2.0)', 'email' => ''],
                                 ['name' => 'Muhammad Ichsan Fadillah ( V 2.0)', 'email' => ''],
                                 ['name' => 'Arif Junaidi ( V 2.1)', 'email' => ''],
-                                ['name' => 'Muhammad Hafiz Ansori ( V 2.2)', 'email' => 'hafizansori006@gmail.com'],
+                                ['name' => 'Muhammad Hafiz Ansori ( V 3.0)', 'email' => 'hafizansori006@gmail.com'],
                             ],
                         ],
                         [
@@ -103,8 +103,8 @@
                                 ['name' => 'Akbar Laksana ( All Version)', 'email' => 'akbarlaksana@gmail.com'],
                                 ['name' => 'M. Fajrianoor ( V 1.0)', 'email' => ''],
                                 ['name' => 'M. Eryash Nurhadiarta ( V 2.0)', 'email' => ''],
-                                ['name' => 'Abdi Fazar ( V 2.2)', 'email' => 'abdifazar18@gmail.com'],
-                                ['name' => 'Muhammad Widigda Pratama ( V 2.2)', 'email' => 'digda.108@gmail.com'],
+                                ['name' => 'Abdi Fazar ( V 3.0)', 'email' => 'abdifazar18@gmail.com'],
+                                ['name' => 'Muhammad Widigda Pratama ( V 3.0)', 'email' => 'digda.108@gmail.com'],
                             ],
                         ],
                         [

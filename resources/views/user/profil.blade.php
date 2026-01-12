@@ -32,7 +32,7 @@
             <img src="{{ asset('img/assets/esimprod_logo.png') }}" class="h-8 me-3 bg-blue-900 p-1 rounded-lg"
               alt="ESIMPROD" />
             <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-              <small class="text-xs text-white font-thin">Version 2.2</small>
+              <small class="text-xs text-white font-thin">Version 3.0</small>
             </span>
           </p>
         </div>

@@ -102,7 +102,7 @@
               </div>
   
               <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-                <small class="text-xs text-white font-thin">Version 2.2</small>
+                <small class="text-xs text-white font-thin">Version 3.0</small>
               </span>
             </div>
         </div>
@@ -130,6 +130,16 @@
                     <span class="font-semibold">Profil Saya</span>
                   </a>
               </li>
+              <div class="my-2 border-t border-gray-200 dark:border-gray-600"></div>
+              @if($guidebook)
+              <li>
+                  <a href="{{ asset('storage/uploads/guidebook/' . $guidebook->file) }}" target="_blank"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                    role="menuitem">
+                    <span class="font-semibold">Panduan Admin</span>
+                  </a>
+              </li>
+              @endif
               <div class="my-2 border-t border-gray-200 dark:border-gray-600"></div>
               <li>
                 <a href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();"

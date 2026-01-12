@@ -67,7 +67,7 @@
             <img src="{{ asset('img/assets/esimprod_logo.png') }}" alt="ESIMPROD Logo" />
           </div>
           <span class="self-center text-xl font-semibold whitespace-nowrap text-white">
-            <small class="text-xs font-bold">Version 2.2</small>
+            <small class="text-xs font-bold">Version 3.0</small>
           </span>
         </a>
       </div>

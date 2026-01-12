@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Models\User;
+use App\Models\GuideBook;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,9 @@ class OptionsController extends Controller
 		}
 		session()->forget(['dataPeminjaman', 'BarangData']);
 
-		return view('user.options');
+		$guidebook = GuideBook::where('status', 'used')->first();
+
+		return view('user.options', compact('guidebook'));
 	}
 
 	public function profil()

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+
 
 class PerawatanInventaris extends Model
 {
@@ -19,10 +21,20 @@ class PerawatanInventaris extends Model
         'deskripsi',
         'status',
         'biaya',
+        'foto_kerusakan',
         'foto_bukti',
         'surat_penghapusan'
         
     ];
+
+    // Tambahkan ini agar UUID terisi otomatis
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->uuid = Str::uuid();
+        });
+    }
 
     public function barang()
     {

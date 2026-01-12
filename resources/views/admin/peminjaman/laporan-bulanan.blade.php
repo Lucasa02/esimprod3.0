@@ -39,7 +39,7 @@
         </div>
         <div class="text-right">
           <img src="{{ asset('img/assets/esimprod_logo.png') }}" alt="Esimprod" class="w-20 mx-auto mb-1">
-          <p class="text-sm text-gray-500">Version 2.2</p>
+          <p class="text-sm text-gray-500">Version 3.0</p>
         </div>
       </div>
 

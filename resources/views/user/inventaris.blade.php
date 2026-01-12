@@ -145,7 +145,7 @@
               <img src="{{ asset('img/assets/esimprod_logo.png') }}" class="h-6 animate-logo" alt="ESIMPROD" />
             </span>
             <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-              <small class="text-xs text-white font-thin">Version 2.2</small>
+              <small class="text-xs text-white font-thin">Version 3.0</small>
             </span>
           </p>
         </div>
