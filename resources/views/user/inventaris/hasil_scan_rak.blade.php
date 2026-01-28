@@ -76,6 +76,13 @@
 <div class="max-w-6xl mx-auto px-4 py-10">
 
     <header class="mb-12 animate__animated animate__fadeInDown">
+        <div class="mb-8">
+            <a href="{{ route('user.inventaris') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-600 hover:text-primary hover:border-primary/30 rounded-2xl transition-all duration-300 font-bold text-sm shadow-sm group">
+                <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                Kembali ke Scan
+            </a>
+        </div>
+
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-8">
             <div class="space-y-4">
                 <div class="logo-container logo-shimmer rounded-lg">

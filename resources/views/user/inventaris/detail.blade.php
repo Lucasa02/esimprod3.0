@@ -69,21 +69,39 @@
     
     {{-- Header --}}
     <header class="flex flex-col sm:flex-row justify-between items-center gap-6 animate-premium">
-        <div class="flex items-center gap-4">
-            <div class="logo-container p-2 rounded-xl shadow-sm border border-slate-200 relative">
-                <img src="{{ asset('img/assets/esimprod_logo.png') }}" alt="ESIMPROD Logo" class="h-8 sm:h-10 w-auto relative z-10">
-            </div>
-            <div class="h-8 w-[1px] bg-slate-300 hidden sm:block"></div>
-        </div>
+    <div class="flex items-center gap-4">
+        {{-- Tombol Kembali Dinamis --}}
+        @php
+            $previousUrl = url()->previous();
+            
+            // Cek apakah URL sebelumnya mengandung '/rak/' (halaman hasil_scan_rak)
+            // Kita gunakan '/rak/' agar lebih spesifik
+            $isFromRak = str_contains($previousUrl, '/rak/');
+            
+            // Logika: Jika dari Rak, kembali ke Rak tersebut. 
+            // Jika tidak (misal dari Inventaris utama), maka kembali ke Inventaris.
+            $backUrl = $isFromRak ? $previousUrl : route('user.inventaris'); 
+        @endphp
 
-        <div class="flex gap-3">
-            <a href="{{ route('user.inventaris.lapor-kerusakan.form', $barang->id) }}"
-                class="group flex items-center justify-center gap-2 rounded-xl h-11 px-6 bg-red-600 text-white text-sm font-bold hover:bg-red-700 hover:shadow-lg hover:shadow-red-200 transition-all duration-300 transform active:scale-95">
-                <span class="material-symbols-outlined text-base group-hover:rotate-12 transition-transform">report_problem</span>
-                <span>Laporkan Kerusakan</span>
-            </a>
+        <a href="{{ $backUrl }}" 
+           class="flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-primary hover:border-primary/30 transition-all duration-300 shadow-sm group">
+            <span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
+        </a>
+
+        <div class="logo-container p-2 rounded-xl shadow-sm border border-slate-200 relative">
+            <img src="{{ asset('img/assets/esimprod_logo.png') }}" alt="ESIMPROD Logo" class="h-8 sm:h-10 w-auto relative z-10">
         </div>
-    </header>
+        <div class="h-8 w-[1px] bg-slate-300 hidden sm:block"></div>
+    </div>
+
+    <div class="flex gap-3">
+        <a href="{{ route('user.inventaris.lapor-kerusakan.form', $barang->id) }}"
+            class="group flex items-center justify-center gap-2 rounded-xl h-11 px-6 bg-red-600 text-white text-sm font-bold hover:bg-red-700 hover:shadow-lg hover:shadow-red-200 transition-all duration-300 transform active:scale-95">
+            <span class="material-symbols-outlined text-base group-hover:rotate-12 transition-transform">report_problem</span>
+            <span>Laporkan Kerusakan</span>
+        </a>
+    </div>
+</header>
 
     {{-- Title Section --}}
     <div class="animate-premium stagger-1">

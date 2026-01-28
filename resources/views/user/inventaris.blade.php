@@ -205,7 +205,7 @@
           <button type="button" data-modal-hide="inventaris-modal" class="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 flex items-center justify-center btn-close-anim">✕</button>
         </div>
         <div class="p-4">
-          <p class="text-gray-700 dark:text-gray-300 mb-4 text-center">Silahkan pilih tindakan:</p>
+          <p class="text-gray-700 dark:text-gray-300 mb-4 text-center">Silahkan Lakukan Scan:</p>
           <a href="#" onclick="openScanner()" class="block w-full text-center text-white bg-blue-900 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-base px-5 py-3 transform transition active:scale-95">Scan</a>
         </div>
       </div>
@@ -218,7 +218,7 @@
   <div id="scan-camera-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-40 flex justify-center items-center backdrop-blur-sm">
     <div class="scanner-card animate-modal-content">
       <button id="btn-close-scanner" class="absolute top-1 right-2 text-gray-700 hover:text-black text-xl font-bold btn-close-anim">✕</button>
-      <h3 class="text-center font-semibold mb-2">Scan QR Barang</h3>
+      <h3 class="text-center font-semibold mb-2">Scan QR</h3>
       <div id="reader" class="w-full h-56 bg-gray-200 rounded-lg overflow-hidden"></div>
     </div>
   </div>

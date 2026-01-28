@@ -23,12 +23,12 @@ class GuideBookController extends Controller
 	public function store(Request $request)
 	{
 		$request->validate([
-			'file' => 'required|file|mimes:pdf|max:2048',
+			'file' => 'required|file|mimes:pdf|max:10240',
 		], [
 			'file.required' => 'File wajib diisi.',
 			'file.file' => 'File harus berupa file.',
 			'file.mimes' => 'File harus dalam format pdf.',
-			'file.max' => 'Ukuran file maksimal adalah 2MB.',
+			'file.max' => 'Ukuran file maksimal adalah 10MB.',
 		]);
 
 		// Logic: Matikan status 'used' pada file lama sebelum mengupload yang baru

@@ -136,7 +136,7 @@
                   <a href="{{ asset('storage/uploads/guidebook/' . $guidebook->file) }}" target="_blank"
                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                     role="menuitem">
-                    <span class="font-semibold">Panduan Admin</span>
+                    <span class="font-semibold">Panduan Penggunaan</span>
                   </a>
               </li>
               @endif
